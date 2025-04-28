@@ -176,12 +176,23 @@ departmentId: string = '';
 roleId: string = '';
 isActive: boolean = false;
 
+departments: any[] = [];
+ 
+
 
   constructor(private router: Router,private http: HttpClient) {}  // Inject Router
+  
+  ngOnInit(): void {
+    if(!this.isLoginPage){
+this.ongetDepartment();
+    }
+    
+  }
 
   togglePage(): void {
     this.isLoginPage = !this.isLoginPage;
     this.clearFields();
+    this.ongetDepartment();
   }
 
   clearFields(): void {
@@ -238,6 +249,31 @@ isActive: boolean = false;
       });
   }
   
+
+  ongetDepartment(): void {
+    const payload = {
+      orgId: "1",
+      oprId: "1"
+    };
+
+    // Make the HTTP POST request
+    this.http.post<any>('http://192.168.1.36:8081/api/departments/getAllDepartment', payload).subscribe(
+      response => {
+        if (response) {
+          // Assuming response.data contains the department list
+          this.departments =response;
+          console.log(this.departments)
+        } else {
+          // Handle failure
+          console.error('Error fetching departments:', response.message);
+        }
+      },
+      error => {
+        // Handle error
+        console.error('API Error:', error);
+      }
+    );
+  }
 
  
  
