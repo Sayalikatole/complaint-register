@@ -1,6 +1,4 @@
-
-
-  <!-- <div class="bg-gradient-to-r from-blue-300 via-purple-150
+<!-- <div class="bg-gradient-to-r from-blue-300 via-purple-150
   to-purple-300 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8">
   
@@ -70,160 +68,199 @@
   
     </div>
   </div> -->
-  
-  <div class="bg-gradient-to-r from-blue-300 via-purple-150 to-purple-300 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-8">
-  
-      <!-- Logo and Title -->
-      <div class="text-center mb-8">
-        <div class="flex justify-center mb-4">
-          <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
-            <span class="text-white text-2xl font-bold">M</span>
-          </div>
+
+<div
+  class="bg-gradient-to-r from-blue-300 via-purple-150 to-purple-300 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-8">
+
+    <!-- Logo and Title -->
+    <div class="text-center mb-8">
+      <div class="flex justify-center mb-4">
+        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
+          <span class="text-white text-2xl font-bold">M</span>
         </div>
-        <h1 class="text-2xl font-bold text-gray-800">Micropro</h1>
-        <p class="text-gray-600">{{ isLoginPage ? 'Complaint and Feedback Portal' : 'Create your account' }}</p>
       </div>
-  
-      <!-- Main Form -->
-      <form (ngSubmit)="onSubmit()" #formRef="ngForm">
-  
-        <!-- Login Form -->
-        <div *ngIf="isLoginPage">
-          <!-- Username -->
-          <div class="mb-6">
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-            <input type="text" id="email" name="email" [(ngModel)]="email"
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email" required>
-          </div>
-  
-          <!-- Password -->
-          <div class="mb-6">
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" id="password" name="password" [(ngModel)]="password"
-              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password" required>
-          </div>
-        </div>
-  
-        <!-- Register Form -->
-        <div *ngIf="!isLoginPage">
-          <div class="mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Create New User Account</h2>
-  
-            <!-- Personal Information Section -->
-            <div class="mb-6">
-              <h2 class="text-lg font-medium text-gray-800 mb-4">Personal Information</h2>
-  
-              <!-- Name Field -->
-              <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
-                <input type="text" id="name" name="name" [(ngModel)]="name" required maxlength="100"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-  
-              <!-- Email Field -->
-              <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
-                <input type="email" id="email" name="email" [(ngModel)]="email" required maxlength="100"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <p class="text-xs text-gray-500 mt-1">This email will be used for login and communications</p>
-              </div>
-  
-              <!-- Phone Field -->
-              <div class="mb-4">
-                <label for="phoneNo" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
-                <input type="tel" id="phoneNo" name="phoneNo" [(ngModel)]="phoneNo" required maxlength="10"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-            </div>
-  
-            <!-- Access Information Section -->
-            <div class="mb-6">
-              <h2 class="text-lg font-medium text-gray-800 mb-4">Access Information</h2>
-  
-              <!-- Password -->
-              <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
-                <input type="password" id="password" name="password" [(ngModel)]="password" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with letters, numbers, and symbols</p>
-              </div>
-  
-              <!-- Confirm Password -->
-              <div class="mb-4">
-                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
-                <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-            </div>
-  
-            <!-- Organization Details Section -->
-            <div class="mb-6">
-              <h2 class="text-lg font-medium text-gray-800 mb-4">Organization Details</h2>
-  
-              <!-- Department -->
-              <div class="mb-4">
-                <label for="departmentId" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-500">*</span></label>
-                <select id="departmentId" name="departmentId" [(ngModel)]="departmentId" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">Select Department</option>
-                  <option value="8977304036509213">IT Department</option>
-                </select>
-              </div>
-  
-              <!-- Role -->
-              <div class="mb-4">
-                <label for="roleId" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-red-500">*</span></label>
-                <select id="roleId" name="roleId" [(ngModel)]="roleId" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">Select Role</option>
-                  <option value="9065837334047421">Admin</option>
-                  <option value="9065837334047431">Department Head</option>
-                </select>
-              </div>
-            </div>
-  
-            <!-- Account Status -->
-            <div class="mb-6">
-              <h2 class="text-lg font-medium text-gray-800 mb-4">Account Status</h2>
-  
-              <div class="flex items-center">
-                <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="isActive"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                <label for="isActive" class="ml-2 block text-sm text-gray-700">Active Account</label>
-              </div>
-              <p class="text-xs text-gray-500 mt-1">User can immediately access the system if checked</p>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Submit Button -->
-        <button type="submit"
-          class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
-          {{ isLoginPage ? 'Login' : 'Register' }}
-        </button>
-  
-        <!-- Switch Link -->
-        <div class="mt-4 text-center text-sm">
-          <p class="text-gray-600">
-            {{ isLoginPage ? "Don't have an account?" : "Already have an account?" }}
-            <a href="javascript:void(0)" (click)="togglePage()" class="text-blue-600 hover:text-blue-800">
-              {{ isLoginPage ? 'Register' : 'Login' }}
-            </a>
-          </p>
-        </div>
-  
-      </form>
-  
-      <!-- Footer -->
-      <div class="mt-8 text-center text-sm text-gray-600">
-        <p>© 2025 Micropro India. All rights reserved.</p>
-        <p>ISO 9001-2015 Certified Company</p>
-      </div>
-  
+      <h1 class="text-2xl font-bold text-gray-800">Micropro</h1>
+      <p class="text-gray-600">{{ isLoginPage ? 'Complaint and Feedback Portal' : 'Create your account' }}</p>
     </div>
+
+    <!-- Main Form -->
+    <form (ngSubmit)="onSubmit()" #formRef="ngForm">
+
+      <!-- Login Form -->
+      <div *ngIf="isLoginPage">
+        <!-- Username -->
+        <div class="mb-6">
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <input type="text" id="email" name="email" [(ngModel)]="email"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your email" required>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-6">
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input type="password" id="password" name="password" [(ngModel)]="password"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your password" required>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div *ngIf="!isLoginPage">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4">Create New User Account</h2>
+
+          <!-- Personal Information Section -->
+          <div class="mb-6">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Personal Information</h2>
+
+            <!-- Name Field -->
+            <div class="mb-4">
+              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="name" name="name" [(ngModel)]="name" required maxlength="100"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Email Field -->
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                  class="text-red-500">*</span></label>
+              <input type="email" id="email" name="email" [(ngModel)]="email" required maxlength="100"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-500 mt-1">This email will be used for login and communications</p>
+            </div>
+
+            <!-- Phone Field -->
+            <div class="mb-4">
+              <label for="phoneNo" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span
+                  class="text-red-500">*</span></label>
+              <input type="tel" id="phoneNo" name="phoneNo" [(ngModel)]="phoneNo" required maxlength="10"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Access Information Section -->
+          <div class="mb-6">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Access Information</h2>
+
+            <!-- Password -->
+            <div class="mb-4">
+              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password <span
+                  class="text-red-500">*</span></label>
+              <input type="password" id="password" name="password" [(ngModel)]="password" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters with letters, numbers, and symbols</p>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-4">
+              <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span
+                  class="text-red-500">*</span></label>
+              <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Organization Details Section -->
+          <div class="mb-6">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Organization Details</h2>
+
+            <!-- Department -->
+            <div class="mb-4">
+              <label for="departmentId" class="block text-sm font-medium text-gray-700 mb-1">Department <span
+                  class="text-red-500">*</span></label>
+              <select id="departmentId" name="departmentId" [(ngModel)]="departmentId" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Department</option>
+                <!-- Dynamically populate options from the API response -->
+                <option *ngFor="let department of departments" [value]="department.department_id">
+                  {{ department.department_name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Role -->
+            <div class="mb-4">
+              <label for="roleId" class="block text-sm font-medium text-gray-700 mb-1">Role <span
+                  class="text-red-500">*</span></label>
+              <select id="roleId" name="roleId" [(ngModel)]="roleId" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Role</option>
+                <!-- Dynamically populate options from the API response -->
+                <option *ngFor="let role_item of role" [value]="role_item.role_id">
+                  {{ role_item.role_name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Org -->
+            <div class="mb-4">
+              <label for="organizationid" class="block text-sm font-medium text-gray-700 mb-1">Organization <span
+                  class="text-red-500">*</span></label>
+              <select id="organizationid" name="organizationid" [(ngModel)]="organizationid" required (change)="ongetOPeratingUnitList()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select org</option>
+                <!-- Dynamically populate options from the API response -->
+                <option *ngFor="let org_item of organization_list" [value]="org_item.org_id">
+                  {{ org_item.org_name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Opr -->
+            <div class="mb-4">
+              <label for="operating_unit_id" class="block text-sm font-medium text-gray-700 mb-1">Opr <span
+                  class="text-red-500">*</span></label>
+              <select id="operating_unit_id" name="operating_unit_id" [(ngModel)]="operating_unit_id" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Opr</option>
+                <!-- Dynamically populate options from the API response -->
+                <option *ngFor="let operating_unit_item of filtered_operating_list" [value]="operating_unit_item.opr_id">
+                  {{ operating_unit_item.opr_name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Account Status -->
+          <div class="mb-6">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Account Status</h2>
+
+            <div class="flex items-center">
+              <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="isActive"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="isActive" class="ml-2 block text-sm text-gray-700">Active Account</label>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">User can immediately access the system if checked</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+        class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+        {{ isLoginPage ? 'Login' : 'Register' }}
+      </button>
+
+      <!-- Switch Link -->
+      <div class="mt-4 text-center text-sm">
+        <p class="text-gray-600">
+          {{ isLoginPage ? "Don't have an account?" : "Already have an account?" }}
+          <a href="javascript:void(0)" (click)="togglePage()" class="text-blue-600 hover:text-blue-800">
+            {{ isLoginPage ? 'Register' : 'Login' }}
+          </a>
+        </p>
+      </div>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center text-sm text-gray-600">
+      <p>© 2025 Micropro India. All rights reserved.</p>
+      <p>ISO 9001-2015 Certified Company</p>
+    </div>
+
   </div>
-  
-  
+</div>

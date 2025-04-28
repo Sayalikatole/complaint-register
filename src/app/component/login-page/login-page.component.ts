@@ -28,8 +28,8 @@
 //   password: string = '';
 //   role: string = ''; // Only for register
 
- 
- 
+
+
 //   // isLogin = true;
 //   // authForm: FormGroup;
 
@@ -168,27 +168,52 @@ export class LoginPageComponent {
   username: string = '';
   password: string = '';
   confirmPassword: string = '';
-  role: string = '';
+  role: any[] = [];
   name: string = '';
-email: string = '';
-phoneNo: string = '';
-departmentId: string = '';
-roleId: string = '';
-isActive: boolean = false;
+  email: string = '';
+  phoneNo: string = '';
+  departmentId: string = '';
+  roleId: string = '';
+  isActive: boolean = false;
+  organization_list: any[] = [];
+  organizationid: string = "";
+  operating_unit_list: any[] = [];
+  operating_unit_id: number = 0;
+  filtered_operating_list:any[] =[];
+
+  departments: any[] = [];
 
 
-  constructor(private router: Router,private http: HttpClient) {}  // Inject Router
+
+  constructor(private router: Router, private http: HttpClient) { }  // Inject Router
+
+  ngOnInit(): void {
+
+  }
 
   togglePage(): void {
     this.isLoginPage = !this.isLoginPage;
     this.clearFields();
+    // if (!this.departments) {
+      this.ongetDepartment();
+    // }
+    // if (!this.role) {
+      this.ongetRoleList();
+    // }
+    // if (!this.organization_list) {
+      this.ongetOrganizationList();
+    // }
+    // if (!this.operating_unit_list) {
+      this.ongetOPeratingUnitList();
+    // }
+
   }
 
   clearFields(): void {
     this.username = '';
     this.password = '';
     this.confirmPassword = '';
-    this.role = '';
+    // this.role = '';
   }
 
   onSubmit(): void {
@@ -201,24 +226,24 @@ isActive: boolean = false;
 
   login(): void {
     console.log('Login with', { email: this.username, password: this.password });
-  
+
     const loginPayload = {
       email: this.email,
       password: this.password
     };
-  
+
     this.http.post('http://192.168.1.36:8081/api/auth/login', loginPayload)
       .subscribe({
         next: (response: any) => {
           console.log('Login successful:', response);
-  
+
           if (response.success) {
             // Save important details
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('userId', response.userId);
             localStorage.setItem('role', response.role);
             localStorage.setItem('username', response.username);
-  
+
             // Navigate based on role
             if (response.role === '9065837334047421') {  // Assuming 9065837334047421 is admin role ID
               this.router.navigate(['/admin/dashboard']);
@@ -237,10 +262,117 @@ isActive: boolean = false;
         }
       });
   }
-  
 
- 
- 
+
+  ongetDepartment(): void {
+    const payload = {
+      orgId: "1",
+      oprId: "1"
+    };
+
+    // Make the HTTP POST request
+    this.http.post<any>('http://192.168.1.36:8081/api/departments/getAllDepartment', payload).subscribe(
+      response => {
+        if (response) {
+          // Assuming response.data contains the department list
+          this.departments = response;
+          console.log(this.departments)
+        } else {
+          // Handle failure
+          console.error('Error fetching departments:', response.message);
+        }
+      },
+      error => {
+        // Handle error
+        console.error('API Error:', error);
+      }
+    );
+  }
+
+
+  ongetOrganizationList(): void {
+    const payload = {
+      // orgId: "1",
+      // oprId: "1"
+    };
+
+    // Make the HTTP POST request
+    this.http.get<any>('http://192.168.1.36:8081/api/organdopr/getAllOrgs', payload).subscribe(
+      response => {
+        if (response) {
+          // Assuming response.data contains the department list
+          this.organization_list = response;
+          console.log(this.organization_list)
+        } else {
+          // Handle failure
+          console.error('Error fetching departments:', response.message);
+        }
+      },
+      error => {
+        // Handle error
+        console.error('API Error:', error);
+      }
+    );
+  }
+
+  ongetOPeratingUnitList(): void {
+    const payload = {
+      // orgId: "1",
+      // oprId: "1"
+    };
+
+    // Make the HTTP POST request
+    this.http.get<any>('http://192.168.1.36:8081/api/organdopr/getAllOprs', payload).subscribe(
+      response => {
+        if (response) {
+          // Assuming response.data contains the department list
+          this.operating_unit_list = response;
+          console.log(this.operating_unit_list)
+        } else {
+          // Handle failure
+          console.error('Error fetching departments:', response.message);
+        }
+      },
+      error => {
+        // Handle error
+        console.error('API Error:', error);
+      }
+    );
+
+     this.filtered_operating_list =this.operating_unit_list.filter(item => {
+      console.log(item.org_id === this.organizationid,item.org_id ,this.organizationid)
+      return item.org_id === parseInt(this.organizationid)
+    })
+
+    console.log(this.filtered_operating_list)
+  }
+
+  ongetRoleList(): void {
+    const payload = {
+      orgId: "1",
+      oprId: "1"
+    };
+
+    // Make the HTTP POST request
+    this.http.post<any>('http://192.168.1.36:8081/api/roles/getAllRole', payload).subscribe(
+      response => {
+        if (response) {
+          // Assuming response.data contains the department list
+          this.role = response;
+          console.log(this.role)
+        } else {
+          // Handle failure
+          console.error('Error fetching departments:', response.message);
+        }
+      },
+      error => {
+        // Handle error
+        console.error('API Error:', error);
+      }
+    );
+  }
+
+
   register(): void {
     if (this.password !== this.confirmPassword) {
       alert('Passwords do not match!');
@@ -249,8 +381,8 @@ isActive: boolean = false;
 
     const registerPayload = {
       name: this.name,
-      email:this.email, 
-      phoneNo:this.phoneNo,                 
+      email: this.email,
+      phoneNo: this.phoneNo,
       password: this.password,
       departmentId: '8977304036509213',
       roleId: "9065837334047421",
@@ -274,7 +406,7 @@ isActive: boolean = false;
         }
       });
   }
-  }
+}
 
 
 
