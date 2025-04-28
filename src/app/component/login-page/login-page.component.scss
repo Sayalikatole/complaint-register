@@ -1,0 +1,138 @@
+// * {
+//   box-sizing: border-box;
+//   font-family: 'Poppins', sans-serif;
+// }
+
+// .container {
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   height: 100vh;
+//   background: #f8fafc;
+// }
+
+// .form-box {
+//   background: #fff;
+//   padding: 30px 25px;
+//   border-radius: 12px;
+//   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+//   width: 100%;
+//   max-width: 400px;
+// }
+
+// h2 {
+//   text-align: center;
+//   margin-bottom: 25px;
+//   color: #333;
+// }
+
+// .input-group {
+//   margin-bottom: 16px;
+// }
+
+// .input-group label {
+//   display: block;
+//   margin-bottom: 6px;
+//   color: #444;
+// }
+
+// .input-group input,
+// .input-group select {
+//   width: 100%;
+//   padding: 10px;
+//   border: 1px solid #ddd;
+//   border-radius: 6px;
+//   font-size: 14px;
+// }
+
+// .btn {
+//   width: 100%;
+//   padding: 10px;
+//   background: #4f46e5;
+//   color: white;
+//   font-weight: bold;
+//   border: none;
+//   border-radius: 6px;
+//   cursor: pointer;
+//   transition: 0.3s;
+// }
+
+// .btn:hover {
+//   background: #4338ca;
+// }
+
+// .toggle-msg {
+//   text-align: center;
+//   margin-top: 15px;
+//   font-size: 14px;
+// }
+
+// .toggle-msg a {
+//   color: #4f46e5;
+//   cursor: pointer;
+//   font-weight: 500;
+//   text-decoration: none;
+// }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  padding: 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.toggle-text {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.toggle-text a {
+  cursor: pointer;
+  color: #3f51b5;
+  text-decoration: none;
+  font-weight: bold;
+}
+/* Remove gray background from mat-form-field with appearance fill */
+.mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: white !important; /* or use transparent */
+  border-radius: 6px;
+  border: 1px solid #ccc; /* Optional: to give soft border */
+}
+
+/* Optional: styling input text */
+input.mat-input-element {
+  background-color: transparent !important;
+  color: #333;
+}
+
+/* Optional: full width field */
+.full-width {
+  width: 100%;
+}
+

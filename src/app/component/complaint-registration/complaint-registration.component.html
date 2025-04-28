@@ -1,0 +1,145 @@
+<p>complaint-registration works!</p>
+
+  <div class="min-h-screen bg-gray-100">
+    <!-- Top Navigation Bar -->
+    <header class="flex items-center justify-between bg-indigo-900 p-2 text-white">
+      <!-- Left side of navbar -->
+      <div class="flex items-center space-x-8">
+        <!-- Logo -->
+        <div class="px-4">
+          <i class="fas fa-headset text-2xl"></i>
+        </div>
+
+        <!-- Main navigation buttons -->
+        <nav class="flex space-x-6">
+          <a href="#" class="border-b-2 border-white py-2 font-medium">Tickets</a>
+          <a href="#" class="py-2 hover:border-b-2 hover:border-white">Feedback</a>
+          <a href="#" class="py-2 hover:border-b-2 hover:border-white">Analytics</a>
+        </nav>
+      </div>
+
+      <!-- Right side of navbar -->
+      <div class="flex items-center space-x-4 pr-4">
+        <span>Micropro</span>
+        <!-- Create new button -->
+        <div class="relative">
+          <button class="flex items-center rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700">
+            <i class="fas fa-plus mr-1"></i>
+            <span class="hidden md:inline">New</span>
+            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+          </button>
+        </div>
+        <!-- Other icons -->
+        <i class="fas fa-search"></i>
+        <i class="far fa-bell"></i>
+        <i class="fas fa-cog"></i>
+        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
+          <span>RE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="container mx-auto px-4 py-6">
+      <div class="rounded-lg bg-white p-6 shadow-md">
+        <!-- Form Header -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-gray-800">Create New Complaint</h1>
+          <p class="text-gray-600">Fill in the details below to submit your complaint</p>
+        </div>
+
+        <!-- Complaint Form -->
+        <form>
+          <!-- Complaint ID and Subject in same row -->
+          <div class="mb-6 flex flex-col gap-4 md:flex-row">
+            <!-- Complaint ID (Auto-generated but displayed) -->
+            <div class="w-full md:w-1/4">
+              <label for="complaint_id" class="mb-1 block text-sm font-medium text-gray-700">Complaint ID</label>
+              <input type="text" id="complaint_id" name="complaint_id" class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" value="COMP-2025-0001" readonly />
+              <p class="mt-1 text-xs text-gray-500">Auto-generated</p>
+            </div>
+
+            <!-- Subject -->
+            <div class="w-full md:w-3/4">
+              <label for="subject" class="mb-1 block text-sm font-medium text-gray-700">Subject <span class="text-red-500">*</span></label>
+              <input type="text" id="subject" name="subject" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter a clear subject for your complaint" required />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-6">
+            <label for="description" class="mb-1 block text-sm font-medium text-gray-700">Description <span class="text-red-500">*</span></label>
+            <textarea id="description" name="description" rows="6" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Provide detailed information about your complaint" required></textarea>
+          </div>
+
+          <!-- Priority and Department in same row -->
+          <div class="mb-6 flex flex-col gap-4 md:flex-row">
+            <!-- Priority -->
+            <div class="w-full md:w-1/2">
+              <label for="priority" class="mb-1 block text-sm font-medium text-gray-700">Priority <span class="text-red-500">*</span></label>
+              <select id="priority" name="priority" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                <option value="" disabled selected>Select priority level</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+            </div>
+
+            <!-- Department -->
+            <div class="w-full md:w-1/2">
+              <label for="department_id" class="mb-1 block text-sm font-medium text-gray-700">Department <span class="text-red-500">*</span></label>
+              <select id="department_id" name="department_id" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                <option value="" disabled selected>Select department</option>
+                <option value="HR">Human Resources</option>
+                <option value="IT">Information Technology</option>
+                <option value="ADMIN">Administration</option>
+                <option value="FACIL">Facilities</option>
+                <option value="POSH">POSH Committee</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Status and Assigned To in same row -->
+          <div class="mb-6 flex flex-col gap-4 md:flex-row">
+            <!-- Status (Default to OPEN but displayed) -->
+            <div class="w-full md:w-1/2">
+              <label for="status" class="mb-1 block text-sm font-medium text-gray-700">Status</label>
+              <input type="text" id="status" name="status" class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" value="OPEN" readonly />
+              <p class="mt-1 text-xs text-gray-500">Initial status is always OPEN</p>
+            </div>
+
+            <!-- Assigned To (Optional for initial submission) -->
+            <div class="w-full md:w-1/2">
+              <label for="assigned_to" class="mb-1 block text-sm font-medium text-gray-700">Assign To</label>
+              <select id="assigned_to" name="assigned_to" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="" selected>Auto-assign to department head</option>
+                <option value="EMP001">John Doe (HR Head)</option>
+                <option value="EMP002">Jane Smith (IT Manager)</option>
+                <option value="EMP003">Mike Johnson (Admin)</option>
+              </select>
+              <p class="mt-1 text-xs text-gray-500">Leave blank to auto-assign</p>
+            </div>
+          </div>
+
+          <!-- Attachment -->
+          <div class="mb-8">
+            <label for="attachment" class="mb-1 block text-sm font-medium text-gray-700">Attachment</label>
+            <div class="flex items-center">
+              <label class="flex w-full cursor-pointer flex-col items-center rounded-md border border-dashed border-gray-400 bg-white px-4 py-6 hover:bg-gray-50">
+                <i class="fas fa-cloud-upload-alt text-3xl text-gray-500"></i>
+                <span class="mt-2 text-base text-gray-500">Drop files here or click to browse</span>
+                <input id="attachment" name="attachment" type="file" class="hidden" />
+              </label>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Supported formats: PDF, DOC, JPG, PNG (max 5MB)</p>
+          </div>
+
+          <!-- Form actions -->
+          <div class="flex justify-end space-x-4">
+            <button type="button" class="rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none">Cancel</button>
+            <button type="submit" class="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">Submit Complaint</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
