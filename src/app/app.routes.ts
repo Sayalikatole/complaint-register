@@ -56,6 +56,7 @@ export const routes: Routes = [
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
+      { path: 'user', component: UserComponent },
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
@@ -78,11 +79,11 @@ export const routes: Routes = [
     path: 'hod',
     component: HodLayoutComponent,
     canActivate: [authGuard, roleGuard],
-    data: { expectedRole: 'user' },
+    data: { expectedRole: '9381190731754782' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
-      {path:'user',component:UserComponent}
+      { path: 'user', component: UserComponent }
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },

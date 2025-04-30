@@ -401,9 +401,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
             if (response.role === '1406827783519433') {  // Admin role ID
               this.router.navigate(['/admin/dashboard']);
             } else if (response.role === '9816063224382954') {  // User role ID (Client)
-              this.router.navigate(['/user/complaints']);
+              this.router.navigate(['/user/user']);
             }
-            else if (response.role === '8513155895269752') {  // hod role ID (Client)
+            else if (response.role === '9381190731754782') {  // hod role ID (Client)
               this.router.navigate(['/hod/complaints']);
             }
             else if (response.role === '9381190731754782') {  // employee role ID (Client)

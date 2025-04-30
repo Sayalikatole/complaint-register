@@ -20,7 +20,7 @@ export class ComplaintService {
   ) { }
 
 
- 
+
 
   /**
    * Get all complaints for current user
@@ -28,10 +28,10 @@ export class ComplaintService {
 
 
   getUserComplaints(getuserComplaintPayload: Cl_getUserComplaintPayload): Observable<Complaint[]> {
-      return this.http.post<Complaint[]>(`${this.baseUrl}/getAllComplaint`, getuserComplaintPayload);
-    }
-  
-  
+    return this.http.post<Complaint[]>(`${this.baseUrl}/getAllComplaint`, getuserComplaintPayload);
+  }
+
+
   // getUserComplaints(): Observable<Complaint[]> {
   //   const currentUser = this.authService.getCurrentUser();
   //   if (!currentUser) {
@@ -336,8 +336,8 @@ export class ComplaintService {
   }
 }
 
-  export interface Cl_getUserComplaintPayload {
-      orgId:string,
-      oprId:string,
-      id:string, 
-  }
+export interface Cl_getUserComplaintPayload {
+  orgId: string,
+  oprId: string,
+  id: string,
+}

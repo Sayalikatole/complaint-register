@@ -44,15 +44,15 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authService.currentUser$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(user => {
-      this.currentUser = user;
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.currentUser = user;
 
-      if (user) {
-        // Load departments after getting user data
-        this.loadComplaints();
-      }
-    });
+        if (user) {
+          // Load departments after getting user data
+          this.loadComplaints();
+        }
+      });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', this.handleOutsideClick.bind(this));
@@ -87,27 +87,33 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Load complaints from the service
    */
   loadComplaints(): void {
-    this.isLoading = true;
+    // this.isLoading = true;
     if (!this.currentUser) return;
 
+    console.log(this.currentUser)
     const userComplaint_data: Cl_getUserComplaintPayload = {
       oprId: this.currentUser.operatingUnitId,
       orgId: this.currentUser.organizationId,
-      id:this.currentUser.userId
+      id: this.currentUser.userId
     };
     this.complaintService.getUserComplaints(userComplaint_data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.complaints = data;
+          console.log(this.complaints)
+
+          console.log(data)
+
           this.filteredComplaints = [...this.complaints];
+          console.log(this.filteredComplaints)
           this.applyFilters();
-          this.isLoading = false;
+          // this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading complaints:', error);
           this.errorMessage = 'Failed to load complaints. Please try again.';
-          this.isLoading = false;
+          // this.isLoading = false;
         }
       });
   }
