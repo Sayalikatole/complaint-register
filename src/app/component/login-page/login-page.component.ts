@@ -382,11 +382,12 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Encrypt the password before sending
     const encryptedPassword = this.cryptoService.encrypt(this.password);
 
-    const loginData: LoginRequest = {
+    const loginData = {
       email: this.email,
-      password: encryptedPassword // Send the encrypted password
+      password: this.password
     };
 
     this.authService.login(loginData)
@@ -394,18 +395,21 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            // Save important details
-            // localStorage.setItem('authToken', response.token);
-            // localStorage.setItem('userId', response.userId);
-            // localStorage.setItem('role', response.role);
-            // localStorage.setItem('username', response.username);
+
 
             // Navigate based on role
-            if (response.role === '9065837334047421') {  // Admin role ID
+            if (response.role === '1406827783519433') {  // Admin role ID
               this.router.navigate(['/admin/dashboard']);
-            } else if (response.role === '1406827783519433') {
+            } else if (response.role === '9816063224382954') {  // User role ID (Client)
               this.router.navigate(['/user/complaints']);
-            } else {
+            }
+            else if (response.role === '8513155895269752') {  // hod role ID (Client)
+              this.router.navigate(['/hod/complaints']);
+            }
+            else if (response.role === '9381190731754782') {  // employee role ID (Client)
+              this.router.navigate(['/employee/complaints']);
+            }
+            else {
               this.errorMessage = 'Unknown role! Cannot login.';
             }
           } else {
@@ -445,12 +449,12 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       name: this.fullName,
       email: this.email,
       phoneNo: this.phoneNumber,
-      password: encryptedPassword,
+      password: this.password,
       departmentId: this.selectedDepartmentId || '8977304036509213', // Using default if not selected
       roleId: this.selectedRoleId || "9065837334047421", // Using default if not selected
       orgId: this.selectedOrganizationId.toString() || '1',
       oprId: this.selectedOperatingUnitId.toString() || '1',
-      createdBy: 'admin' 
+      createdBy: 'admin'
     };
 
     this.authService.register(registerData)
