@@ -17,6 +17,10 @@ import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'
 import { DepartmentComponent } from './pages/admin/department/department.component';
 import { CreateComplaintComponent } from './pages/user/create-complaint/create-complaint.component';
 import { ListComplaintComponent } from './pages/user/list-complaint/list-complaint.component';
+import { EmployeeComponent } from './pages/employee/employee.component';
+import { HodComponent } from './pages/hod/hod.component';
+import { EmployeeLayoutComponent } from './layouts/employee-layout/employee-layout.component';
+import { HodLayoutComponent } from './layouts/hod-layout/hod-layout.component';
 import { UserComponent } from './pages/user/user.component';
 
 
@@ -35,8 +39,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    // canActivate: [roleGuard],
-    // data: { expectedRole: 'admin' },
+    canActivate: [roleGuard],
+    data: { expectedRole: '1406827783519433' },
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'department', component: DepartmentComponent },
@@ -47,8 +51,34 @@ export const routes: Routes = [
   {
     path: 'user',
     component: UserLayoutComponent,
-    // canActivate: [authGuard, roleGuard],
-    // data: { expectedRole: 'user' },
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: '9816063224382954' },
+    children: [
+      { path: 'create-complaints', component: CreateComplaintComponent },
+      { path: 'complaints', component: ListComplaintComponent },
+
+      // { path: 'suggestions', component: SuggestionsComponent },
+      // { path: 'analytics', component: AnalyticsComponent },
+    ]
+  },
+  {
+    path: 'employee',
+    component: EmployeeLayoutComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: '9381190731754782' },
+    children: [
+      // { path: 'create-complaints', component: CreateComplaintComponent },
+      { path: 'complaints', component: ListComplaintComponent },
+
+      // { path: 'suggestions', component: SuggestionsComponent },
+      // { path: 'analytics', component: AnalyticsComponent },
+    ]
+  },
+  {
+    path: 'hod',
+    component: HodLayoutComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: 'user' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
