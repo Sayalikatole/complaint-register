@@ -17,6 +17,7 @@ import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'
 import { DepartmentComponent } from './pages/admin/department/department.component';
 import { CreateComplaintComponent } from './pages/user/create-complaint/create-complaint.component';
 import { ListComplaintComponent } from './pages/user/list-complaint/list-complaint.component';
+import { UserComponent } from './pages/user/user.component';
 
 
 // export const routes: Routes = [
@@ -51,6 +52,7 @@ export const routes: Routes = [
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
+      {path:'user',component:UserComponent}
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },

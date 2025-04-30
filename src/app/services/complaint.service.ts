@@ -19,37 +19,40 @@ export class ComplaintService {
     private authService: AuthService
   ) { }
 
+
+ 
+
   /**
    * Get all complaints for current user
    */
 
 
-    // getDepartments(getuserComplaintPayload: Cl_getDepartmentPayload): Observable<Complaint[]> {
-    //   return this.http.post<Complaint[]>(`${this.baseUrl}/getAllDepartment`, getuserComplaintPayload);
-    // }
-  
-  
-  getUserComplaints(): Observable<Complaint[]> {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      return of([]);
+  getUserComplaints(getuserComplaintPayload: Cl_getUserComplaintPayload): Observable<Complaint[]> {
+      return this.http.post<Complaint[]>(`${this.baseUrl}/getAllComplaint`, getuserComplaintPayload);
     }
+  
+  
+  // getUserComplaints(): Observable<Complaint[]> {
+  //   const currentUser = this.authService.getCurrentUser();
+  //   if (!currentUser) {
+  //     return of([]);
+  //   }
 
-    const url = `${this.baseUrl}/user/${currentUser.userId}`;
-    return this.http.get<ApiResponse<Complaint[]>>(url).pipe(
-      map(response => {
-        if (response.status) {
-          return response.data;
-        } else {
-          throw new Error(response.statusMsg);
-        }
-      }),
-      catchError(error => {
-        console.error('Error fetching user complaints:', error);
-        return of(this.getMockComplaints()); // Return mock data in case of error for development
-      })
-    );
-  }
+  //   const url = `${this.baseUrl}/getAllComplaint/${currentUser.userId}`;
+  //   return this.http.get<ApiResponse<Complaint[]>>(url).pipe(
+  //     map(response => {
+  //       if (response.status) {
+  //         return response.data;
+  //       } else {
+  //         throw new Error(response.statusMsg);
+  //       }
+  //     }),
+  //     catchError(error => {
+  //       console.error('Error fetching user complaints:', error);
+  //       return of(this.getMockComplaints()); // Return mock data in case of error for development
+  //     })
+  //   );
+  // }
 
   /**
    * Get all complaints (admin)
@@ -332,3 +335,9 @@ export class ComplaintService {
     ];
   }
 }
+
+  export interface Cl_getUserComplaintPayload {
+      orgId:string,
+      oprId:string,
+      id:string, 
+  }

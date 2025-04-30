@@ -5,8 +5,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 // Import the necessary services and models
-import { ComplaintService } from '../../../services/complaint.service';
+import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
 import { Complaint } from '../../../models/complaint';
+import { AuthService } from '../../../services/auth.service';
+import { UserData } from '../../../models/auth';
 
 @Component({
   selector: 'app-list-complaint',
@@ -32,14 +34,25 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   // Loading and error states
   isLoading: boolean = false;
   errorMessage: string = '';
+  currentUser: UserData | null = null;
+
 
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
 
-  constructor(private complaintService: ComplaintService) { }
+  constructor(private complaintService: ComplaintService, private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.loadComplaints();
+    this.authService.currentUser$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(user => {
+      this.currentUser = user;
+
+      if (user) {
+        // Load departments after getting user data
+        this.loadComplaints();
+      }
+    });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', this.handleOutsideClick.bind(this));
@@ -74,22 +87,29 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Load complaints from the service
    */
   loadComplaints(): void {
-    // this.isLoading = true;
-    // this.complaintService.getUserComplaints()
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.complaints = data;
-    //       this.filteredComplaints = [...this.complaints];
-    //       this.applyFilters();
-    //       this.isLoading = false;
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading complaints:', error);
-    //       this.errorMessage = 'Failed to load complaints. Please try again.';
-    //       this.isLoading = false;
-    //     }
-    //   });
+    this.isLoading = true;
+    if (!this.currentUser) return;
+
+    const userComplaint_data: Cl_getUserComplaintPayload = {
+      oprId: this.currentUser.operatingUnitId,
+      orgId: this.currentUser.organizationId,
+      id:this.currentUser.userId
+    };
+    this.complaintService.getUserComplaints(userComplaint_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.complaints = data;
+          this.filteredComplaints = [...this.complaints];
+          this.applyFilters();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading complaints:', error);
+          this.errorMessage = 'Failed to load complaints. Please try again.';
+          this.isLoading = false;
+        }
+      });
   }
 
   /**

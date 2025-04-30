@@ -1,2 +1,360 @@
-<p>dashboard works!</p>
 <!-- <h1>Hiii This is my first Angular Project</h1> -->
+<div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Navbar -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <!-- Mobile menu button -->
+                <button class="md:hidden mr-4 text-gray-600">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="relative">
+                    <input type="text" placeholder="Search..."
+                        class="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <!-- <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1> -->
+                </div>
+            </div>
+
+            <!-- <div class="flex items-center space-x-4">
+                View Selector
+                <div class="hidden md:flex bg-gray-100 rounded-lg p-1">
+                    <button class="px-4 py-2 rounded-md bg-blue-600 text-white">Admin</button>
+                    <button class="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200">Department</button>
+                    <button class="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200">User</button>
+                </div>
+                
+                <button class="p-2 rounded-full hover:bg-gray-100 relative">
+                    <i class="fas fa-bell text-gray-600"></i>
+                    <span class="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500"></span>
+                </button>
+                
+                <div class="h-8 w-px bg-gray-300"></div>
+                
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <span class="font-bold text-sm">JD</span>
+                    </div>
+                    <span class="hidden md:inline text-sm font-medium">John Doe</span>
+                </div>
+            </div> -->
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <!-- <div class="mb-6">
+            <p class="text-gray-600">Overview of complaint management system</p>
+        </div> -->
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Total Complaints -->
+            <!-- <div class="gradient-card-blue rounded-xl shadow-lg p-6 text-white 
+            transform transition-all duration-500 ease-in-out 
+            hover:scale-105 hover:rotate-3 hover:shadow-2xl hover:opacity-95
+            animate-fade-in hover-scale">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium mb-1">Total Complaints</p>
+                        <h3 class="text-3xl font-bold">142</h3>
+                        <p class="text-sm mt-2"><span class="text-green-300">↑ 12%</span> from last month</p>
+                    </div>
+                    <div class="glass-effect w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clipboard-list text-xl"></i>
+                    </div>
+                </div>
+            </div> -->
+            <!-- Total Complaints -->
+
+            <div class="rounded-xl shadow-lg p-6 text-white 
+            bg-gradient-to-br from-blue-500 to-indigo-700 
+            transform transition duration-500 ease-in-out 
+            hover:scale-105 hover:rotate-1 hover:shadow-2xl hover:opacity-95">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium mb-1">Total Complaints</p>
+                        <h3 class="text-3xl font-bold">142</h3>
+                        <p class="text-sm mt-2"><span class="text-green-300">↑ 12%</span> from last month</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
+                        <i class="fas fa-clipboard-list text-xl text-white"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Pending -->
+
+            <div class="rounded-xl shadow-lg p-6 text-white 
+bg-gradient-to-br from-yellow-500 to-orange-400 
+transform transition duration-500 ease-in-out 
+hover:scale-105 hover:rotate-1 hover:shadow-2xl hover:opacity-95">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium mb-1">Total Complaints</p>
+                        <h3 class="text-3xl font-bold">142</h3>
+                        <p class="text-sm mt-2"><span class="text-green-300">↑ 12%</span> from last month</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
+                        <i class="fas fa-clipboard-list text-xl text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Pending -->
+            <!-- <div
+                class="gradient-card-yellow rounded-xl shadow-lg p-6 text-white hover-scale animate-fade-in animate-delay-100">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium mb-1">Pending</p>
+                        <h3 class="text-3xl font-bold">38</h3>
+                        <p class="text-sm mt-2"><span class="text-red-300">↑ 8%</span> from last week</p>
+                    </div>
+                    <div class="glass-effect w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- In Progress -->
+            <!-- <div
+                class="gradient-card-red rounded-xl shadow-lg p-6 text-white hover-scale animate-fade-in animate-delay-200">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium mb-1">In Progress</p>
+                        <h3 class="text-3xl font-bold">47</h3>
+                        <p class="text-sm mt-2"><span class="text-yellow-300">↓ 3%</span> from last week</p>
+                    </div>
+                    <div class="glass-effect w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-wrench text-xl"></i>
+                    </div>
+                </div>
+            </div> -->
+            <div class="rounded-xl shadow-lg p-6 text-white 
+            bg-gradient-to-br from-pink-400 to-pink-500 
+            transform transition duration-500 ease-in-out 
+            hover:scale-105 hover:rotate-1 hover:shadow-2xl hover:opacity-95">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-white/80 text-sm font-medium mb-1">Total Complaints</p>
+                                    <h3 class="text-3xl font-bold">142</h3>
+                                    <p class="text-sm mt-2"><span class="text-green-300">↑ 12%</span> from last month</p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
+                                    <i class="fas fa-clipboard-list text-xl text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+
+            <!-- Resolved -->
+            <div class="rounded-xl shadow-lg p-6 text-white 
+            bg-gradient-to-br from-green-400 to-green-600 
+            transform transition duration-500 ease-in-out 
+            hover:scale-105 hover:rotate-1 hover:shadow-2xl hover:opacity-95">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-white/80 text-sm font-medium mb-1">Total Complaints</p>
+                                    <h3 class="text-3xl font-bold">142</h3>
+                                    <p class="text-sm mt-2"><span class="text-green-300">↑ 12%</span> from last month</p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
+                                    <i class="fas fa-clipboard-list text-xl text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Complaints by Department -->
+            <div class="bg-white rounded-xl shadow-2xl p-6 hover:scale-105 transition-transform duration-100">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">Complaints by Department</h3>
+              <div class="h-72">
+                <canvas id="departmentsChart"></canvas>
+              </div>
+            </div>
+          
+            <!-- Complaints Status Trend -->
+            <div class="bg-white rounded-xl shadow-2xl p-6 hover:scale-105 transition-transform duration-100">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">Status Trend (Last 7 Days)</h3>
+              <div class="h-72">
+                <canvas id="statusTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+
+        <!-- Recent Complaints -->
+        <div class="bg-white rounded-xl shadow-md animate-fade-in animate-delay-400">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800">Recent Complaints</h3>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-all">
+                            <i class="fas fa-filter mr-1"></i> Filter
+                        </button>
+                        <button
+                            class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all">
+                            View All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Department</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#1001</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Network connectivity issue
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">IT</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs">Pending</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs">High</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2025-04-25</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#1002</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Broken chair</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs">Facilities</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">In Progress</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs">Medium</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2025-04-24</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#1003</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Missing payroll deposit</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs">HR</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs">Resolved</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs">High</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2025-04-20</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#1004</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Software license issue</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">IT</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">In Progress</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs">Medium</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2025-04-22</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#1005</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">AC not working</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs">Facilities</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs">Resolved</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs">High</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2025-04-19</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span
+                            class="font-medium">142</span> complaints
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-all">1</button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">2</button>
+                        <button
+                            class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">3</button>
+                        <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

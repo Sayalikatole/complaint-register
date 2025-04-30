@@ -1,1 +1,244 @@
-<p>user works!</p>
+
+<body class="bg-gray-100 text-gray-800" x-data="dashboardApp()">
+<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.1s">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 icon-circle z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-4 z-10">
+                    <p class="text-sm font-medium text-gray-500">Total Tickets</p>
+                    <p class="text-2xl font-semibold text-gray-800">48</p>
+                </div>
+            </div>
+            <div class="mt-4 z-10 relative">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Progress</span>
+                    <span class="text-gray-700 font-medium">68%</span>
+                </div>
+                <div class="mt-1 bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 68%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.2s">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600 icon-circle z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="ml-4 z-10">
+                    <p class="text-sm font-medium text-gray-500">Resolved</p>
+                    <p class="text-2xl font-semibold text-gray-800">27</p>
+                </div>
+            </div>
+            <div class="mt-4 z-10 relative">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Progress</span>
+                    <span class="text-gray-700 font-medium">56%</span>
+                </div>
+                <div class="mt-1 bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-green-600 h-2.5 rounded-full progress-bar" style="width: 56%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.3s">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 icon-circle z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-4 z-10">
+                    <p class="text-sm font-medium text-gray-500">In Progress</p>
+                    <p class="text-2xl font-semibold text-gray-800">14</p>
+                </div>
+            </div>
+            <div class="mt-4 z-10 relative">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Progress</span>
+                    <span class="text-gray-700 font-medium">29%</span>
+                </div>
+                <div class="mt-1 bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-yellow-600 h-2.5 rounded-full progress-bar" style="width: 29%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.4s">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-100 text-red-600 icon-circle z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="ml-4 z-10">
+                    <p class="text-sm font-medium text-gray-500">Open</p>
+                    <p class="text-2xl font-semibold text-gray-800">7</p>
+                </div>
+            </div>
+            <div class="mt-4 z-10 relative">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Progress</span>
+                    <span class="text-gray-700 font-medium">15%</span>
+                </div>
+                <div class="mt-1 bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-red-600 h-2.5 rounded-full progress-bar" style="width: 15%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Tickets Table -->
+        <div class="lg:col-span-2 dashboard-card bg-white rounded-lg shadow animate-fadeIn" style="animation-delay: 0.5s">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-medium text-gray-800">Recent Tickets</h2>
+                <div class="flex">
+                    <button class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none btn-action">
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            New Ticket
+                        </span>
+                    </button>
+                    <div class="relative ml-2">
+                        <button class="filter-btn px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none btn-action">
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Filter
+                            </span>
+                        </button>
+                        <div class="filter-dropdown">
+                            <button class="filter-option">All Tickets</button>
+                            <button class="filter-option" >Open Tickets</button>
+                            <button class="filter-option" >In Progress</button>
+                            <button class="filter-option" >Resolved</button>
+                            <!-- <button class="filter-option" @click="filterTickets('open')">Open Tickets</button>
+                            <button class="filter-option" @click="filterTickets('in-progress')">In Progress</button>
+                            <button class="filter-option" @click="filterTickets('resolved')">Resolved</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full h-200px divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="ticketTableBody">
+                        <template x-for="(ticket, index) in tickets" :key="ticket.id">
+                            <tr class="ticket-row" :class="{'slide-in': true}" :style="`animation-delay: ${0.1 + index * 0.05}s`">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="ticket.id"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="ticket.subject"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="status-badge px-2 py-1 text-xs font-medium rounded-full"
+                                        :class="{
+                                            'bg-green-100 text-green-800': ticket.status === 'Resolved',
+                                            'bg-yellow-100 text-yellow-800': ticket.status === 'In Progress',
+                                            'bg-red-100 text-red-800': ticket.status === 'Open',
+                                            'bg-blue-100 text-blue-800': ticket.status === 'Assigned'
+                                        }"
+                                        x-text="ticket.status"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="priority-badge px-2 py-1 text-xs font-medium rounded-full"
+                                        :class="{
+                                            'bg-red-100 text-red-800': ticket.priority === 'High',
+                                            'bg-yellow-100 text-yellow-800': ticket.priority === 'Medium',
+                                            'bg-blue-100 text-blue-800': ticket.priority === 'Low'
+                                        }"
+                                        x-text="ticket.priority"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="ticket.created"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <button class="action-icon text-indigo-600 hover:text-indigo-900">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-icon text-indigo-600 hover:text-indigo-900">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-icon text-red-600 hover:text-red-900">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-3 flex justify-between items-center border-t border-gray-200">
+                <div class="text-sm text-gray-700">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">48</span> tickets
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 btn-action">Previous</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 btn-action">Next</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats and Activity -->
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Ticket Status Chart -->
+            <div class="dashboard-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.6s">
+                <h2 class="text-lg font-medium text-gray-800 mb-4">Ticket Status</h2>
+                <div class="chart-container">
+                    <canvas id="ticketStatusChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="dashboard-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.7s">
+                <h2 class="text-lg font-medium text-gray-800 mb-4">Recent Activity</h2>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-indigo-500 slide-in" style="animation-delay: 0.1s">
+                        <p class="text-sm font-medium text-gray-800">Ticket #1234 status changed to "Resolved"</p>
+                        <p class="text-xs text-gray-500 mt-1">10 minutes ago</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-green-500 slide-in" style="animation-delay: 0.2s">
+                        <p class="text-sm font-medium text-gray-800">New comment on Ticket #5678</p>
+                        <p class="text-xs text-gray-500 mt-1">1 hour ago</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-yellow-500 slide-in" style="animation-delay: 0.3s">
+                        <p class="text-sm font-medium text-gray-800">Ticket #9012 assigned to Sarah</p>
+                        <p class="text-xs text-gray-500 mt-1">3 hours ago</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-red-500 slide-in" style="animation-delay: 0.4s">
+                        <p class="text-sm font-medium text-gray-800">New ticket #3456 created</p>
+                        <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
