@@ -74,65 +74,206 @@
 //   text-decoration: none;
 // }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
 
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  padding: 16px;
+// .login-container {
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   min-height: 100vh;
+//   background-color: #f0f2f5;
+//   padding: 16px;
+// }
+
+// .login-card {
+//   width: 100%;
+//   max-width: 420px;
+//   padding: 20px;
+//   border-radius: 12px;
+//   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+//   background-color: white;
+// }
+
+// .full-width {
+//   width: 100%;
+//   margin-bottom: 20px;
+// }
+
+// .button-container {
+//   display: flex;
+//   justify-content: center;
+//   margin-bottom: 10px;
+// }
+
+// .toggle-text {
+//   text-align: center;
+//   margin-top: 10px;
+// }
+
+// .toggle-text a {
+//   cursor: pointer;
+//   color: #3f51b5;
+//   text-decoration: none;
+//   font-weight: bold;
+// }
+// /* Remove gray background from mat-form-field with appearance fill */
+// .mat-form-field-appearance-fill .mat-form-field-flex {
+//   background-color: white !important; /* or use transparent */
+//   border-radius: 6px;
+//   border: 1px solid #ccc; /* Optional: to give soft border */
+// }
+
+// /* Optional: styling input text */
+// input.mat-input-element {
+//   background-color: transparent !important;
+//   color: #333;
+// }
+
+// /* Optional: full width field */
+// .full-width {
+//   width: 100%;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// Basic animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  background-color: white;
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-.full-width {
-  width: 100%;
-  margin-bottom: 20px;
+// Apply animations
+form {
+  // animation: fadeIn 0.4s ease-out;
 }
 
-.button-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradientAnimation 8s ease infinite;
 }
 
-.toggle-text {
-  text-align: center;
-  margin-top: 10px;
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
-.toggle-text a {
-  cursor: pointer;
-  color: #3f51b5;
-  text-decoration: none;
-  font-weight: bold;
-}
-/* Remove gray background from mat-form-field with appearance fill */
-.mat-form-field-appearance-fill .mat-form-field-flex {
-  background-color: white !important; /* or use transparent */
-  border-radius: 6px;
-  border: 1px solid #ccc; /* Optional: to give soft border */
+// Enhanced form element styling
+input,
+select {
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+
+  &:hover {
+    border-color: #a5b4fc;
+  }
+
+  &:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: #ef4444;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+  }
 }
 
-/* Optional: styling input text */
-input.mat-input-element {
-  background-color: transparent !important;
-  color: #333;
+// Enhanced button styles
+button {
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &[type="submit"] {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    &:focus:not(:active)::after {
+      animation: ripple 0.6s ease-out;
+    }
+  }
 }
 
-/* Optional: full width field */
-.full-width {
-  width: 100%;
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
 }
 
+// Card hover effect
+.rounded-lg {
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Error message animation
+div[class*="bg-red-50"] {
+  animation: slideIn 0.3s ease-out;
+}

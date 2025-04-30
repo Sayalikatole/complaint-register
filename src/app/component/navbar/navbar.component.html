@@ -35,49 +35,68 @@
       </div>
     </div>
   </header> -->
-  
 
-   <!-- Top Navigation Bar -->
-   <header class="flex items-center justify-between bg-indigo-900 p-2 text-white">
-    <!-- Left side of navbar -->
-    <div class="flex items-center space-x-8">
-      <!-- Logo -->
-      <div class="px-4">
-        <i class="fas fa-headset text-2xl"></i>
-      </div>
 
-      <!-- Main navigation buttons -->
-      <nav class="flex space-x-6">
-        <a href="#" class="border-b-2 border-white py-2 font-medium">Complaints</a>
-        <a href="#" class="py-2 hover:border-b-2 hover:border-white">Suggestions</a>
-        <a href="#" class="py-2 hover:border-b-2 hover:border-white">Analytics</a>
-      </nav>
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between bg-indigo-900 p-2 text-white">
+  <!-- Left side of navbar -->
+  <div class="flex items-center space-x-8">
+    <!-- Logo -->
+    <div class="px-4">
+      <i class="fas fa-headset text-2xl"></i>
     </div>
 
-    <!-- Right side of navbar -->
-    <div class="flex items-center space-x-4 pr-4">
-      <span>Micropro</span>
-      <!-- Create new button -->
-      <div class="relative">
-        <button class="flex items-center rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700">
-          <i class="fas fa-plus mr-1"></i>
-          <span class="hidden md:inline">New</span>
-          <i class="fas fa-chevron-down ml-1 text-xs"></i>
-        </button>
-        <!-- Dropdown menu would appear here -->
-      </div>
-      <!-- Other icons -->
-      <i class="fas fa-search"></i>
-      <i class="far fa-bell"></i>
-      <i class="fas fa-cog"></i>
-      <button></button>
-      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
-        <span>RE</span>
-      </div>
-      <button class="flex items-center rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700" (click)="logout()">
-        <i class="fa fa-sign-out" aria-hidden="true"></i>
-        <span class="hidden md:inline">logout</span>
+    <!-- Main navigation buttons -->
+    <nav class="flex space-x-6">
+      <a href="#" class="border-b-2 border-white py-2 font-medium">Complaints</a>
+      <a href="#" class="py-2 hover:border-b-2 hover:border-white">Suggestions</a>
+      <a href="#" class="py-2 hover:border-b-2 hover:border-white">Analytics</a>
+    </nav>
+  </div>
+
+  <!-- Right side of navbar -->
+  <div class="flex items-center space-x-4 pr-4">
+    <span>Micropro</span>
+    <!-- Create new button with dropdown -->
+    <div class="relative">
+      <button (click)="toggleNewDropdown()"
+        class="flex items-center rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700">
+        <i class="fas fa-plus mr-1"></i>
+        <span class="hidden md:inline">New</span>
         <i class="fas fa-chevron-down ml-1 text-xs"></i>
       </button>
+
+      <!-- Dropdown menu -->
+      <div *ngIf="showNewDropdown"
+        class="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+        <a routerLink="/admin/user" (click)="toggleNewDropdown()"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <i class="fas fa-user mr-2"></i>User
+        </a>
+        <a routerLink="/admin/department" (click)="toggleNewDropdown()"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <i class="fas fa-building mr-2"></i>Department
+        </a>
+      </div>
     </div>
-  </header>
+    <!-- Other icons -->
+    <i class="fas fa-search"></i>
+    <i class="far fa-bell"></i>
+    <i class="fas fa-cog"></i>
+    <button></button>
+    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
+      <!-- User avatar with initials -->
+      <div class="user-avatar">
+        <div class="avatar-circle">
+          {{ userInitials }}
+        </div>
+        <!-- <span class="username" *ngIf="username">{{ username }}</span> -->
+      </div>
+    </div>
+    <button class="flex items-center rounded bg-blue-600 px-2 py-1 text-white hover:bg-blue-700" (click)="logout()">
+      <i class="fa fa-sign-out" aria-hidden="true"></i>
+      <span class="hidden md:inline">logout</span>
+      <i class="fas fa-chevron-down ml-1 text-xs"></i>
+    </button>
+  </div>
+</header>

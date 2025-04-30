@@ -14,6 +14,9 @@ import { UserLayoutComponent } from './layouts/user-layout/user-layout.component
 import { authGuard } from './gaurds/auth.guard';
 import { roleGuard } from './gaurds/role.guard';
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'; // Correct import
+import { DepartmentComponent } from './pages/admin/department/department.component';
+import { CreateComplaintComponent } from './pages/user/create-complaint/create-complaint.component';
+import { ListComplaintComponent } from './pages/user/list-complaint/list-complaint.component';
 
 
 // export const routes: Routes = [
@@ -21,7 +24,7 @@ import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'
 //   { path: 'login', component: LoginPageComponent },
 //   {path:'sidebar',component:SidebarComponent},
 //   {path:'complaint-registration',component:ComplaintRegistrationComponent}
- 
+
 // ];
 
 
@@ -32,10 +35,10 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     // canActivate: [roleGuard],
-    data: { expectedRole: 'admin' },
+    // data: { expectedRole: 'admin' },
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      // { path: 'department-management', component: DepartmentManagementComponent },
+      { path: 'department', component: DepartmentComponent },
       // { path: 'tickets', component: TicketsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -44,9 +47,11 @@ export const routes: Routes = [
     path: 'user',
     component: UserLayoutComponent,
     // canActivate: [authGuard, roleGuard],
-    data: { expectedRole: 'user' },
+    // data: { expectedRole: 'user' },
     children: [
-      // { path: 'complaints', component: ComplaintsComponent },
+      { path: 'create-complaints', component: CreateComplaintComponent },
+      { path: 'complaints', component: ListComplaintComponent },
+
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
     ]

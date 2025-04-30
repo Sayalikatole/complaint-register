@@ -146,12 +146,17 @@
 
 // }
 
-
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Import Router
-import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+
+import { AuthService } from '../../services/auth.service';
+import { Role, Organization, OperatingUnit, LoginRequest, RegisterRequest } from '../../models/auth';
+import { Department, DepartmentRequest } from '../../models/department';
+import { Cl_getDepartmentPayload, DepartmentService } from '../../services/department.service';
+import { CryptoService } from '../../services/crypto.service';
 
 
 @Component({
@@ -161,252 +166,304 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss'
 })
-export class LoginPageComponent {
-
+export class LoginPageComponent implements OnInit, OnDestroy {
+  // Form display state
   isLoginPage: boolean = true;
 
-  username: string = '';
-  password: string = '';
-  confirmPassword: string = '';
-  role: any[] = [];
-  name: string = '';
+  // Common form fields
   email: string = '';
-  phoneNo: string = '';
-  departmentId: string = '';
-  roleId: string = '';
-  isActive: boolean = false;
-  organization_list: any[] = [];
-  organizationid: string = "";
-  operating_unit_list: any[] = [];
-  operating_unit_id: number = 0;
-  filtered_operating_list:any[] =[];
+  password: string = '';
 
-  departments: any[] = [];
+  // Register form fields
+  confirmPassword: string = '';
+  fullName: string = '';
+  phoneNumber: string = '';
+  selectedDepartmentId: string = '';
+  selectedRoleId: string = '';
+  selectedOrganizationId: string = '';
+  selectedOperatingUnitId: number = 0;
 
+  // Data lists
+  departments: Department[] = [];
+  roles: Role[] = [];
+  organizations: Organization[] = [];
+  operatingUnits: OperatingUnit[] = [];
+  filteredOperatingUnits: OperatingUnit[] = [];
 
+  // Error messages
+  errorMessage: string = '';
+  passwordMismatchError: boolean = false;
 
-  constructor(private router: Router, private http: HttpClient) { }  // Inject Router
+  // For unsubscribing from observables
+  private destroy$ = new Subject<void>();
 
+  showPassword: boolean = false;
+  showRegPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private departmentService: DepartmentService,
+    private cryptoService: CryptoService
+  ) { }
+
+  /**
+   * Initialize the component and prefetch data if needed
+   */
   ngOnInit(): void {
-
+    // We'll load data when needed, not eagerly
   }
 
+  /**
+   * Clean up subscriptions when component is destroyed
+   */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Toggle between login and register pages
+   * Load necessary data for registration when switching to register view
+   */
   togglePage(): void {
     this.isLoginPage = !this.isLoginPage;
     this.clearFields();
-    // if (!this.departments) {
-      this.ongetDepartment();
-    // }
-    // if (!this.role) {
-      this.ongetRoleList();
-    // }
-    // if (!this.organization_list) {
-      this.ongetOrganizationList();
-    // }
-    // if (!this.operating_unit_list) {
-      this.ongetOPeratingUnitList();
-    // }
+    this.errorMessage = '';
 
-  }
-
-  clearFields(): void {
-    this.username = '';
-    this.password = '';
-    this.confirmPassword = '';
-    // this.role = '';
-  }
-
-  onSubmit(): void {
-    if (this.isLoginPage) {
-      this.login();
-    } else {
-      this.register();
+    if (!this.isLoginPage) {
+      this.loadRegistrationData();
     }
   }
 
-  login(): void {
-    console.log('Login with', { email: this.username, password: this.password });
+  /**
+   * Clear all form fields and error messages
+   */
+  clearFields(): void {
+    this.email = '';
+    this.password = '';
+    this.confirmPassword = '';
+    this.fullName = '';
+    this.phoneNumber = '';
+    this.selectedDepartmentId = '';
+    this.selectedRoleId = '';
+    this.errorMessage = '';
+    this.passwordMismatchError = false;
+  }
 
-    const loginPayload = {
-      email: this.email,
-      password: this.password
+  /**
+   * Load all data needed for registration form
+   */
+  loadRegistrationData(): void {
+    this.loadDepartments();
+    this.loadRoles();
+    this.loadOrganizations();
+    this.loadOperatingUnits();
+  }
+
+  /**
+   * Load departments from API
+   */
+  loadDepartments(): void {
+    // Using default org and opr ids - should be updated based on selection
+
+    const department_data: Cl_getDepartmentPayload = {
+      oprId: '1',
+      orgId: '1'
     };
 
-    this.http.post('http://192.168.1.36:8081/api/auth/login', loginPayload)
+    this.departmentService.getDepartments(department_data)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: any) => {
-          console.log('Login successful:', response);
-
-          if (response.success) {
-            // Save important details
-            localStorage.setItem('authToken', response.token);
-            localStorage.setItem('userId', response.userId);
-            localStorage.setItem('role', response.role);
-            localStorage.setItem('username', response.username);
-
-            // Navigate based on role
-            if (response.role === '9065837334047421') {  // Assuming 9065837334047421 is admin role ID
-              this.router.navigate(['/admin/dashboard']);
-            } else if (response.role === 'another-department-role-id') {
-              this.router.navigate(['/department/home']);
-            } else {
-              alert('Unknown role! Cannot login.');
-            }
-          } else {
-            alert('Login failed: ' + (response.message || 'Unknown error'));
-          }
+        next: (data) => {
+          this.departments = data;
         },
         error: (error) => {
-          console.error('Login API error', error);
-          alert('Login failed: ' + (error.error?.message || 'Server error'));
+          console.error('Error loading departments:', error);
+          this.errorMessage = 'Failed to load departments. Please try again.';
         }
       });
   }
 
-
-  ongetDepartment(): void {
-    const payload = {
-      orgId: "1",
-      oprId: "1"
-    };
-
-    // Make the HTTP POST request
-    this.http.post<any>('http://192.168.1.36:8081/api/departments/getAllDepartment', payload).subscribe(
-      response => {
-        if (response) {
-          // Assuming response.data contains the department list
-          this.departments = response;
-          console.log(this.departments)
-        } else {
-          // Handle failure
-          console.error('Error fetching departments:', response.message);
+  /**
+   * Load roles from API
+   */
+  loadRoles(): void {
+    this.authService.getRoles('1', '1')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.roles = data;
+        },
+        error: (error) => {
+          console.error('Error loading roles:', error);
+          this.errorMessage = 'Failed to load roles. Please try again.';
         }
-      },
-      error => {
-        // Handle error
-        console.error('API Error:', error);
-      }
-    );
+      });
   }
 
-
-  ongetOrganizationList(): void {
-    const payload = {
-      // orgId: "1",
-      // oprId: "1"
-    };
-
-    // Make the HTTP POST request
-    this.http.get<any>('http://192.168.1.36:8081/api/organdopr/getAllOrgs', payload).subscribe(
-      response => {
-        if (response) {
-          // Assuming response.data contains the department list
-          this.organization_list = response;
-          console.log(this.organization_list)
-        } else {
-          // Handle failure
-          console.error('Error fetching departments:', response.message);
+  /**
+   * Load organizations from API
+   */
+  loadOrganizations(): void {
+    this.authService.getOrganizations()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.organizations = data;
+        },
+        error: (error) => {
+          console.error('Error loading organizations:', error);
+          this.errorMessage = 'Failed to load organizations. Please try again.';
         }
-      },
-      error => {
-        // Handle error
-        console.error('API Error:', error);
-      }
-    );
+      });
   }
 
-  ongetOPeratingUnitList(): void {
-    const payload = {
-      // orgId: "1",
-      // oprId: "1"
-    };
-
-    // Make the HTTP POST request
-    this.http.get<any>('http://192.168.1.36:8081/api/organdopr/getAllOprs', payload).subscribe(
-      response => {
-        if (response) {
-          // Assuming response.data contains the department list
-          this.operating_unit_list = response;
-          console.log(this.operating_unit_list)
-        } else {
-          // Handle failure
-          console.error('Error fetching departments:', response.message);
+  /**
+   * Load operating units from API
+   */
+  loadOperatingUnits(): void {
+    this.authService.getOperatingUnits()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.operatingUnits = data;
+          this.filterOperatingUnits();
+        },
+        error: (error) => {
+          console.error('Error loading operating units:', error);
+          this.errorMessage = 'Failed to load operating units. Please try again.';
         }
-      },
-      error => {
-        // Handle error
-        console.error('API Error:', error);
-      }
-    );
-
-     this.filtered_operating_list =this.operating_unit_list.filter(item => {
-      console.log(item.org_id === this.organizationid,item.org_id ,this.organizationid)
-      return item.org_id === parseInt(this.organizationid)
-    })
-
-    console.log(this.filtered_operating_list)
+      });
   }
 
-  ongetRoleList(): void {
-    const payload = {
-      orgId: "1",
-      oprId: "1"
-    };
-
-    // Make the HTTP POST request
-    this.http.post<any>('http://192.168.1.36:8081/api/roles/getAllRole', payload).subscribe(
-      response => {
-        if (response) {
-          // Assuming response.data contains the department list
-          this.role = response;
-          console.log(this.role)
-        } else {
-          // Handle failure
-          console.error('Error fetching departments:', response.message);
-        }
-      },
-      error => {
-        // Handle error
-        console.error('API Error:', error);
-      }
-    );
-  }
-
-
-  register(): void {
-    if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match!');
+  /**
+   * Filter operating units based on selected organization
+   */
+  filterOperatingUnits(): void {
+    if (!this.selectedOrganizationId) {
+      this.filteredOperatingUnits = [];
       return;
     }
 
-    const registerPayload = {
-      name: this.name,
+    const orgId = parseInt(this.selectedOrganizationId);
+    this.filteredOperatingUnits = this.operatingUnits.filter(unit => unit.org_id === orgId);
+  }
+
+  /**
+   * Handle organization selection change
+   */
+  onOrganizationChange(): void {
+    this.filterOperatingUnits();
+    this.selectedOperatingUnitId = 0; // Reset selected operating unit
+  }
+
+  /**
+   * Submit form handler - determines whether to login or register
+   */
+  onSubmit(): void {
+    this.errorMessage = '';
+
+    if (this.isLoginPage) {
+      this.handleLogin();
+    } else {
+      this.handleRegistration();
+    }
+  }
+
+  /**
+   * Process login with validation
+   */
+  handleLogin(): void {
+    // Validate input
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Please enter both email and password.';
+      return;
+    }
+
+    const encryptedPassword = this.cryptoService.encrypt(this.password);
+
+    const loginData: LoginRequest = {
       email: this.email,
-      phoneNo: this.phoneNo,
-      password: this.password,
-      departmentId: '8977304036509213',
-      roleId: "9065837334047421",
-      orgId: '1',
-      oprId: '1',
-      createdBy: 'admin'
+      password: encryptedPassword // Send the encrypted password
     };
 
-    console.log('Register Payload:', registerPayload);
-
-    this.http.post('http://192.168.1.36:8081/api/auth/register', registerPayload)
+    this.authService.login(loginData)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Registration successful', response);
+          if (response.success) {
+            // Save important details
+            // localStorage.setItem('authToken', response.token);
+            // localStorage.setItem('userId', response.userId);
+            // localStorage.setItem('role', response.role);
+            // localStorage.setItem('username', response.username);
+
+            // Navigate based on role
+            if (response.role === '9065837334047421') {  // Admin role ID
+              this.router.navigate(['/admin/dashboard']);
+            } else if (response.role === '1406827783519433') {
+              this.router.navigate(['/user/complaints']);
+            } else {
+              this.errorMessage = 'Unknown role! Cannot login.';
+            }
+          } else {
+            this.errorMessage = response.message || 'Login failed. Please try again.';
+          }
+        },
+        error: (error) => {
+          console.error('Login API error', error);
+          this.errorMessage = error.error?.message || 'Server error. Please try again later.';
+        }
+      });
+  }
+
+  /**
+   * Process registration with validation
+   */
+  handleRegistration(): void {
+    // Validate passwords match
+    if (this.password !== this.confirmPassword) {
+      this.passwordMismatchError = true;
+      this.errorMessage = 'Passwords do not match!';
+      return;
+    }
+
+    // Basic validation
+    if (!this.fullName || !this.email || !this.phoneNumber || !this.password) {
+      this.errorMessage = 'Please fill all required fields.';
+      return;
+    }
+
+    // Encrypt the password before sending
+    const encryptedPassword = this.cryptoService.encrypt(this.password);
+    // Alternatively, use hashing instead of encryption
+    // const hashedPassword = this.cryptoService.hashPassword(this.password);
+
+    const registerData: RegisterRequest = {
+      name: this.fullName,
+      email: this.email,
+      phoneNo: this.phoneNumber,
+      password: encryptedPassword,
+      departmentId: this.selectedDepartmentId || '8977304036509213', // Using default if not selected
+      roleId: this.selectedRoleId || "9065837334047421", // Using default if not selected
+      orgId: this.selectedOrganizationId.toString() || '1',
+      oprId: this.selectedOperatingUnitId.toString() || '1',
+      createdBy: 'admin' 
+    };
+
+    this.authService.register(registerData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
           alert('Registered successfully! Please login.');
           this.togglePage();  // After register, show login form
         },
         error: (error) => {
           console.error('Registration failed', error);
-          alert('Registration failed. Please try again.');
+          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
         }
       });
   }
 }
-
-
-

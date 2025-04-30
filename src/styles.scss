@@ -3,10 +3,54 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
-    margin:0;
+
+/* filepath: /home/ydhoot@microproindia.com/Desktop/complaint-feedback/complaint-register/src/styles.scss */
+
+/* Import SF Pro Rounded or alternative rounded font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+/* Define font variables */
+:root {
+    --font-heading: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Apply heading font to all headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-xl,
+.text-2xl,
+.text-3xl,
+.text-4xl,
+.font-bold,
+.font-semibold {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    /* Slightly tighter tracking for headings */
+}
+
+/* Apply body font to regular text */
+body,
+p,
+div,
+span,
+input,
+select,
+textarea,
+button {
+    font-family: var(--font-body);
+}
+
+
+* {
+    margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Montserrat, "Helvetica Neue", sans-serif;
 }
 
 html,
@@ -14,7 +58,13 @@ body {
     height: 100%;
 }
 
-// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+    margin: 0;
+    // font-family: Montserrat, "Helvetica Neue", sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 
 
 // :root {
@@ -31,13 +81,14 @@ body {
 //     /* Tailwind green-400 */
 // }
 
-body {
-    margin: 0;
-    font-family:"Orbitron";
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
+// body {
+//     margin: 0;
+//     font-family: "Orbitron";
+//     background-color: var(--background-color);
+//     color: var(--text-color);
+//     transition: background-color 0.3s ease, color 0.3s ease;
+// }
+
 :root {
     --bg: #f9fafb;
     --card-bg: #ffffff;
@@ -48,12 +99,12 @@ body {
     --primary-dark: #2563eb;
     --border: #cbd5e1;
     --link: #2563eb;
-  }
+}
 
 /* Default Button Toggle Styles */
 .mat-button-toggle-group {
     background-color: var(--background-color) !important;
-    font-family:"Orbitron";
+    font-family: "Orbitron";
 
 }
 
@@ -78,21 +129,176 @@ body {
     background-color: #4caf50 !important;
     /* Green */
     color: white !important;
-    font-family:"Orbitron";
+    font-family: "Orbitron";
 
 }
+
 mat-form-field {
     width: 100%;
-  }
-  
-  .mat-form-field-appearance-fill .mat-form-field-flex {
+}
+
+.mat-form-field-appearance-fill .mat-form-field-flex {
     background-color: #ffffff !important;
     border-radius: 6px;
     border: 1px solid #e0e0e0;
-  }
-  
-  input.mat-input-element {
+}
+
+input.mat-input-element {
     background-color: transparent !important;
     color: #333;
-  }
-  
+}
+
+
+
+
+
+// ///* You can add global styles to this file, and also import other style files */
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
+
+// /* Import SF Pro Rounded or alternative rounded font */
+// @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+// /* Define font variables */
+// :root {
+//     --font-heading: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+//     --font-body: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+//     /* Theme colors */
+//     --bg: #f9fafb;
+//     --card-bg: #ffffff;
+//     --text: #1e293b;
+//     --muted: #64748b;
+//     --primary: #3b82f6;
+//     --primary-light: #60a5fa;
+//     --primary-dark: #2563eb;
+//     --border: #cbd5e1;
+//     --link: #2563eb;
+// }
+
+// /* IMPORTANT: Override Angular Material typography */
+// .mat-typography h1,
+// .mat-h1,
+// .mat-headline-5,
+// h1 {
+//     font-family: var(--font-heading) !important;
+//     letter-spacing: -0.02em !important;
+// }
+
+// .mat-typography h2,
+// .mat-h2,
+// .mat-headline-4,
+// h2 {
+//     font-family: var(--font-heading) !important;
+//     letter-spacing: -0.02em !important;
+// }
+
+// .mat-typography h3,
+// .mat-h3,
+// .mat-headline-3,
+// h3,
+// .mat-typography h4,
+// .mat-h4,
+// .mat-headline-2,
+// h4,
+// .mat-typography h5,
+// .mat-h5,
+// .mat-headline-1,
+// h5,
+// .mat-typography h6,
+// .mat-h6,
+// .mat-headline,
+// h6 {
+//     font-family: var(--font-heading) !important;
+//     letter-spacing: -0.02em !important;
+// }
+
+// /* Apply heading font to all headings */
+// h1,
+// h2,
+// h3,
+// h4,
+// h5,
+// h6,
+// .text-xl,
+// .text-2xl,
+// .text-3xl,
+// .text-4xl,
+// .font-bold,
+// .font-semibold {
+//     font-family: var(--font-heading);
+//     letter-spacing: -0.02em;
+// }
+
+// /* Apply body font to regular text */
+// body,
+// p,
+// div,
+// span,
+// input,
+// select,
+// textarea,
+// button {
+//     font-family: var(--font-body);
+// }
+
+// /* Base styles */
+// * {
+//     margin: 0;
+//     padding: 0;
+//     box-sizing: border-box;
+//     /* Remove the Montserrat font from here */
+// }
+
+// html,
+// body {
+//     height: 100%;
+// }
+
+// body {
+//     margin: 0;
+//     background-color: var(--bg);
+//     color: var(--text);
+//     transition: background-color 0.3s ease, color 0.3s ease;
+// }
+
+// /* Angular Material overrides */
+// .mat-button-toggle-group {
+//     background-color: var(--card-bg) !important;
+// }
+
+// .mat-button-toggle {
+//     color: var(--text) !important;
+// }
+
+// /* Theme variations for button toggles */
+// .blue-theme .mat-button-toggle-checked {
+//     background-color: #2196f3 !important;
+//     color: white !important;
+// }
+
+// .red-theme .mat-button-toggle-checked {
+//     background-color: #f44336 !important;
+//     color: white !important;
+// }
+
+// .green-theme .mat-button-toggle-checked {
+//     background-color: #4caf50 !important;
+//     color: white !important;
+// }
+
+// mat-form-field {
+//     width: 100%;
+// }
+
+// .mat-form-field-appearance-fill .mat-form-field-flex {
+//     background-color: #ffffff !important;
+//     border-radius: 6px;
+//     border: 1px solid #e0e0e0;
+// }
+
+// input.mat-input-element {
+//     background-color: transparent !important;
+//     color: #333;
+// }

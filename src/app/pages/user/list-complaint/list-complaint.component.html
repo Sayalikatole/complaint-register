@@ -1,0 +1,166 @@
+<div class="flex flex-col h-full overflow-hidden bg-white">
+    <!-- Ticket List Header -->
+    <div class="flex items-center justify-between border-b p-4">
+        <div class="flex items-center">
+            <i class="fas fa-inbox mr-2 text-indigo-600"></i>
+            <span class="mr-2 font-medium">All Complaints</span>
+
+            <!-- Filter dropdown -->
+            <div class="relative ml-3">
+                <button (click)="isStatusFilterOpen = !isStatusFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none">
+                    <span>{{ selectedStatus === 'all' ? 'All Status' : selectedStatus }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isStatusFilterOpen"
+                    class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200">
+                    <a (click)="onStatusChange('all'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        All Status
+                    </a>
+                    <a (click)="onStatusChange('open'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Open
+                    </a>
+                    <a (click)="onStatusChange('pending'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Pending
+                    </a>
+                    <a (click)="onStatusChange('in progress'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        In Progress
+                    </a>
+                    <a (click)="onStatusChange('resolved'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Resolved
+                    </a>
+                    <a (click)="onStatusChange('closed'); isStatusFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Closed
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add filter button -->
+            <button class="ml-4 text-gray-500 hover:text-indigo-600 focus:outline-none" title="Add filter">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+
+        <!-- Sort and search options -->
+        <div class="flex items-center space-x-3">
+            <!-- Search -->
+            <div class="relative">
+                <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search complaints..."
+                    class="pl-8 pr-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="relative">
+                <button (click)="isSortOpen = !isSortOpen"
+                    class="flex items-center rounded px-2 py-1 text-gray-700 hover:text-indigo-600 focus:outline-none">
+                    <span>SORT</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isSortOpen"
+                    class="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200">
+                    <a (click)="onSortChange('newest'); isSortOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Newest first
+                    </a>
+                    <a (click)="onSortChange('oldest'); isSortOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Oldest first
+                    </a>
+                    <a (click)="onSortChange('priority'); isSortOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Priority (High to Low)
+                    </a>
+                </div>
+            </div>
+
+            <button class="text-gray-500 hover:text-indigo-600 focus:outline-none" title="More options">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <button class="text-gray-500 hover:text-indigo-600 focus:outline-none" title="Info">
+                <i class="fas fa-info-circle"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <p class="mt-4 text-gray-600">Loading your complaints...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage && !isLoading" class="flex flex-col items-center justify-center py-10">
+        <div class="text-red-500 text-center">
+            <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+            <p>{{ errorMessage }}</p>
+            <button (click)="loadComplaints()"
+                class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                Retry
+            </button>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredComplaints.length === 0"
+        class="flex flex-col items-center justify-center py-20">
+        <div class="text-center">
+            <i class="fas fa-inbox text-5xl text-gray-300 mb-3"></i>
+            <h3 class="text-lg font-medium text-gray-800 mb-1">No complaints found</h3>
+            <p class="text-gray-500 mb-4">{{ searchTerm ? 'No results match your search criteria.' : 'You haven\'t
+                submitted any complaints yet.' }}</p>
+            <a routerLink="/user/create-complaint"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                <i class="fas fa-plus mr-2"></i> Create New Complaint
+            </a>
+        </div>
+    </div>
+
+    <!-- Ticket List -->
+    <div *ngIf="!isLoading && !errorMessage && filteredComplaints.length > 0" class="divide-y overflow-auto flex-1">
+        <!-- Complaint Item Template -->
+        <div *ngFor="let complaint of filteredComplaints"
+            class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+            [routerLink]="['/user/complaint', complaint.complaint_id]">
+            <div class="mr-4 flex h-10 w-10 items-center justify-center rounded-full" [ngClass]="{'bg-gray-200': complaint.status === 'open',
+                       'bg-yellow-100': complaint.status === 'pending',
+                       'bg-blue-100': complaint.status === 'in progress',
+                       'bg-green-100': complaint.status === 'resolved',
+                       'bg-red-100': complaint.status === 'closed'}">
+                <i class="far fa-envelope" [ngClass]="{'text-gray-600': complaint.status === 'open',
+                       'text-yellow-600': complaint.status === 'pending',
+                       'text-blue-600': complaint.status === 'in progress',
+                       'text-green-600': complaint.status === 'resolved',
+                       'text-red-600': complaint.status === 'closed'}"></i>
+            </div>
+            <div class="flex-1">
+                <div class="font-medium">{{ complaint.subject }}</div>
+                <div class="flex flex-wrap gap-2 text-sm text-gray-600">
+                    <span>#{{ complaint.complaint_id }}</span>
+                    <span>•</span>
+                    <span>{{ complaint.created_by }}</span>
+                    <span>•</span>
+                    <span>{{ complaint.department_name }}</span>
+                    <span>•</span>
+                    <span>{{ formatDate(complaint.created_on) }}</span>
+                    <span *ngIf="complaint.priority === 'HIGH'"
+                        class="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs">
+                        High Priority
+                    </span>
+                </div>
+            </div>
+            <div>
+                <button class="rounded px-3 py-1 transition-colors" [ngClass]="getStatusClass(complaint.status)">
+                    {{ complaint.status | titlecase }}
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
