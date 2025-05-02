@@ -44,18 +44,21 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'department', component: DepartmentComponent },
-      // { path: 'tickets', component: TicketsComponent },
+      { path: 'complaints', component: ListComplaintComponent },
+      { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
   },
   {
-    path: 'user',
+    path: 'client',
     component: UserLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9816063224382954' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
+      { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
+
       { path: 'user', component: UserComponent },
 
       // { path: 'suggestions', component: SuggestionsComponent },
@@ -66,11 +69,11 @@ export const routes: Routes = [
     path: 'employee',
     component: EmployeeLayoutComponent,
     canActivate: [authGuard, roleGuard],
-    data: { expectedRole: '9381190731754782' },
+    data: { expectedRole: '8513155895269752' },
     children: [
       // { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
-
+      { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -83,6 +86,7 @@ export const routes: Routes = [
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
+      { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'user', component: UserComponent }
 
       // { path: 'suggestions', component: SuggestionsComponent },

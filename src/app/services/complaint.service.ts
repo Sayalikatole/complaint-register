@@ -85,25 +85,33 @@ export class ComplaintService {
     );
   }
 
+
   /**
-   * Get complaint by ID
+   * Get a specific complaint by ID
+   * @param complaintId The ID of the complaint to retrieve
+   * @param userData Optional user data for authorization purposes
+   * @returns Observable of the complaint details
    */
-  getComplaintById(id: string): Observable<Complaint> {
-    return this.http.get<ApiResponse<Complaint>>(`${this.baseUrl}/${id}`).pipe(
-      map(response => {
-        if (response.status) {
-          return response.data;
-        } else {
-          throw new Error(response.statusMsg);
-        }
-      }),
-      catchError(error => {
-        console.error(`Error fetching complaint ${id}:`, error);
-        const mockComplaints = this.getMockComplaints();
-        const complaint = mockComplaints.find(c => c.complaint_id === id);
-        return of(complaint || mockComplaints[0]); // Return mock data in case of error for development
-      })
-    );
+  getComplaintById(getuserComplaintbyId: Cl_getComplaintByIdPayload): Observable<Complaint> {
+    // Choose the appropriate API call based on your backend:
+
+    // Option 1: Using GET with params
+    // const params = new HttpParams()
+    //   .set('complaintId', complaintId);
+
+    // if (userData) {
+    //   params
+    //     .set('oprId', userData.oprId)
+    //     .set('orgId', userData.orgId)
+    //     .set('userId', userData.userId);
+    // }
+
+    // return this.http.get<Complaint>(`${this.apiUrl}/complaint/details`, { params });
+
+    // Option 2: Using POST with body
+
+
+    return this.http.post<Complaint>(`${this.baseUrl}/getComplaintById`, getuserComplaintbyId);
   }
 
   /**
@@ -337,6 +345,13 @@ export class ComplaintService {
 }
 
 export interface Cl_getUserComplaintPayload {
+  orgId: string,
+  oprId: string,
+  id: string,
+}
+
+// interface for the getComplaintById payload if needed
+export interface Cl_getComplaintByIdPayload {
   orgId: string,
   oprId: string,
   id: string,

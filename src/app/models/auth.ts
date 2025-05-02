@@ -18,6 +18,8 @@ export interface LoginResponse {
     username: string;
     org_id: string;
     opr_id: string;
+    l_org_name: string;
+    l_role_name: string;
 }
 
 /**
@@ -32,6 +34,8 @@ export interface UserData {
     organizationId: string;
     operatingUnitId: string;
     departmentId?: string;
+    l_org_name: string;
+    l_role_name: string;
 }
 
 

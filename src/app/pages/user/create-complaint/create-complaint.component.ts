@@ -103,7 +103,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     if (complaintId) {
       this.isEditMode = true;
       this.editingComplaintId = complaintId;
-      this.loadComplaintDetails(complaintId);
+      // this.loadComplaintDetails(complaintId);
     }
   }
 
@@ -133,43 +133,43 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   /**
    * Load complaint details for editing
    */
-  loadComplaintDetails(complaintId: string): void {
-    this.complaintService.getComplaintById(complaintId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (complaint) => {
-          // Map the response to our form fields
-          this.complaintData = {
-            complaint_id: complaint.complaint_id,
-            org_id: complaint.org_id,
-            subject: complaint.subject,
-            description: complaint.description,
-            priority: complaint.priority,
-            status: complaint.status,
-            department_id: complaint.department_id,
-            created_by: complaint.created_by,
-            assigned_to: complaint.assigned_to || '',
-            created_on: complaint.created_on,
-            modified_on: complaint.modified_on || '',
-            modified_by: complaint.modified_by || '',
-            due_date: complaint.due_date || this.complaintData.due_date,
-            is_active: complaint.is_active,
-            opr_id: complaint.opr_id,
-            category_id: complaint.category_id || '',
-            sub_category_id: complaint.sub_category_id || ''
-          };
+  // loadComplaintDetails(complaintId: string): void {
+  //   this.complaintService.getComplaintById(complaintId)
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (complaint) => {
+  //         // Map the response to our form fields
+  //         this.complaintData = {
+  //           complaint_id: complaint.complaint_id,
+  //           org_id: complaint.org_id,
+  //           subject: complaint.subject,
+  //           description: complaint.description,
+  //           priority: complaint.priority,
+  //           status: complaint.status,
+  //           department_id: complaint.department_id,
+  //           created_by: complaint.created_by,
+  //           assigned_to: complaint.assigned_to || '',
+  //           created_on: complaint.created_on,
+  //           modified_on: complaint.modified_on || '',
+  //           modified_by: complaint.modified_by || '',
+  //           due_date: complaint.due_date || this.complaintData.due_date,
+  //           is_active: complaint.is_active,
+  //           opr_id: complaint.opr_id,
+  //           category_id: complaint.category_id || '',
+  //           sub_category_id: complaint.sub_category_id || ''
+  //         };
 
-          // If there's a category, filter subcategories
-          if (this.complaintData.category_id) {
-            // this.onCategoryChange();
-          }
-        },
-        error: (error) => {
-          console.error('Error loading complaint details:', error);
-          this.errorMessage = 'Failed to load complaint details. Please try again.';
-        }
-      });
-  }
+  //         // If there's a category, filter subcategories
+  //         if (this.complaintData.category_id) {
+  //           // this.onCategoryChange();
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Error loading complaint details:', error);
+  //         this.errorMessage = 'Failed to load complaint details. Please try again.';
+  //       }
+  //     });
+  // }
 
   /**
    * Set organization and operating unit from current user

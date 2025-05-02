@@ -1,0 +1,128 @@
+:host {
+    display: block;
+
+    // Enhanced dropdown animations
+    .dropdown-menu {
+        animation: dropdownEnter 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.15);
+        transform-origin: top right;
+    }
+
+    // Mobile menu animation
+    .mobile-menu {
+        animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top center;
+        box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    // Button pulse animation
+    .btn-pulse {
+        position: relative;
+        overflow: hidden;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            border-radius: inherit;
+            transition: opacity 0.3s, transform 0.8s;
+            transform: scale(0);
+        }
+
+        &:active::after {
+            opacity: 1;
+            transform: scale(2);
+            transition: opacity 0s, transform 0s;
+        }
+    }
+
+    // Nav link hover effect
+    .nav-link {
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+
+        &:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        &[routerLinkActive="border-b-2"]::after {
+            transform: scaleX(1);
+        }
+    }
+
+    // User avatar hover effect
+    .user-avatar {
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+    }
+
+    // Dropdown items hover effect
+    .dropdown-item {
+        transition: all 0.15s ease;
+
+        &:hover {
+            transform: translateX(2px);
+        }
+    }
+
+    // Mobile nav items animation
+    .mobile-nav-item {
+        transition: all 0.2s ease;
+        transform-origin: left;
+
+        &:hover {
+            padding-left: 1rem;
+        }
+    }
+
+    // Keyframes for animations
+    @keyframes dropdownEnter {
+        from {
+            opacity: 0;
+            transform: rotateX(-10deg) translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: rotateX(0) translateY(0);
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}

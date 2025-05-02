@@ -97,6 +97,8 @@ export class AuthService {
   private usernameKey = 'username';
   private orgIdKey = 'org_id';
   private oprIdKey = 'opr_id';
+  private l_role_name = 'l_role_name';
+  private l_org_name = 'l_org_name';
 
   // Session management
   private timeoutId: any;
@@ -129,6 +131,8 @@ export class AuthService {
         token: token,
         organizationId: localStorage.getItem(this.orgIdKey) || '',
         operatingUnitId: localStorage.getItem(this.oprIdKey) || '',
+        l_role_name: localStorage.getItem(this.l_role_name) || '',
+        l_org_name: localStorage.getItem(this.l_org_name) || '',
       };
       this.currentUserSubject.next(userData);
       this.startSessionTimer();
@@ -156,7 +160,9 @@ export class AuthService {
               role: response.role,
               token: response.token,
               organizationId: response.org_id,
-              operatingUnitId: response.opr_id
+              operatingUnitId: response.opr_id,
+              l_org_name: response.l_org_name,
+              l_role_name: response.l_role_name,
             };
             this.currentUserSubject.next(userData);
 
@@ -178,6 +184,8 @@ export class AuthService {
     localStorage.setItem(this.usernameKey, response.username);
     localStorage.setItem(this.orgIdKey, response.org_id.toString());
     localStorage.setItem(this.oprIdKey, response.opr_id.toString());
+    localStorage.setItem(this.l_role_name, response.l_role_name.toString());
+    localStorage.setItem(this.l_org_name, response.l_org_name.toString());
   }
 
   /**

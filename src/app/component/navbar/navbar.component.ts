@@ -11,10 +11,19 @@ import { RouterModule } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
+
 export class NavbarComponent implements OnInit {
-  showNewDropdown = false;
-  role: string | null = null;
-  username: string | null = null;
+  // User information
+  username: string = '';
+  userInitials: string = '';
+  userRole: string = '';
+  role: string = '';
+  organizationName: string = '';
+
+  // Dropdown control
+  showNewDropdown: boolean = false;
+  showUserMenu: boolean = false;
+  showMobileMenu: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -22,48 +31,119 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Get user role and other data
-    this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.role = user.role;
-        this.username = user.username;
-      }
-    });
+    this.loadUserData();
   }
 
-  // Toggle the New dropdown menu
+  /**
+   * Load user data including organization and role
+   */
+  loadUserData(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.username = user.username || user.username || 'User';
+      this.userInitials = this.getInitials(this.username);
+      this.organizationName = user.l_org_name || 'Micropro';
+
+      // Set role for conditional rendering
+      this.role = user.l_role_name?.toLowerCase() || 'user';
+
+      // Format role for display
+      this.userRole = this.formatRole(this.role);
+    }
+  }
+
+  /**
+   * Generate user initials from name
+   */
+  getInitials(name: string): string {
+    if (!name) return 'U';
+
+    const nameParts = name.split(' ');
+    if (nameParts.length >= 2) {
+      return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  /**
+   * Format role for user display
+   */
+  formatRole(role: string): string {
+    if (!role) return 'User';
+
+    // Convert camelCase or snake_case to Title Case with spaces
+    return role
+      .replace(/([A-Z])/g, ' $1') // Insert space before capital letters
+      .replace(/_/g, ' ') // Replace underscores with spaces
+      .replace(/^\w/, c => c.toUpperCase()) // Capitalize first letter
+      .trim();
+  }
+
+  /**
+   * Toggle New dropdown for admin
+   */
   toggleNewDropdown(): void {
     this.showNewDropdown = !this.showNewDropdown;
+    // Close other menus when opening this one
+    if (this.showNewDropdown) {
+      this.showUserMenu = false;
+    }
   }
 
-  // Close dropdown when clicking outside
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    // Close dropdown if clicking outside of it
-    if (!target.closest('.relative') && this.showNewDropdown) {
+  /**
+   * Toggle user profile menu
+   */
+  toggleUserMenu(): void {
+    this.showUserMenu = !this.showUserMenu;
+    // Close other menus when opening this one
+    if (this.showUserMenu) {
       this.showNewDropdown = false;
     }
   }
 
-  // Handle logout
-  logout(): void {
-    this.authService.logout();
+  /**
+   * Toggle mobile menu
+   */
+  toggleMobileMenu(): void {
+    this.showMobileMenu = !this.showMobileMenu;
+    // Close dropdowns when toggling mobile menu
+    this.showNewDropdown = false;
+    this.showUserMenu = false;
   }
 
-  // Get initials for the user avatar
-  get userInitials(): string {
-    if (this.username) {
-      // Get first letter of first and last name
-      const names = this.username.split(' ');
-      if (names.length > 1) {
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-      }
-      // If only one name, get first two letters or just first letter
-      return this.username.length > 1
-        ? this.username.substring(0, 2).toUpperCase()
-        : this.username[0].toUpperCase();
+  /**
+   * Open create complaint form (for non-admin users)
+   */
+  openCreateComplaint(): void {
+    console.log(this.role)
+    if (this.role === 'client') {
+      this.router.navigate(['/client/create-complaints']);
     }
-    return 'U'; // Default
+    if (this.role === 'hod') {
+      this.router.navigate(['/hod/create-complaints']);
+    }
+    if (this.role === 'employee') {
+      this.router.navigate(['/employee/create-complaints']);
+    }
+  }
+
+  /**
+   * Close menus when clicking outside
+   * Add this to your document click handler
+   */
+  closeMenus(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu-container') && !target.closest('.new-dropdown-container')) {
+      this.showUserMenu = false;
+      this.showNewDropdown = false;
+    }
+  }
+
+  /**
+   * Handle user logout
+   */
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

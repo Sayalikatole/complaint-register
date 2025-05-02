@@ -9,6 +9,7 @@ import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/
 import { Complaint } from '../../../models/complaint';
 import { AuthService } from '../../../services/auth.service';
 import { UserData } from '../../../models/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-complaint',
@@ -36,11 +37,11 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   currentUser: UserData | null = null;
 
-
+  role: string = '';
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
 
-  constructor(private complaintService: ComplaintService, private authService: AuthService) { }
+  constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     this.authService.currentUser$
@@ -51,8 +52,10 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         if (user) {
           // Load departments after getting user data
           this.loadComplaints();
+          this.role = this.currentUser?.l_role_name?.toLowerCase() || 'user';
         }
       });
+
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', this.handleOutsideClick.bind(this));
@@ -220,4 +223,14 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       month: 'short'
     });
   }
+
+
+  /**
+  * Navigate to complaint details
+  */
+  viewComplaintDetails(complaintId: string): void {
+    this.router.navigate(['/', this.role, 'complaints', complaintId]);
+    console.log(this.router.url)
+  }
+
 }

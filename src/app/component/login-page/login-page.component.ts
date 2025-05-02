@@ -399,14 +399,14 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
             // Navigate based on role
             if (response.role === '1406827783519433') {  // Admin role ID
-              this.router.navigate(['/admin/dashboard']);
+              this.router.navigate(['/admin/complaints']);
             } else if (response.role === '9816063224382954') {  // User role ID (Client)
-              this.router.navigate(['/user/user']);
+              this.router.navigate(['/client/complaints']);
             }
             else if (response.role === '9381190731754782') {  // hod role ID (Client)
               this.router.navigate(['/hod/complaints']);
             }
-            else if (response.role === '9381190731754782') {  // employee role ID (Client)
+            else if (response.role === '8513155895269752') {  // employee role ID (Client)
               this.router.navigate(['/employee/complaints']);
             }
             else {
