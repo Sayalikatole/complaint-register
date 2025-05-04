@@ -28,13 +28,6 @@
     }
 }
 
-// Enhance hover effects
-.hover\:bg-gray-50:hover {
-    transform: translateX(3px);
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
 // Improved scrollbar
 ::-webkit-scrollbar {
     width: 8px;
@@ -67,4 +60,103 @@ button {
 *:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+// Dropdown and status styling - CONSOLIDATED
+.status-container {
+    position: relative;
+    z-index: 50; // Higher z-index than the row
+    transition: none; // Prevent any transitions from affecting this
+}
+
+.dropdown-container {
+    position: relative;
+    transform: none !important; // Prevent transform from parent affecting this
+}
+
+.dropdown-toggle {
+    position: relative;
+    z-index: 60; // Button should be above other elements
+}
+
+.dropdown-menu,
+.status-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%; // Position directly under parent
+    z-index: 1000; // Very high z-index to ensure it's above everything
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); // Better shadow for visibility
+    background-color: white !important; // Force white background
+    border-radius: 0.375rem; // Rounded corners
+    margin-top: 5px; // Space between trigger and dropdown
+    overflow: hidden; // Ensure contents don't overflow
+    min-width: 12rem; // Minimum width
+    max-width: 16rem; // Maximum width to prevent excessive sizing
+    transform: none !important; // Prevent transform from parent affecting this
+
+    // Add small arrow indicator
+    &:before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: 16px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid white;
+        pointer-events: none; // Don't interfere with clicks
+    }
+
+    // Style dropdown items
+    a {
+        display: block;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: #4b5563;
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background-color: #f3f4f6;
+        }
+    }
+}
+
+// Fix for hover effect on the row - stop it from interfering with the dropdown
+.hover\:bg-gray-50:hover {
+    transform: translateX(3px);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    // Prevent the dropdown from being affected by parent hover
+    .status-container,
+    .dropdown-container,
+    .status-dropdown,
+    .dropdown-menu {
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+// Ensure status dropdown stays above other elements even on row hover
+.hover\:bg-gray-50:hover .status-dropdown {
+    background-color: white !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+    z-index: 1000 !important;
+}
+
+// Fix any potential issues with parent's overflow
+.divide-y {
+    overflow: visible !important; // Ensure dropdowns aren't cut off
+}
+
+// Fix for row highlighting to not interfere with dropdown
+.hover\:bg-gray-50:hover .status-container {
+    background-color: transparent;
+}
+
+// Specific fix for rows that have open dropdowns
+.row-has-dropdown-open {
+    position: relative;
+    z-index: 40; // Higher than other rows
 }

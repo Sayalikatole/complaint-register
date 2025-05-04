@@ -71,7 +71,7 @@
 //   email: string;
 //   role: string;
 //   token: string;
-//   departmentId?: string;
+//   l_department_Id?: string;
 //   organizationId?: string;
 //   operatingUnitId?: string;
 // }
@@ -81,7 +81,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { UserData, LoginRequest, LoginResponse, RegisterRequest, Role, Organization, OperatingUnit } from '../models/auth';
+import { UserData, LoginRequest, LoginResponse, RegisterRequest, Role, Organization, OperatingUnit, UserByDepartment } from '../models/auth';
 
 
 @Injectable({
@@ -99,6 +99,7 @@ export class AuthService {
   private oprIdKey = 'opr_id';
   private l_role_name = 'l_role_name';
   private l_org_name = 'l_org_name';
+  private l_department_Id = 'l_department_Id';
 
   // Session management
   private timeoutId: any;
@@ -133,6 +134,8 @@ export class AuthService {
         operatingUnitId: localStorage.getItem(this.oprIdKey) || '',
         l_role_name: localStorage.getItem(this.l_role_name) || '',
         l_org_name: localStorage.getItem(this.l_org_name) || '',
+        l_department_Id: localStorage.getItem(this.l_department_Id) || '',
+        account_id: ''
       };
       this.currentUserSubject.next(userData);
       this.startSessionTimer();
@@ -163,6 +166,8 @@ export class AuthService {
               operatingUnitId: response.opr_id,
               l_org_name: response.l_org_name,
               l_role_name: response.l_role_name,
+              l_department_Id: response.l_department_Id,
+              account_id: ''
             };
             this.currentUserSubject.next(userData);
 
@@ -353,4 +358,30 @@ export class AuthService {
       clearTimeout(this.timeoutId);
     }
   }
+
+
+
+  /**
+ * Get users who can be assigned to complaints
+ */
+  getAssignableUsers(getAssignableUsers: Cl_getAssignableUsers): Observable<UserByDepartment[]> {
+    return this.http.post<UserByDepartment[]>(`${this.baseUrl}/auth/getUserByDepartment`, getAssignableUsers);
+  }
+
+  /**
+   * Update the assignee of a complaint
+   */
+  updateAssignee(complaintId: string, userId: string | null): Observable<any> {
+    return this.http.post(`${this.baseUrl}/complaint/update-assignee`, {
+      complaintId: complaintId,
+      assignedTo: userId
+    });
+  }
+}
+
+
+export interface Cl_getAssignableUsers {
+  orgId: string,
+  oprId: string,
+  id: string,
 }

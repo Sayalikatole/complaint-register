@@ -1,4 +1,5 @@
 export interface Complaint {
+    showStatusDropdown: boolean;
     complaint_id: string;
     org_id: number;
     subject: string;           // Changed from 'title'
@@ -45,6 +46,7 @@ export interface CreateComplaintPayload {
     category_id?: string;
     sub_category_id?: string;
     attachments?: string[];
+    l_previous_status?: string; // Added field
 }
 
 // Update status payload interface
@@ -82,3 +84,39 @@ export interface ComplaintResponse {
     statusMsg: string;
     id?: string;
 }
+
+export interface Cl_createAttachmentPayload {
+    entity_type: string,
+    entity_id: string,
+    uploaded_file_name: string,
+    uploaded_by: string,
+    l_encrypted_file: string
+}
+
+
+// Add this to your models/complaint.ts or update the existing interface
+export interface Attachment {
+    attachment_id: string;
+    entity_type: string;
+    entity_id: string;
+    file_path?: string;
+    uploaded_by: string;
+    uploaded_on: string;
+    l_encrypted_file: string;
+    stored_file_name: string;
+    uploaded_file_name: string;
+}
+
+
+
+// Add this interface to complaint.service.ts or to your models/complaint.ts file
+export interface ComplaintHistoryItem {
+    complaint_status_history_id: string;
+    complaint_id: string;
+    from_status: string;
+    to_status: string;
+    reason: string;
+    changed_by: string;
+    changed_on: string;
+}
+

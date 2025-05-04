@@ -6,37 +6,24 @@
             <span class="mr-2 font-medium">All Complaints</span>
 
             <!-- Filter dropdown -->
+            <!-- Update the status dropdown to use enum values -->
             <div class="relative ml-3">
                 <button (click)="isStatusFilterOpen = !isStatusFilterOpen"
-                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none">
-                    <span>{{ selectedStatus === 'all' ? 'All Status' : selectedStatus }}</span>
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedStatus === 'all' ? 'All Status' : getStatusDisplay(selectedStatus) }}</span>
                     <i class="fas fa-chevron-down ml-1 text-xs"></i>
                 </button>
                 <div *ngIf="isStatusFilterOpen"
-                    class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200">
+                    class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
                     <a (click)="onStatusChange('all'); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         All Status
                     </a>
-                    <a (click)="onStatusChange('open'); isStatusFilterOpen = false"
+                    <!-- Use the available statuses array to generate options -->
+                    <a *ngFor="let status of availableStatuses"
+                        (click)="onStatusChange(status); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        Open
-                    </a>
-                    <a (click)="onStatusChange('pending'); isStatusFilterOpen = false"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        Pending
-                    </a>
-                    <a (click)="onStatusChange('in progress'); isStatusFilterOpen = false"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        In Progress
-                    </a>
-                    <a (click)="onStatusChange('resolved'); isStatusFilterOpen = false"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        Resolved
-                    </a>
-                    <a (click)="onStatusChange('closed'); isStatusFilterOpen = false"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        Closed
+                        {{ getStatusDisplay(status) }}
                     </a>
                 </div>
             </div>
@@ -59,12 +46,12 @@
             <!-- Sort dropdown -->
             <div class="relative">
                 <button (click)="isSortOpen = !isSortOpen"
-                    class="flex items-center rounded px-2 py-1 text-gray-700 hover:text-indigo-600 focus:outline-none">
+                    class="flex items-center rounded px-2 py-1 text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
                     <span>SORT</span>
                     <i class="fas fa-chevron-down ml-1 text-xs"></i>
                 </button>
                 <div *ngIf="isSortOpen"
-                    class="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200">
+                    class="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
                     <a (click)="onSortChange('newest'); isSortOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         Newest first
@@ -125,40 +112,61 @@
     <!-- Ticket List -->
     <div *ngIf="!isLoading && !errorMessage && filteredComplaints.length > 0" class="divide-y overflow-auto flex-1">
         <!-- Complaint Item Template -->
+        <!-- Update the status dropdown to use enum values -->
+
+        <!-- Update the complaint item template -->
+        <!-- Replace the complaint item with this improved version -->
         <div *ngFor="let complaint of filteredComplaints"
-            class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-            <div class="mr-4 flex h-10 w-10 items-center justify-center rounded-full" [ngClass]="{'bg-gray-200': complaint.status === 'open',
-                       'bg-yellow-100': complaint.status === 'pending',
-                       'bg-blue-100': complaint.status === 'in progress',
-                       'bg-green-100': complaint.status === 'resolved',
-                       'bg-red-100': complaint.status === 'closed'}">
-                <i class="far fa-envelope" [ngClass]="{'text-gray-600': complaint.status === 'open',
-                       'text-yellow-600': complaint.status === 'pending',
-                       'text-blue-600': complaint.status === 'in progress',
-                       'text-green-600': complaint.status === 'resolved',
-                       'text-red-600': complaint.status === 'closed'}"></i>
+            class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors relative"
+            (click)="viewComplaintDetails(complaint.complaint_id)">
+            <div class="mr-4 flex h-10 w-10 items-center justify-center rounded-full"
+                [ngClass]="getStatusIconClass(complaint.status)">
+                <i class="far fa-envelope"></i>
             </div>
-            <div class="flex-1" (click)="viewComplaintDetails(complaint.complaint_id)">
+            <div class="flex-1">
                 <div class="font-medium">{{ complaint.subject }}</div>
                 <div class="flex flex-wrap gap-2 text-sm text-gray-600">
                     <span>#{{ complaint.complaint_id }}</span>
                     <span>•</span>
                     <span>{{ complaint.created_by }}</span>
                     <span>•</span>
-                    <span>{{ complaint.department_name }}</span>
+                    <span>{{ complaint.department_id }}</span>
                     <span>•</span>
                     <span>{{ formatDate(complaint.created_on) }}</span>
-                    <span *ngIf="complaint.priority === 'HIGH'"
+                    <span *ngIf="isHighPriority(complaint.priority)"
                         class="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs">
                         High Priority
                     </span>
                 </div>
             </div>
-            <div>
-                <button class="rounded px-3 py-1 transition-colors" [ngClass]="getStatusClass(complaint.status)">
-                    {{ complaint.status | titlecase }}
-                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                </button>
+
+            <!-- Status section with improved styling and positioning -->
+            <div class="status-container" (click)="$event.stopPropagation()">
+                <!-- For HOD and employee roles: show status dropdown -->
+                <div *ngIf="role === 'hod' || role === 'employee'" class="relative dropdown-container">
+                    <button (click)="toggleStatusDropdown($event, complaint)"
+                        class="rounded px-3 py-1 transition-colors flex items-center dropdown-toggle"
+                        [ngClass]="getStatusClass(complaint.status)">
+                        {{ getStatusDisplay(complaint.status) }}
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+
+                    <!-- Status dropdown menu with improved positioning -->
+                    <div *ngIf="complaint.showStatusDropdown"
+                        class="status-dropdown absolute right-0 mt-1 w-48 rounded-md bg-white shadow-lg py-1 border border-gray-200 dropdown-menu">
+                        <a *ngFor="let status of getAllowedStatusTransitions(complaint.status)"
+                            (click)="updateComplaintStatus($event, complaint, status)"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            {{ getStatusDisplay(status) }}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- For admin and client roles: show status as read-only -->
+                <div *ngIf="role !== 'hod' && role !== 'employee'" class="rounded px-3 py-1 transition-colors"
+                    [ngClass]="getStatusClass(complaint.status)">
+                    {{ getStatusDisplay(complaint.status) }}
+                </div>
             </div>
         </div>
     </div>

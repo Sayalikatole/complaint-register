@@ -5,10 +5,12 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ComplaintService } from '../../../services/complaint.service';
+import { Cl_createAttachmentPayload, Cl_createComplaintwithAttachmentPayload, ComplaintService } from '../../../services/complaint.service';
 import { Cl_getDepartmentPayload, DepartmentService } from '../../../services/department.service';
 import { AuthService } from '../../../services/auth.service';
 import { CreateComplaintPayload } from '../../../models/complaint';
+import { ComplaintPriority, getPriorityDisplayName } from '../../../enums/complaint_priority';
+import { ComplaintStatus, getStatusDisplayName } from '../../../enums/complaint_status';
 
 interface Department {
   department_id: string;
@@ -34,14 +36,18 @@ interface Department {
   styleUrls: ['./create-complaint.component.scss']
 })
 export class CreateComplaintComponent implements OnInit, OnDestroy {
+
+  priorities = Object.values(ComplaintPriority);
+  statuses = Object.values(ComplaintStatus);
+
   // Complaint data with updated field names
   complaintData: CreateComplaintPayload = {
     complaint_id: '',
     org_id: 1,                // Default value, will be updated from user info
     subject: '',              // Changed from title
     description: '',
-    priority: 'MEDIUM',
-    status: 'OPEN',           // Default for new complaints
+    priority: ComplaintPriority.MEDIUM, // Use enum here
+    status: ComplaintStatus.OPEN, // Use enum here
     department_id: '',
     created_by: '',
     assigned_to: '',          // Optional field
@@ -60,6 +66,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   isEditMode: boolean = false;
   editingComplaintId: string = '';
 
+  role: string = '';
+
   // Dropdown data
   departments: Department[] = [];
   // categories: Category[] = [];
@@ -74,8 +82,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   };
 
   // File upload
-  selectedFile: File | null = null;
-
+  selectedFiles: File[] = [];
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
   currentUser: any;
@@ -181,6 +188,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.complaintData.opr_id = parseInt(this.currentUser.operatingUnitId) || 1;
       this.complaintData.created_by = this.currentUser.userId;
     }
+    this.role = this.currentUser.l_role_name?.toLowerCase() || 'user';
+
   }
 
   /**
@@ -237,45 +246,70 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     this.calculateDueDate(this.complaintData.priority);
   }
 
+
   /**
    * Handle file selection
    */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+    console.log(event);
+
     if (input.files && input.files.length) {
-      const file = input.files[0];
+      // Loop through all selected files
+      for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
 
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
-      if (!allowedTypes.includes(file.type)) {
-        this.errorMessage = 'Invalid file type. Please upload PDF, DOC, JPG, or PNG files.';
-        input.value = '';
-        return;
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+          this.errorMessage = `Invalid file type: ${file.name}. Please upload PDF, DOC, JPG, or PNG files.`;
+          continue;
+        }
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          this.errorMessage = `File size exceeds 5MB limit: ${file.name}`;
+          continue;
+        }
+
+        // Add file to selected files array
+        this.selectedFiles.push(file);
       }
 
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'File size exceeds 5MB limit.';
-        input.value = '';
-        return;
-      }
-
-      this.selectedFile = file;
-      this.errorMessage = '';
+      // Clear input value to allow selecting the same file again
+      input.value = '';
     }
+  }
+
+  /**
+   * Convert file to Base64
+   */
+  convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        // The result includes the data URL prefix (e.g., "data:application/pdf;base64,")
+        // We need to remove this prefix to get just the Base64 string
+        const base64String = reader.result as string;
+        const base64Content = base64String.split(',')[1];
+        resolve(base64Content);
+      };
+      reader.onerror = error => reject(error);
+    });
   }
 
   /**
    * Remove selected file
    */
-  removeSelectedFile(): void {
-    this.selectedFile = null;
+  removeSelectedFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
   }
 
   /**
-   * Submit the complaint form
-   */
-  onSubmit(form?: NgForm): void {
+ * Submit the complaint form
+ */
+  async onSubmit(form?: NgForm): Promise<void> {
     // Validate form
     if (!this.complaintData.subject.trim() || !this.complaintData.description.trim() ||
       !this.complaintData.priority || !this.complaintData.department_id) {
@@ -315,85 +349,95 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.complaintData.modified_by = this.currentUser.userId;
     }
 
-    // If editing, update existing complaint
-    if (this.isEditMode && this.editingComplaintId) {
-      this.complaintData.complaint_id = this.editingComplaintId;
-      this.updateComplaint(this.complaintData, form);
-    } else {
-      // Otherwise create new complaint
-      this.createComplaint(this.complaintData, form);
+    try {
+      let complaintResponse;
+
+      // Process files and create attachment array
+      const attachmentPromises = this.selectedFiles.map(async file => {
+        const base64Data = await this.convertFileToBase64(file);
+        return {
+          entity_type: 'Complaint',
+          entity_id: this.isEditMode ? this.editingComplaintId : '',  // Will be updated after complaint creation
+          uploaded_file_name: file.name,
+          uploaded_by: this.currentUser.userId,
+          l_encrypted_file: base64Data
+        } as Cl_createAttachmentPayload;
+      });
+
+      // Wait for all file conversions to complete
+      const attachments = await Promise.all(attachmentPromises);
+
+      if (this.isEditMode && this.editingComplaintId) {
+        // Update existing complaint with attachments
+        this.complaintData.complaint_id = this.editingComplaintId;
+
+        complaintResponse = await this.updateComplaintWithAttachmentsPromise(this.complaintData);
+      } else {
+        // For new complaints
+        if (attachments.length > 0) {
+          // Create complaint with attachments in one call
+          const createPayload: Cl_createComplaintwithAttachmentPayload = {
+            complaint: this.complaintData as any, // Cast to Complaint
+            attachments: attachments
+          };
+
+          complaintResponse = await this.createComplaintWithAttachmentsPromise(createPayload);
+        } else {
+          // Create complaint with attachments in one call
+          const createPayload: Cl_createComplaintwithAttachmentPayload = {
+            complaint: this.complaintData as any, // Cast to Complaint
+            attachments: []
+          };
+          // No attachments, just create the complaint
+          complaintResponse = await this.createComplaintWithAttachmentsPromise(createPayload);
+        }
+      }
+
+      // Show success message
+      this.isSubmitting = false;
+      this.successMessage = this.isEditMode ? 'Complaint updated successfully!' : 'Complaint submitted successfully!';
+
+      if (form) this.resetForm(form);
+      if (this.isEditMode) this.isEditMode = false;
+
+      // Clear success message and navigate after 2 seconds
+      setTimeout(() => {
+        this.successMessage = '';
+        this.router.navigate(['/', this.role, 'complaints']);
+      }, 2000);
+    } catch (error: any) {
+      this.isSubmitting = false;
+      console.error('Error processing complaint:', error);
+      this.errorMessage = error.error?.message || 'Server error. Please try again later.';
     }
   }
 
   /**
-   * Create a new complaint
-   * @param complaintData Complaint data to create
-   * @param form NgForm reference to reset validation state
+   * Create complaint with attachments in a single API call
    */
-  createComplaint(complaintData: CreateComplaintPayload, form?: NgForm): void {
-    console.log('Creating complaint:', complaintData);
-
-    this.complaintService.createComplaint(complaintData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.isSubmitting = false;
-          if (response.status) {
-            this.successMessage = 'Complaint submitted successfully!';
-
-            if (form) this.resetForm(form);
-
-            // Clear success message and navigate after 2 seconds
-            setTimeout(() => {
-              this.successMessage = '';
-              this.router.navigate(['/user/complaints']);
-            }, 2000);
-          } else {
-            this.errorMessage = response.statusMsg || 'Failed to submit complaint';
-          }
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          console.error('Error creating complaint:', error);
-          this.errorMessage = error.error?.message || 'Server error. Please try again later.';
-        }
-      });
+  private createComplaintWithAttachmentsPromise(payload: Cl_createComplaintwithAttachmentPayload): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.complaintService.createComplaintWithAttachments(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => resolve(response),
+          error: (error) => reject(error)
+        });
+    });
   }
 
   /**
-   * Update an existing complaint
-   * @param complaintData Complaint data to update
-   * @param form NgForm reference to reset validation state
+   * Update complaint with attachments in a single API call
    */
-  updateComplaint(complaintData: CreateComplaintPayload, form?: NgForm): void {
-    console.log('Updating complaint:', complaintData);
-
-    this.complaintService.updateComplaint(complaintData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.isSubmitting = false;
-          if (response.status) {
-            this.successMessage = 'Complaint updated successfully!';
-
-            if (form) this.resetForm(form);
-            this.isEditMode = false;
-
-            // Clear success message and navigate after 2 seconds
-            setTimeout(() => {
-              this.successMessage = '';
-              this.router.navigate(['/user/complaints']);
-            }, 2000);
-          } else {
-            this.errorMessage = response.statusMsg || 'Failed to update complaint';
-          }
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          console.error('Error updating complaint:', error);
-          this.errorMessage = error.error?.message || 'Server error. Please try again later.';
-        }
-      });
+  private updateComplaintWithAttachmentsPromise(payload: CreateComplaintPayload): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.complaintService.updateComplaint(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => resolve(response),
+          error: (error) => reject(error)
+        });
+    });
   }
 
   /**
@@ -408,8 +452,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       org_id: this.currentUser ? parseInt(this.currentUser.organizationId) || 1 : 1,
       subject: '',
       description: '',
-      priority: 'MEDIUM',
-      status: 'OPEN',
+      priority: ComplaintPriority.MEDIUM, // Use enum here
+      status: ComplaintStatus.OPEN, // Use enum here
       department_id: '',
       created_by: this.currentUser?.userId || '',
       assigned_to: '',
@@ -426,11 +470,20 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     // Recalculate the due date
     this.calculateDueDate('MEDIUM');
 
-    this.selectedFile = null;
+    this.selectedFiles = [];
     this.errorMessage = '';
     this.successMessage = '';
     // this.filteredSubCategories = [];
     this.isEditMode = false;
     this.editingComplaintId = '';
+  }
+
+  // You can use getPriorityDisplayName helper function to display user-friendly names
+  getPriorityDisplay(priority: string): string {
+    return getPriorityDisplayName(priority);
+  }
+
+  getStatusDisplay(status: string): string {
+    return getStatusDisplayName(status);
   }
 }

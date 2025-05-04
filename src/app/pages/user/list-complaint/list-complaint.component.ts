@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -10,6 +10,8 @@ import { Complaint } from '../../../models/complaint';
 import { AuthService } from '../../../services/auth.service';
 import { UserData } from '../../../models/auth';
 import { Router } from '@angular/router';
+import { ComplaintPriority, getPriorityDisplayName } from '../../../enums/complaint_priority';
+import { ComplaintStatus, getStatusDisplayName } from '../../../enums/complaint_status';
 
 @Component({
   selector: 'app-list-complaint',
@@ -19,6 +21,14 @@ import { Router } from '@angular/router';
   styleUrl: './list-complaint.component.scss'
 })
 export class ListComplaintComponent implements OnInit, OnDestroy {
+  // Add the enums as properties for template access
+  priorityEnum = ComplaintPriority;
+  statusEnum = ComplaintStatus;
+
+  // Create arrays of available statuses and priorities for dropdown options
+  availableStatuses = Object.values(ComplaintStatus);
+  availablePriorities = Object.values(ComplaintPriority);
+
   // Complaints data
   complaints: Complaint[] = [];
   filteredComplaints: Complaint[] = [];
@@ -40,6 +50,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   role: string = '';
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
+  elementRef: any;
 
   constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router) { }
 
@@ -93,6 +104,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     // this.isLoading = true;
     if (!this.currentUser) return;
 
+    console.log(this.currentUser.userId)
     console.log(this.currentUser)
     const userComplaint_data: Cl_getUserComplaintPayload = {
       oprId: this.currentUser.operatingUnitId,
@@ -124,49 +136,49 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
    * Apply filtering and sorting to the complaints
    */
-  applyFilters(): void {
-    // First filter by search term
-    let result = this.complaints;
+  // applyFilters(): void {
+  //   // First filter by search term
+  //   let result = this.complaints;
 
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      result = result.filter(complaint =>
-        complaint.subject.toLowerCase().includes(term) ||
-        complaint.description.toLowerCase().includes(term) ||
-        complaint.complaint_id.toString().includes(term)
-      );
-    }
+  //   if (this.searchTerm) {
+  //     const term = this.searchTerm.toLowerCase();
+  //     result = result.filter(complaint =>
+  //       complaint.subject.toLowerCase().includes(term) ||
+  //       complaint.description.toLowerCase().includes(term) ||
+  //       complaint.complaint_id.toString().includes(term)
+  //     );
+  //   }
 
-    // Then filter by status
-    if (this.selectedStatus !== 'all') {
-      result = result.filter(complaint => complaint.status === this.selectedStatus);
-    }
+  //   // Then filter by status
+  //   if (this.selectedStatus !== 'all') {
+  //     result = result.filter(complaint => complaint.status === this.selectedStatus);
+  //   }
 
-    // Then sort the results
-    result = this.sortComplaints(result);
+  //   // Then sort the results
+  //   result = this.sortComplaints(result);
 
-    this.filteredComplaints = result;
-  }
+  //   this.filteredComplaints = result;
+  // }
 
   /**
    * Sort complaints based on selected sort option
    */
-  sortComplaints(complaints: Complaint[]): Complaint[] {
-    switch (this.sortBy) {
-      case 'newest':
-        return [...complaints].sort((a, b) =>
-          new Date(b.created_on).getTime() - new Date(a.created_on).getTime()
-        );
-      case 'oldest':
-        return [...complaints].sort((a, b) =>
-          new Date(a.created_on).getTime() - new Date(b.created_on).getTime()
-        );
-      case 'priority':
-      // return [...complaints].sort((a, b) => b.priority - a.priority);
-      default:
-        return complaints;
-    }
-  }
+  // sortComplaints(complaints: Complaint[]): Complaint[] {
+  //   switch (this.sortBy) {
+  //     case 'newest':
+  //       return [...complaints].sort((a, b) =>
+  //         new Date(b.created_on).getTime() - new Date(a.created_on).getTime()
+  //       );
+  //     case 'oldest':
+  //       return [...complaints].sort((a, b) =>
+  //         new Date(a.created_on).getTime() - new Date(b.created_on).getTime()
+  //       );
+  //     case 'priority':
+  //     // return [...complaints].sort((a, b) => b.priority - a.priority);
+  //     default:
+  //       return complaints;
+  //   }
+  // }
 
   /**
    * Handle search input changes
@@ -194,22 +206,22 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
    * Get appropriate CSS class for status button
    */
-  getStatusClass(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'open':
-        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
-      case 'pending':
-        return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
-      case 'in progress':
-        return 'bg-blue-100 hover:bg-blue-200 text-blue-800';
-      case 'resolved':
-        return 'bg-green-100 hover:bg-green-200 text-green-800';
-      case 'closed':
-        return 'bg-red-100 hover:bg-red-200 text-red-800';
-      default:
-        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
-    }
-  }
+  // getStatusClass(status: string): string {
+  //   switch (status.toLowerCase()) {
+  //     case 'open':
+  //       return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+  //     case 'pending':
+  //       return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+  //     case 'in progress':
+  //       return 'bg-blue-100 hover:bg-blue-200 text-blue-800';
+  //     case 'resolved':
+  //       return 'bg-green-100 hover:bg-green-200 text-green-800';
+  //     case 'closed':
+  //       return 'bg-red-100 hover:bg-red-200 text-red-800';
+  //     default:
+  //       return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+  //   }
+  // }
 
   /**
    * Format date to friendly format
@@ -226,11 +238,309 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
 
 
   /**
-  * Navigate to complaint details
-  */
+   * View complaint details but only if no dropdown is open
+   */
   viewComplaintDetails(complaintId: string): void {
+    // Don't navigate if any dropdown is open
+    if (this.isAnyDropdownOpen()) {
+      return;
+    }
+
     this.router.navigate(['/', this.role, 'complaints', complaintId]);
-    console.log(this.router.url)
   }
 
+
+  /**
+  * Apply filtering and sorting to the complaints
+  */
+  applyFilters(): void {
+    // First filter by search term
+    let result = this.complaints;
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(complaint =>
+        complaint.subject.toLowerCase().includes(term) ||
+        complaint.description.toLowerCase().includes(term) ||
+        complaint.complaint_id.toString().includes(term)
+      );
+    }
+
+    // Then filter by status - updated to handle enum values
+    if (this.selectedStatus !== 'all') {
+      result = result.filter(complaint => complaint.status.toUpperCase() === this.selectedStatus.toUpperCase());
+    }
+
+    // Then sort the results
+    result = this.sortComplaints(result);
+
+    this.filteredComplaints = result;
+  }
+
+  /**
+   * Sort complaints based on selected sort option
+   */
+  sortComplaints(complaints: Complaint[]): Complaint[] {
+    switch (this.sortBy) {
+      case 'newest':
+        return [...complaints].sort((a, b) =>
+          new Date(b.created_on).getTime() - new Date(a.created_on).getTime()
+        );
+      case 'oldest':
+        return [...complaints].sort((a, b) =>
+          new Date(a.created_on).getTime() - new Date(b.created_on).getTime()
+        );
+      case 'priority':
+        // Updated priority sorting to handle enum values
+        return [...complaints].sort((a, b) => {
+          const priorityOrder = {
+            [ComplaintPriority.HIGH]: 3,
+            [ComplaintPriority.MEDIUM]: 2,
+            [ComplaintPriority.LOW]: 1
+          };
+          return priorityOrder[b.priority.toUpperCase() as ComplaintPriority] -
+            priorityOrder[a.priority.toUpperCase() as ComplaintPriority];
+        });
+      default:
+        return complaints;
+    }
+  }
+
+  /**
+   * Get appropriate CSS class for status button
+   */
+  getStatusClass(status: string): string {
+    switch (status.toUpperCase()) {
+      case ComplaintStatus.OPEN:
+        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+      case ComplaintStatus.ASSIGNED:
+        return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+      case ComplaintStatus.IN_PROGRESS:
+        return 'bg-blue-100 hover:bg-blue-200 text-blue-800';
+      case ComplaintStatus.RESOLVED:
+        return 'bg-green-100 hover:bg-green-200 text-green-800';
+      case ComplaintStatus.CLOSED:
+        return 'bg-red-100 hover:bg-red-200 text-red-800';
+      case ComplaintStatus.ESCALATED:
+        return 'bg-purple-100 hover:bg-purple-200 text-purple-800';
+      case ComplaintStatus.DEFERRED:
+        return 'bg-orange-100 hover:bg-orange-200 text-orange-800';
+      case ComplaintStatus.REOPEN:
+        return 'bg-pink-100 hover:bg-pink-200 text-pink-800';
+      default:
+        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+    }
+  }
+
+  /**
+   * Get status icon class
+   */
+  getStatusIconClass(status: string): string {
+    switch (status.toUpperCase()) {
+      case ComplaintStatus.OPEN:
+        return 'bg-gray-200 text-gray-600';
+      case ComplaintStatus.ASSIGNED:
+        return 'bg-yellow-100 text-yellow-600';
+      case ComplaintStatus.IN_PROGRESS:
+        return 'bg-blue-100 text-blue-600';
+      case ComplaintStatus.RESOLVED:
+        return 'bg-green-100 text-green-600';
+      case ComplaintStatus.CLOSED:
+        return 'bg-red-100 text-red-600';
+      case ComplaintStatus.ESCALATED:
+        return 'bg-purple-100 text-purple-600';
+      case ComplaintStatus.DEFERRED:
+        return 'bg-orange-100 text-orange-600';
+      case ComplaintStatus.REOPEN:
+        return 'bg-pink-100 text-pink-600';
+      default:
+        return 'bg-gray-200 text-gray-600';
+    }
+  }
+
+  /**
+   * Get display name for priority
+   */
+  getPriorityDisplay(priority: string): string {
+    return getPriorityDisplayName(priority);
+  }
+
+  /**
+   * Get display name for status
+   */
+  getStatusDisplay(status: string): string {
+    return getStatusDisplayName(status);
+  }
+
+  /**
+   * Check if priority is high
+   */
+  isHighPriority(priority: string): boolean {
+    return priority.toUpperCase() === ComplaintPriority.HIGH;
+  }
+
+  toggleStatusDropdown(event: Event, complaint: Complaint): void {
+    event.stopPropagation();
+
+    // Close other dropdowns first
+    this.filteredComplaints.forEach(c => {
+      if (c !== complaint) {
+        c.showStatusDropdown = false;
+      }
+    });
+
+    // Toggle current dropdown
+    complaint.showStatusDropdown = !complaint.showStatusDropdown;
+
+    // Add class to parent row for better z-index control
+    if (complaint.showStatusDropdown) {
+      setTimeout(() => {
+        const rowElement = (event.target as HTMLElement).closest('.hover\\:bg-gray-50');
+        if (rowElement) {
+          rowElement.classList.add('row-has-dropdown-open');
+        }
+      });
+    } else {
+      const rowElement = (event.target as HTMLElement).closest('.hover\\:bg-gray-50');
+      if (rowElement) {
+        rowElement.classList.remove('row-has-dropdown-open');
+      }
+    }
+  }
+
+  /**
+   * Get allowed status transitions based on current status
+   * This controls which statuses a user can change to from the current status
+   */
+  getAllowedStatusTransitions(currentStatus: string): string[] {
+    const status = currentStatus.toUpperCase();
+
+    // Define valid transitions for each status
+    switch (status) {
+      case ComplaintStatus.OPEN:
+        return [ComplaintStatus.ASSIGNED, ComplaintStatus.IN_PROGRESS];
+
+      case ComplaintStatus.ASSIGNED:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.DEFERRED];
+
+      case ComplaintStatus.IN_PROGRESS:
+        return [ComplaintStatus.RESOLVED, ComplaintStatus.ESCALATED, ComplaintStatus.DEFERRED];
+
+      case ComplaintStatus.RESOLVED:
+        return [ComplaintStatus.CLOSED, ComplaintStatus.REOPEN];
+
+      case ComplaintStatus.REOPEN:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.ASSIGNED];
+
+      case ComplaintStatus.ESCALATED:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.RESOLVED];
+
+      case ComplaintStatus.DEFERRED:
+        return [ComplaintStatus.OPEN, ComplaintStatus.IN_PROGRESS];
+
+      case ComplaintStatus.CLOSED:
+        // Closed is terminal state - no transitions
+        return [];
+
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Update the status of a complaint
+   */
+  updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
+    // Stop event propagation to prevent row click
+    event.stopPropagation();
+
+    // Close dropdown
+    complaint.showStatusDropdown = false;
+
+    // Skip if status didn't change
+    if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
+      return;
+    }
+
+    // Show loading indicator or disable the UI during update
+    this.isLoading = true;
+
+
+    // Create update payload
+    const updatedComplaint = {
+      ...complaint,
+      l_previous_status: complaint.status,
+      status: newStatus,
+      // modified_by: this.currentUser?.userId,
+      // modified_on: new Date().toISOString() // Backend should handle proper date formatting
+    };
+
+    console.log('Updated complaint:', updatedComplaint);
+    // Call API to update status
+    this.complaintService.updateComplaint(updatedComplaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Update local complaint status
+            complaint.status = newStatus;
+
+            // Show a success notification if needed
+            // this.showNotification('Status updated successfully');
+          } else {
+            // Handle error from API
+            this.errorMessage = response?.statusMsg || 'Failed to update status';
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error updating status:', error);
+          this.errorMessage = 'An error occurred while updating status';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  /**
+ * Check if any dropdown is open
+ */
+  isAnyDropdownOpen(): boolean {
+    return this.isStatusFilterOpen ||
+      this.isSortOpen ||
+      this.filteredComplaints.some(c => c.showStatusDropdown);
+  }
+
+
+  /**
+  * Handle document clicks to close dropdowns
+  */
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent): void {
+    // Don't close dropdowns if click is inside the component
+    if (this.elementRef.nativeElement.contains(event.target)) {
+      // If clicked element is not a dropdown toggle or item, close all dropdowns
+      if (!(event.target as HTMLElement).closest('.dropdown-toggle') &&
+        !(event.target as HTMLElement).closest('.dropdown-menu')) {
+        this.closeAllDropdowns();
+      }
+      return;
+    }
+
+    // If click is outside the component, close all dropdowns
+    this.closeAllDropdowns();
+  }
+
+  /**
+ * Close all dropdowns
+ */
+  closeAllDropdowns(): void {
+    // Close filter and sort dropdowns
+    this.isStatusFilterOpen = false;
+    this.isSortOpen = false;
+
+    // Close all complaint status dropdowns
+    this.filteredComplaints.forEach(complaint => {
+      complaint.showStatusDropdown = false;
+    });
+  }
 }

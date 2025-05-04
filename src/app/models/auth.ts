@@ -20,6 +20,7 @@ export interface LoginResponse {
     opr_id: string;
     l_org_name: string;
     l_role_name: string;
+    l_department_Id: string;
 }
 
 /**
@@ -33,11 +34,28 @@ export interface UserData {
     token: string;
     organizationId: string;
     operatingUnitId: string;
-    departmentId?: string;
+    l_department_Id: string;
     l_org_name: string;
     l_role_name: string;
+    account_id: string;
 }
 
+export interface UserByDepartment {
+    account_id: string;
+    name: string;
+    email: string;
+    phone_no: string;
+    password: string;
+    department_id: string;
+    role_id: string;
+    org_id: number;
+    opr_id: number;
+    created_by: string;
+    created_on: string;
+    modified_by: string | null;
+    modified_on: string;
+    is_active: string;
+}
 
 /**
  * Interface for registration request payload
@@ -47,7 +65,7 @@ export interface RegisterRequest {
     email: string;
     phoneNo: string;
     password: string;
-    departmentId: string;
+    l_department_Id: string;
     roleId: string;
     orgId: string;
     oprId: string;

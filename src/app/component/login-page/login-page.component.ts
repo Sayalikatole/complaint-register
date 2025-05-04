@@ -178,7 +178,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   confirmPassword: string = '';
   fullName: string = '';
   phoneNumber: string = '';
-  selectedDepartmentId: string = '';
+  selectedl_department_Id: string = '';
   selectedRoleId: string = '';
   selectedOrganizationId: string = '';
   selectedOperatingUnitId: number = 0;
@@ -246,7 +246,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     this.confirmPassword = '';
     this.fullName = '';
     this.phoneNumber = '';
-    this.selectedDepartmentId = '';
+    this.selectedl_department_Id = '';
     this.selectedRoleId = '';
     this.errorMessage = '';
     this.passwordMismatchError = false;
@@ -450,7 +450,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       email: this.email,
       phoneNo: this.phoneNumber,
       password: this.password,
-      departmentId: this.selectedDepartmentId || '8977304036509213', // Using default if not selected
+      l_department_Id: this.selectedl_department_Id || '8977304036509213', // Using default if not selected
       roleId: this.selectedRoleId || "9065837334047421", // Using default if not selected
       orgId: this.selectedOrganizationId.toString() || '1',
       oprId: this.selectedOperatingUnitId.toString() || '1',

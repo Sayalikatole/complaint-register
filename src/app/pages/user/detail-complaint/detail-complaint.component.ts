@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
-import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
-import { Complaint } from '../../../models/complaint';
-import { AuthService } from '../../../services/auth.service';
-import { UserData } from '../../../models/auth';
+import { Cl_getAttachmentPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
+import { Attachment, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem } from '../../../models/complaint';
+import { AuthService, Cl_getAssignableUsers } from '../../../services/auth.service';
+import { UserByDepartment, UserData } from '../../../models/auth';
+import { ComplaintStatus } from '../../../enums/complaint_status';
 
 @Component({
   selector: 'app-detail-complaint',
@@ -27,6 +28,35 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
 
   role: string = '';
 
+
+  // Form state
+  isSubmitting: boolean = false;
+  errorMessage: string = '';
+  successMessage: string = '';
+  isEditMode: boolean = false;
+  editingComplaintId: string = '';
+
+  // Add these properties to your class
+  showAssigneeDropdown: boolean = false;
+  assigneeSearchTerm: string = '';
+  assignees: UserByDepartment[] = []; // Will hold the users from API
+  loadingAssignees: boolean = false;
+  canUpdateAssignee: boolean = false;
+
+  // Add these properties
+  showStatusDropdown: boolean = false;
+  canChangeStatus: boolean = false;
+
+  // Add these properties for attachments
+  attachments: Attachment[] = [];
+  loadingAttachments: boolean = false;
+  attachmentError: string | null = null;
+
+  // Add to your component properties
+  historyItems: ComplaintHistoryItem[] = [];
+  loadingHistory: boolean = false;
+  historyError: string | null = null;
+
   // For tracking subscriptions
   private destroy$ = new Subject<void>();
 
@@ -38,13 +68,15 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
-
+        console.log(this.currentUser)
         this.role = this.currentUser?.l_role_name?.toLowerCase() || 'user';
+
+        // Check if user can update assignees (admin, manager, or HOD)
+        this.canUpdateAssignee = ['admin', 'hod'].includes(this.role);
 
         if (user) {
           // Load departments after getting user data
@@ -52,18 +84,23 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
             const id = params['id'];
             if (id) {
               this.loadComplaintDetails(id);
+              this.loadComplaintHistory(id); // Add this line
             }
           });
         }
       });
 
-
+    // Add this to your existing ngOnInit
+    // Determine if user can change status (HOD or employee)
+    this.canChangeStatus = this.currentUser?.l_role_name?.toLowerCase() === 'hod' ||
+      this.currentUser?.l_role_name?.toLowerCase() === 'employee';
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
 
   /**
    * Load complaint details by ID
@@ -85,6 +122,10 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.complaint = data;
           this.loading = false;
+
+          console.log("loading")
+          // After loading complaint details, load attachments
+          this.loadAttachments(id);
         },
         error: (err) => {
           console.error('Error loading complaint details:', err);
@@ -93,6 +134,393 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+
+  /**
+ * Load complaint history
+ */
+  loadComplaintHistory(complaintId: string): void {
+    if (!this.currentUser) return;
+    this.loadingHistory = true;
+    this.historyError = null;
+
+    const historyPayload: Cl_getComplaintHistoryPayload = {
+      oprId: this.currentUser.operatingUnitId,
+      orgId: this.currentUser.organizationId,
+      id: complaintId
+    };
+
+    this.complaintService.getComplaintHistory(historyPayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          // Sort history items from newest to oldest
+          this.historyItems = data.sort((a, b) =>
+            new Date(b.changed_on).getTime() - new Date(a.changed_on).getTime()
+          );
+          this.loadingHistory = false;
+        },
+        error: (error) => {
+          console.error('Error loading complaint history:', error);
+          this.historyError = 'Failed to load history. Please try again.';
+          this.loadingHistory = false;
+        }
+      });
+  }
+
+  /**
+   * Load attachments for this complaint
+   */
+  loadAttachments(complaintId: string): void {
+    this.loadingAttachments = true;
+    this.attachmentError = null;
+
+    console.log('Loading attachments for complaint ID:', complaintId);
+    const attachmentPayload: Cl_getAttachmentPayload = {
+      id: complaintId,
+      entity_type: 'Complaint' // Note: using uppercase as shown in your example
+    };
+
+    this.complaintService.getAttachment(attachmentPayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && Array.isArray(response)) {
+            // Data is directly returned as an array
+            this.attachments = response;
+            console.log('Attachments loaded:', this.attachments);
+          }
+          //  else if (response && response.status && Array.isArray(response.data)) {
+          //   // Data is nested in a response object with status
+          //   this.attachments = response.data;
+          //   console.log('Attachments loaded:', this.attachments);
+          // }
+          else {
+            this.attachmentError = 'Failed to load attachments - Invalid response format';
+            this.attachments = [];
+          }
+          this.loadingAttachments = false;
+        },
+        error: (error) => {
+          console.error('Error loading attachments:', error);
+          this.attachmentError = 'Error loading attachments. Please try again.';
+          this.attachments = [];
+          this.loadingAttachments = false;
+        }
+      });
+  }
+
+  /**
+   * Get file icon based on file type
+   */
+  getFileIcon(filename: string): string {
+    const extension = filename.split('.').pop()?.toLowerCase() || '';
+
+    switch (extension) {
+      case 'pdf':
+        return 'fa-file-pdf';
+      case 'doc':
+      case 'docx':
+        return 'fa-file-word';
+      case 'xls':
+      case 'xlsx':
+        return 'fa-file-excel';
+      case 'ppt':
+      case 'pptx':
+        return 'fa-file-powerpoint';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+        return 'fa-file-image';
+      case 'zip':
+      case 'rar':
+      case '7z':
+        return 'fa-file-archive';
+      case 'txt':
+        return 'fa-file-alt';
+      default:
+        return 'fa-file';
+    }
+  }
+
+  /**
+   * Get file size display
+   */
+  getFileSizeDisplay(size: number): string {
+    if (!size) return '0 B';
+
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let sizeValue = size;
+    let unitIndex = 0;
+
+    while (sizeValue >= 1024 && unitIndex < units.length - 1) {
+      sizeValue /= 1024;
+      unitIndex++;
+    }
+
+    return `${sizeValue.toFixed(1)} ${units[unitIndex]}`;
+  }
+
+  /**
+  * Download attachment with proper error handling
+  */
+  downloadAttachment(attachment: Attachment): void {
+    if (!attachment) return;
+
+    // Show loading indicator
+    this.loadingAttachments = true;
+
+    try {
+      // Check if we have base64 data to work with
+      if (attachment.l_encrypted_file) {
+        // Process the base64 data and download it
+        this.downloadBase64File(
+          attachment.l_encrypted_file,
+          attachment.uploaded_file_name
+        );
+
+        // Clear loading state after a short delay
+        setTimeout(() => {
+          this.loadingAttachments = false;
+        }, 500);
+      } else {
+        throw new Error('No file data available');
+      }
+    } catch (error) {
+      console.error('Error initiating download:', error);
+      this.loadingAttachments = false;
+      this.attachmentError = 'Failed to download file. Please try again.';
+
+      // Clear error after 3 seconds
+      setTimeout(() => {
+        this.attachmentError = null;
+      }, 3000);
+    }
+  }
+
+  /**
+ * Check if a file is viewable in the browser based on its extension
+ */
+  isFileViewable(filename: string): boolean {
+    if (!filename) return false;
+    const extension = filename.split('.').pop()?.toLowerCase() || '';
+    return ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt'].includes(extension);
+  }
+
+  /**
+   * View attachment in browser when possible
+   */
+  viewAttachment(attachment: Attachment): void {
+    if (!attachment) return;
+
+    const extension = attachment.uploaded_file_name.split('.').pop()?.toLowerCase();
+    const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt'];
+
+    try {
+      // Set loading state
+      this.loadingAttachments = true;
+
+      if (viewableTypes.includes(extension || '')) {
+        // Handle text files specially
+        if (extension === 'txt' && attachment.l_encrypted_file) {
+          try {
+            const decodedText = atob(attachment.l_encrypted_file);
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+              newWindow.document.write(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>${attachment.uploaded_file_name}</title>
+                <style>
+                  body { font-family: monospace; white-space: pre-wrap; padding: 20px; }
+                </style>
+              </head>
+              <body>${decodedText}</body>
+              </html>
+            `);
+              newWindow.document.close();
+            }
+            this.loadingAttachments = false;
+            return;
+          } catch (e) {
+            console.error('Error viewing text file:', e);
+            // Fall through to standard base64 handling
+          }
+        }
+
+        // For all other viewable types (images, PDFs)
+        if (attachment.l_encrypted_file) {
+          // Remove potential URL prefix in base64 data
+          let cleanBase64 = attachment.l_encrypted_file;
+          if (cleanBase64.includes(',')) {
+            cleanBase64 = cleanBase64.split(',')[1];
+          }
+
+          // Create blob from base64 data
+          const byteCharacters = atob(cleanBase64);
+          const byteArrays = [];
+
+          for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+              byteNumbers[i] = slice.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+          }
+
+          // Determine mime type
+          let mimeType = 'application/octet-stream';
+          switch (extension) {
+            case 'pdf': mimeType = 'application/pdf'; break;
+            case 'jpg': case 'jpeg': mimeType = 'image/jpeg'; break;
+            case 'png': mimeType = 'image/png'; break;
+            case 'gif': mimeType = 'image/gif'; break;
+            case 'txt': mimeType = 'text/plain'; break;
+          }
+
+          const blob = new Blob(byteArrays, { type: mimeType });
+          const url = URL.createObjectURL(blob);
+
+          // Open in new tab
+          window.open(url, '_blank');
+
+          // Clean up
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          this.loadingAttachments = false;
+        } else {
+          throw new Error('No file data available for viewing');
+        }
+      } else {
+        // For non-viewable types, just download
+        this.downloadAttachment(attachment);
+      }
+    } catch (error) {
+      console.error('Error viewing attachment:', error);
+      this.loadingAttachments = false;
+      this.attachmentError = 'Unable to view this file. Downloading instead...';
+
+      // Attempt to download instead
+      setTimeout(() => {
+        this.attachmentError = null;
+        this.downloadAttachment(attachment);
+      }, 1500);
+    }
+  }
+
+  /**
+   * Download base64 encoded file
+   */
+  private downloadBase64File(base64Data: string, filename: string): void {
+    try {
+      // Remove potential URL prefix in base64 data
+      let cleanBase64 = base64Data;
+      if (base64Data.includes(',')) {
+        cleanBase64 = base64Data.split(',')[1];
+      }
+
+      // Create blob from base64
+      const byteCharacters = atob(cleanBase64);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      // Determine mime type based on file extension
+      let mimeType = 'application/octet-stream'; // Default
+      const extension = filename.split('.').pop()?.toLowerCase();
+
+      switch (extension) {
+        case 'pdf': mimeType = 'application/pdf'; break;
+        case 'doc': case 'docx': mimeType = 'application/msword'; break;
+        case 'xls': case 'xlsx': mimeType = 'application/vnd.ms-excel'; break;
+        case 'jpg': case 'jpeg': mimeType = 'image/jpeg'; break;
+        case 'png': mimeType = 'image/png'; break;
+        case 'gif': mimeType = 'image/gif'; break;
+        case 'txt': mimeType = 'text/plain'; break;
+      }
+
+      const blob = new Blob(byteArrays, { type: mimeType });
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 100);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Error downloading file. The file might be corrupted or in an unsupported format.');
+    }
+  }
+
+  /**
+   * View attachment (for viewable types like images and PDFs)
+   */
+  // viewAttachment(attachment: Attachment): void {
+  //   const extension = attachment.uploaded_file_name.split('.').pop()?.toLowerCase();
+  //   const viewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+
+  //   if (viewableTypes.includes(extension || '')) {
+  //     if (attachment.file_url) {
+  //       window.open(attachment.file_url, '_blank');
+  //     } else if (attachment.l_encrypted_file) {
+  //       // Create blob from base64 data
+  //       const byteCharacters = atob(attachment.l_encrypted_file);
+  //       const byteArrays = [];
+
+  //       for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+  //         const slice = byteCharacters.slice(offset, offset + 512);
+  //         const byteNumbers = new Array(slice.length);
+  //         for (let i = 0; i < slice.length; i++) {
+  //           byteNumbers[i] = slice.charCodeAt(i);
+  //         }
+  //         const byteArray = new Uint8Array(byteNumbers);
+  //         byteArrays.push(byteArray);
+  //       }
+
+  //       // Determine mime type
+  //       let mimeType = 'application/octet-stream';
+  //       switch (extension) {
+  //         case 'pdf': mimeType = 'application/pdf'; break;
+  //         case 'jpg': case 'jpeg': mimeType = 'image/jpeg'; break;
+  //         case 'png': mimeType = 'image/png'; break;
+  //         case 'gif': mimeType = 'image/gif'; break;
+  //       }
+
+  //       const blob = new Blob(byteArrays, { type: mimeType });
+  //       const url = URL.createObjectURL(blob);
+
+  //       // Open in new tab
+  //       window.open(url, '_blank');
+
+  //       // Clean up
+  //       setTimeout(() => URL.revokeObjectURL(url), 1000);
+  //     }
+  //   } else {
+  //     // For non-viewable types, just download
+  //     this.downloadAttachment(attachment);
+  //   }
+  // }
 
   /**
    * Change the active tab
@@ -131,22 +559,98 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   }
 
   /**
+ * Get status color class for timeline
+ */
+  getStatusColorClass(status: string): string {
+    switch (status.toUpperCase()) {
+      case ComplaintStatus.OPEN:
+        return 'bg-gray-500';
+      case ComplaintStatus.ASSIGNED:
+        return 'bg-yellow-500';
+      case ComplaintStatus.IN_PROGRESS:
+        return 'bg-blue-500';
+      case ComplaintStatus.RESOLVED:
+        return 'bg-green-500';
+      case ComplaintStatus.CLOSED:
+        return 'bg-red-500';
+      case ComplaintStatus.ESCALATED:
+        return 'bg-purple-500';
+      case ComplaintStatus.DEFERRED:
+        return 'bg-orange-500';
+      case ComplaintStatus.REOPEN:
+        return 'bg-pink-500';
+      default:
+        return 'bg-gray-500';
+    }
+  }
+
+
+  /**
+ * Get background color class for status timeline dots
+ */
+  getStatusBackgroundClass(status: string): string {
+    switch (status?.toUpperCase()) {
+      case ComplaintStatus.OPEN:
+        return 'bg-blue-500';
+      case ComplaintStatus.ASSIGNED:
+        return 'bg-yellow-500';
+      case ComplaintStatus.IN_PROGRESS:
+        return 'bg-indigo-500';
+      case ComplaintStatus.RESOLVED:
+        return 'bg-green-500';
+      case ComplaintStatus.CLOSED:
+        return 'bg-red-500';
+      case ComplaintStatus.ESCALATED:
+        return 'bg-purple-500';
+      case ComplaintStatus.DEFERRED:
+        return 'bg-orange-500';
+      case ComplaintStatus.REOPEN:
+        return 'bg-pink-500';
+      default:
+        return 'bg-gray-500';
+    }
+  }
+
+  /**
+   * Get user-friendly display name for a status
+   */
+  // getStatusDisplay(status: string): string {
+  //   return getStatusDisplayName(status || 'Not Set');
+  // }
+
+  /**
+   * Get user name from user ID
+   * Note: This is a placeholder - you may want to implement a proper lookup
+   */
+  getUserName(userId: string): string {
+    // You can implement a proper user lookup here
+    // For now, just return the user ID
+    return userId || 'System';
+  }
+
+  /**
    * Get the status badge color class
    */
   getStatusBadgeClass(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'open':
-        return 'bg-gray-100 text-gray-800';
-      case 'in progress':
-        return 'bg-purple-100 text-purple-800';
-      case 'resolved':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'escalated':
-        return 'bg-red-100 text-red-800';
+    switch (status.toUpperCase()) {
+      case ComplaintStatus.OPEN:
+        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+      case ComplaintStatus.ASSIGNED:
+        return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+      case ComplaintStatus.IN_PROGRESS:
+        return 'bg-blue-100 hover:bg-blue-200 text-blue-800';
+      case ComplaintStatus.RESOLVED:
+        return 'bg-green-100 hover:bg-green-200 text-green-800';
+      case ComplaintStatus.CLOSED:
+        return 'bg-red-100 hover:bg-red-200 text-red-800';
+      case ComplaintStatus.ESCALATED:
+        return 'bg-purple-100 hover:bg-purple-200 text-purple-800';
+      case ComplaintStatus.DEFERRED:
+        return 'bg-orange-100 hover:bg-orange-200 text-orange-800';
+      case ComplaintStatus.REOPEN:
+        return 'bg-pink-100 hover:bg-pink-200 text-pink-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 hover:bg-gray-200 text-gray-800';
     }
   }
 
@@ -229,6 +733,259 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   goBack(): void {
     // this.router.navigate(['/user/complaints']);
     this.router.navigate(['/', this.role, 'complaints']);
-
   }
+
+
+
+
+
+  // Add a computed property for filtered assignees
+  get filteredAssignees(): UserByDepartment[] {
+    if (!this.assigneeSearchTerm || this.assigneeSearchTerm.trim() === '') {
+      return this.assignees;
+    }
+
+    const term = this.assigneeSearchTerm.toLowerCase().trim();
+    return this.assignees.filter(user =>
+      user.name.toLowerCase().includes(term) ||
+      (user.department_id && user.department_id.toLowerCase().includes(term)) ||
+      (user.role_id && user.role_id.toLowerCase().includes(term))
+    );
+  }
+
+  /**
+   * Toggle the assignee dropdown
+   */
+  toggleAssigneeDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showAssigneeDropdown = !this.showAssigneeDropdown;
+
+    // Load assignees if opening the dropdown and they haven't been loaded yet
+    if (this.showAssigneeDropdown && this.assignees.length === 0) {
+      this.loadAssignees();
+    }
+  }
+
+  /**
+   * Load assignees from API
+   */
+  loadAssignees(): void {
+    if (!this.currentUser) return;
+
+    this.loadingAssignees = true;
+
+    const getAssignableUsers_payload: Cl_getAssignableUsers = {
+      oprId: this.currentUser.operatingUnitId,
+      orgId: this.currentUser.organizationId,
+      id: this.currentUser.l_department_Id
+    };
+    // Replace with your actual API call to get users
+    this.authService.getAssignableUsers(getAssignableUsers_payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (users) => {
+          // Map the account_id to userId for each user
+          this.assignees = users.map(user => ({
+            ...user,
+            userId: user.account_id  // Map account_id to userId
+          }));
+
+          console.log('Assignees after mapping:', this.assignees);
+          this.loadingAssignees = false;
+        },
+        error: (err) => {
+          console.error('Error loading assignees:', err);
+          this.loadingAssignees = false;
+        }
+      });
+  }
+
+  /**
+   * Select an assignee
+   */
+  selectAssignee(user: any | null): void {
+    if (!this.complaint) return;
+
+    console.log('Selected user:', user);
+    const userId = user ? user.userId : null;
+    const userName = user ? user.name : null;
+
+    // Close dropdown
+    this.showAssigneeDropdown = false;
+
+    // If the selected user is the same as current assignee, do nothing
+    console.log(userId, this.complaint.assigned_to)
+
+    if ((userId === this.complaint.assigned_to)) {
+      console.log(userId, this.complaint.assigned_to)
+      return;
+    }
+
+    // Show loading
+    this.loading = true;
+
+    // Call API to update assignee
+    console.log('Updating complaint:', this.complaint);
+
+    this.complaint.assigned_to = userId;
+    console.log('Selected assignee:', userId);
+    this.complaintService.updateComplaint(this.complaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          // this.isSubmitting = false;
+          if (response.status) {
+            this.successMessage = 'Complaint updated successfully!';
+
+            // if (form) this.resetForm(form);
+            // this.isEditMode = false;
+
+            // Clear success message and navigate after 2 seconds
+            setTimeout(() => {
+              this.successMessage = '';
+              this.router.navigate(['/user/complaints']);
+            }, 2000);
+          } else {
+            this.errorMessage = response.statusMsg || 'Failed to update complaint';
+          }
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          console.error('Error updating complaint:', error);
+          this.errorMessage = error.error?.message || 'Server error. Please try again later.';
+        }
+      });
+  }
+
+
+  /**
+  * Toggle the status dropdown
+  */
+  toggleStatusDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showStatusDropdown = !this.showStatusDropdown;
+
+    // Close assignee dropdown if open
+    if (this.showStatusDropdown && this.showAssigneeDropdown) {
+      this.showAssigneeDropdown = false;
+    }
+  }
+
+  /**
+ * Display status in a user-friendly way
+ */
+  getStatusDisplay(status: string): string {
+    return getStatusDisplayName(status || 'Not set');
+  }
+
+  /**
+  * Get allowed status transitions based on current status
+  */
+  getAllowedStatusTransitions(currentStatus: string): string[] {
+    const status = currentStatus?.toUpperCase();
+
+    // Define valid transitions for each status
+    switch (status) {
+      case ComplaintStatus.OPEN:
+        return [ComplaintStatus.ASSIGNED, ComplaintStatus.IN_PROGRESS];
+
+      case ComplaintStatus.ASSIGNED:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.DEFERRED];
+
+      case ComplaintStatus.IN_PROGRESS:
+        return [ComplaintStatus.RESOLVED, ComplaintStatus.ESCALATED, ComplaintStatus.DEFERRED];
+
+      case ComplaintStatus.RESOLVED:
+        return [ComplaintStatus.CLOSED, ComplaintStatus.REOPEN];
+
+      case ComplaintStatus.REOPEN:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.ASSIGNED];
+
+      case ComplaintStatus.ESCALATED:
+        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.RESOLVED];
+
+      case ComplaintStatus.DEFERRED:
+        return [ComplaintStatus.OPEN, ComplaintStatus.IN_PROGRESS];
+
+      case ComplaintStatus.CLOSED:
+        // Closed is terminal state - no transitions
+        return [];
+
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Update the status of a complaint
+   */
+  updateComplaintStatus(newStatus: string): void {
+    if (!this.complaint) return;
+
+    // Close dropdown
+    this.showStatusDropdown = false;
+
+    // Skip if status didn't change
+    if (this.complaint.status?.toUpperCase() === newStatus.toUpperCase()) {
+      return;
+    }
+
+    // Create update payload
+    const updatedComplaint = {
+      ...this.complaint,
+      status: newStatus,
+      modified_by: this.currentUser?.userId,
+      modified_on: new Date().toISOString()
+    };
+
+    // Show loading state
+    this.loading = true;
+
+    // Call API to update status
+    this.complaintService.updateComplaint(updatedComplaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Update local complaint status
+            // this.complaint.status = newStatus;
+            // this.complaint.modified_by = this.currentUser?.userId || '';
+            // this.complaint.modified_on = new Date().toISOString();
+
+            // Refresh the complaint data to get updated fields
+            this.loadComplaintDetails(this.complaint?.complaint_id || '');
+          } else {
+            this.error = response?.statusMsg || 'Failed to update status';
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error updating status:', error);
+          this.error = 'An error occurred while updating status';
+          this.loading = false;
+        }
+      });
+  }
+
+  /**
+    * Close all dropdowns when clicking outside
+    * Add this to your existing HostListener if you have one, 
+    * or add this as a new method
+    */
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent): void {
+    // Don't close dropdowns if click is on a dropdown toggle or menu
+    if ((event.target as HTMLElement).closest('.dropdown-toggle') ||
+      (event.target as HTMLElement).closest('.dropdown-menu')) {
+      return;
+    }
+
+    // Close all dropdowns
+    this.showStatusDropdown = false;
+    this.showAssigneeDropdown = false;
+  }
+}
+
+function getStatusDisplayName(arg0: string): string {
+  throw new Error('Function not implemented.');
 }
