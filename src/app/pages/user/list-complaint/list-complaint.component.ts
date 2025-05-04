@@ -47,6 +47,19 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   currentUser: UserData | null = null;
 
+  // Add these properties to your component class
+  showDeferredModal: boolean = false;
+  deferralDueDate: string = '';
+  deferralReason: string = '';
+  deferralDueDateError: string = '';
+  deferralReasonError: string = '';
+  submittingDeferral: boolean = false;
+  selectedComplaint: Complaint | null = null;
+  pendingStatusChange: string = '';
+  successMessage: string = '';
+  deferralDueTime: string = '17:00'; // Default to 5 PM
+
+
   role: string = '';
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
@@ -450,56 +463,56 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
    * Update the status of a complaint
    */
-  updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
-    // Stop event propagation to prevent row click
-    event.stopPropagation();
+  // updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
+  //   // Stop event propagation to prevent row click
+  //   event.stopPropagation();
 
-    // Close dropdown
-    complaint.showStatusDropdown = false;
+  //   // Close dropdown
+  //   complaint.showStatusDropdown = false;
 
-    // Skip if status didn't change
-    if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
-      return;
-    }
+  //   // Skip if status didn't change
+  //   if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
+  //     return;
+  //   }
 
-    // Show loading indicator or disable the UI during update
-    this.isLoading = true;
+  //   // Show loading indicator or disable the UI during update
+  //   this.isLoading = true;
 
 
-    // Create update payload
-    const updatedComplaint = {
-      ...complaint,
-      l_previous_status: complaint.status,
-      status: newStatus,
-      // modified_by: this.currentUser?.userId,
-      // modified_on: new Date().toISOString() // Backend should handle proper date formatting
-    };
+  //   // Create update payload
+  //   const updatedComplaint = {
+  //     ...complaint,
+  //     l_previous_status: complaint.status,
+  //     status: newStatus,
+  //     // modified_by: this.currentUser?.userId,
+  //     // modified_on: new Date().toISOString() // Backend should handle proper date formatting
+  //   };
 
-    console.log('Updated complaint:', updatedComplaint);
-    // Call API to update status
-    this.complaintService.updateComplaint(updatedComplaint)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response && response.status) {
-            // Update local complaint status
-            complaint.status = newStatus;
+  //   console.log('Updated complaint:', updatedComplaint);
+  //   // Call API to update status
+  //   this.complaintService.updateComplaint(updatedComplaint)
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response && response.status) {
+  //           // Update local complaint status
+  //           complaint.status = newStatus;
 
-            // Show a success notification if needed
-            // this.showNotification('Status updated successfully');
-          } else {
-            // Handle error from API
-            this.errorMessage = response?.statusMsg || 'Failed to update status';
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error updating status:', error);
-          this.errorMessage = 'An error occurred while updating status';
-          this.isLoading = false;
-        }
-      });
-  }
+  //           // Show a success notification if needed
+  //           // this.showNotification('Status updated successfully');
+  //         } else {
+  //           // Handle error from API
+  //           this.errorMessage = response?.statusMsg || 'Failed to update status';
+  //         }
+  //         this.isLoading = false;
+  //       },
+  //       error: (error) => {
+  //         console.error('Error updating status:', error);
+  //         this.errorMessage = 'An error occurred while updating status';
+  //         this.isLoading = false;
+  //       }
+  //     });
+  // }
 
   /**
  * Check if any dropdown is open
@@ -543,4 +556,334 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       complaint.showStatusDropdown = false;
     });
   }
+
+
+
+  /**
+ * Get today's date in YYYY-MM-DD format for min attribute
+ */
+  getTodayDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  /**
+   * Update the status of a complaint
+   */
+  updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
+    // Stop event propagation to prevent row click
+    event.stopPropagation();
+
+    // Close dropdown
+    complaint.showStatusDropdown = false;
+
+    // Skip if status didn't change
+    if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
+      return;
+    }
+
+    // Special handling for DEFERRED status
+    if (newStatus.toUpperCase() === ComplaintStatus.DEFERRED) {
+      this.handleDeferredStatus(complaint, newStatus);
+      return;
+    }
+
+    // Proceed with normal status update for other statuses
+    this.processStatusUpdate(complaint, newStatus);
+  }
+
+  /**
+   * Special handling for DEFERRED status that requires due date and reason
+   */
+  handleDeferredStatus(complaint: Complaint, newStatus: string): void {
+    // Store the selected complaint and pending status change
+    this.selectedComplaint = complaint;
+    this.pendingStatusChange = newStatus;
+
+    // Set default due date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.deferralDueDate = tomorrow.toISOString().split('T')[0];
+    this.deferralDueTime = '17:00'; // Default to 5 PM
+
+    // Reset other modal form fields
+    this.deferralReason = '';
+    this.deferralDueDateError = '';
+    this.deferralReasonError = '';
+    this.submittingDeferral = false;
+
+    // Show the modal
+    this.showDeferredModal = true;
+  }
+
+  /**
+   * Set due date based on preset values (days from today)
+   */
+  setDueDatePreset(days: number): void {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    // Update the date input
+    this.deferralDueDate = date.toISOString().split('T')[0];
+
+    // Keep the current time or default to 5 PM
+    if (!this.deferralDueTime) {
+      this.deferralDueTime = '17:00'; // 5 PM
+    }
+  }
+
+  /**
+   * Validate deferral form inputs
+   */
+  validateDeferralForm(): boolean {
+    let isValid = true;
+
+    // Validate due date
+    if (!this.deferralDueDate) {
+      this.deferralDueDateError = 'Due date is required';
+      isValid = false;
+    } else {
+      const selectedDate = new Date(this.deferralDueDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        this.deferralDueDateError = 'Due date cannot be in the past';
+        isValid = false;
+      } else {
+        this.deferralDueDateError = '';
+      }
+    }
+
+    // Validate time - ensure it's provided
+    if (!this.deferralDueTime) {
+      this.deferralDueDateError = 'Time is required';
+      isValid = false;
+    }
+
+    // Validate reason
+    if (!this.deferralReason || this.deferralReason.trim().length === 0) {
+      this.deferralReasonError = 'Reason for deferral is required';
+      isValid = false;
+    } else if (this.deferralReason.trim().length < 10) {
+      this.deferralReasonError = 'Please provide a more detailed reason (at least 10 characters)';
+      isValid = false;
+    } else {
+      this.deferralReasonError = '';
+    }
+
+    return isValid;
+  }
+
+  /**
+   * Confirm deferral status update with due date and reason
+   */
+  confirmDeferralUpdate(): void {
+    // Validate form first
+    if (!this.validateDeferralForm()) {
+      return;
+    }
+
+    this.submittingDeferral = true;
+
+    // Make sure we have a selected complaint
+    if (!this.selectedComplaint || !this.pendingStatusChange) {
+      console.error('No complaint or status selected for deferral');
+      this.submittingDeferral = false;
+      return;
+    }
+
+    // Format the due date for API with time included
+    const [year, month, day] = this.deferralDueDate.split('-');
+    const [hours, minutes] = this.deferralDueTime.split(':');
+    const formattedDueDate = `${year}-${month}-${day} ${hours}:${minutes}:00.000`;
+
+    // Call the update method with the deferred status details
+    this.processDeferralUpdate(
+      this.selectedComplaint,
+      this.pendingStatusChange,
+      formattedDueDate,
+      this.deferralReason
+    );
+  }
+
+  /**
+   * Cancel deferral update and close modal
+   */
+  cancelDeferralUpdate(): void {
+    this.showDeferredModal = false;
+    this.selectedComplaint = null;
+    this.pendingStatusChange = '';
+  }
+
+  /**
+   * Validate deferral form inputs
+   */
+  // validateDeferralForm(): boolean {
+  //   let isValid = true;
+
+  //   // Validate due date
+  //   if (!this.deferralDueDate) {
+  //     this.deferralDueDateError = 'Due date is required';
+  //     isValid = false;
+  //   } else {
+  //     const selectedDate = new Date(this.deferralDueDate);
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     if (selectedDate < today) {
+  //       this.deferralDueDateError = 'Due date cannot be in the past';
+  //       isValid = false;
+  //     } else {
+  //       this.deferralDueDateError = '';
+  //     }
+  //   }
+
+  //   // Validate reason
+  //   if (!this.deferralReason || this.deferralReason.trim().length === 0) {
+  //     this.deferralReasonError = 'Reason for deferral is required';
+  //     isValid = false;
+  //   } else if (this.deferralReason.trim().length < 10) {
+  //     this.deferralReasonError = 'Please provide a more detailed reason (at least 10 characters)';
+  //     isValid = false;
+  //   } else {
+  //     this.deferralReasonError = '';
+  //   }
+
+  //   return isValid;
+  // }
+
+  /**
+   * Confirm deferral status update with due date and reason
+   */
+  // confirmDeferralUpdate(): void {
+  //   // Validate form first
+  //   if (!this.validateDeferralForm()) {
+  //     return;
+  //   }
+
+  //   this.submittingDeferral = true;
+
+  //   // Make sure we have a selected complaint
+  //   if (!this.selectedComplaint || !this.pendingStatusChange) {
+  //     console.error('No complaint or status selected for deferral');
+  //     this.submittingDeferral = false;
+  //     return;
+  //   }
+
+  //   // Format the due date for API
+  //   const [year, month, day] = this.deferralDueDate.split('-');
+  //   const formattedDueDate = `${year}-${month}-${day} 17:00:00.000`; // Default to 5 PM
+
+  //   // Call the update method with the deferred status details
+  //   console.log(this.deferralReason)
+  //   this.processDeferralUpdate(
+  //     this.selectedComplaint,
+  //     this.pendingStatusChange,
+  //     formattedDueDate,
+  //     this.deferralReason
+  //   );
+  // }
+
+  /**
+   * Process the deferred status update with additional fields
+   */
+  processDeferralUpdate(complaint: Complaint, newStatus: string, dueDate: string, reason: string): void {
+    // Create update payload with due date and reason
+    const updatedComplaint = {
+      ...complaint,
+      l_previous_status: complaint.status,
+      status: newStatus,
+      due_date: dueDate,
+      l_deffered_reason: reason,
+      // modified_by: this.currentUser?.userId,
+      // modified_on: new Date().toISOString()
+    };
+    console.log(updatedComplaint)
+    // Use the service to update the complaint
+    this.complaintService.updateComplaint(updatedComplaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Update local complaint status and fields
+            complaint.status = newStatus;
+            complaint.due_date = dueDate;
+            complaint.l_deffered_reason = reason;
+
+            // Show success notification
+            this.successMessage = 'Complaint has been deferred successfully';
+            setTimeout(() => {
+              this.successMessage = '';
+            }, 5000);
+          } else {
+            // Handle error from API
+            this.errorMessage = response?.statusMsg || 'Failed to defer complaint';
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 5000);
+          }
+          this.submittingDeferral = false;
+          this.showDeferredModal = false;
+        },
+        error: (error) => {
+          console.error('Error deferring complaint:', error);
+          this.errorMessage = 'An error occurred while updating status';
+          this.submittingDeferral = false;
+          this.showDeferredModal = false;
+
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 5000);
+        }
+      });
+  }
+
+  /**
+   * Process normal status update (non-deferred)
+   */
+  processStatusUpdate(complaint: Complaint, newStatus: string): void {
+    // Show loading indicator
+    this.isLoading = true;
+
+    // Create update payload
+    const updatedComplaint = {
+      ...complaint,
+      l_previous_status: complaint.status,
+      status: newStatus,
+    };
+
+    // Call API to update status
+    this.complaintService.updateComplaint(updatedComplaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Update local complaint status
+            complaint.status = newStatus;
+
+            // Show success notification
+            this.successMessage = `Status updated to ${getStatusDisplayName(newStatus)}`;
+            setTimeout(() => {
+              this.successMessage = '';
+            }, 5000);
+          } else {
+            // Handle error from API
+            this.errorMessage = response?.statusMsg || 'Failed to update status';
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error updating status:', error);
+          this.errorMessage = 'An error occurred while updating status';
+          this.isLoading = false;
+
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 5000);
+        }
+      });
+  }
 }
+
+
+

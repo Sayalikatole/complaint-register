@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
-import { Cl_getAttachmentPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
-import { Attachment, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem } from '../../../models/complaint';
+import { Cl_createComplaintwithAttachmentPayload, Cl_getAttachmentPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService, GetChatMessagesPayload, SendChatMessagePayload } from '../../../services/complaint.service';
+import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem } from '../../../models/complaint';
 import { AuthService, Cl_getAssignableUsers } from '../../../services/auth.service';
 import { UserByDepartment, UserData } from '../../../models/auth';
 import { ComplaintStatus } from '../../../enums/complaint_status';
@@ -28,6 +28,12 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
 
   role: string = '';
 
+  // Add these properties to your class
+  showDueDatePicker: boolean = false;
+  updatingDueDate: boolean = false;
+  selectedDueDate: string = '';  // Will be in format YYYY-MM-DD
+  selectedDueTime: string = '';  // Will be in format HH:MM
+  canUpdateDueDate: boolean = false;
 
   // Form state
   isSubmitting: boolean = false;
@@ -57,6 +63,11 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   loadingHistory: boolean = false;
   historyError: string | null = null;
 
+
+  messages: ChatMessage[] = [];
+  loadingMessages: boolean = false;
+  messageError: string | null = null;
+
   // For tracking subscriptions
   private destroy$ = new Subject<void>();
 
@@ -85,10 +96,13 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
             if (id) {
               this.loadComplaintDetails(id);
               this.loadComplaintHistory(id); // Add this line
+              this.loadMessages(id); // Add this line
+              this.setupDueDateEditPermission();
             }
           });
         }
       });
+
 
     // Add this to your existing ngOnInit
     // Determine if user can change status (HOD or employee)
@@ -126,6 +140,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           console.log("loading")
           // After loading complaint details, load attachments
           this.loadAttachments(id);
+          this.setupDueDateEditPermission();
         },
         error: (err) => {
           console.error('Error loading complaint details:', err);
@@ -166,6 +181,108 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           this.loadingHistory = false;
         }
       });
+  }
+
+  /**
+ * Load chat messages for the complaint
+ */
+  loadMessages(complaintId?: string): void {
+    const id = complaintId || this.complaint?.complaint_id;
+    if (!id) return;
+
+    this.loadingMessages = true;
+    this.messageError = null;
+
+    const payload: GetChatMessagesPayload = {
+      id: id
+    };
+
+    this.complaintService.getChatMessages(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (messages) => {
+          this.messages = messages.sort((a, b) =>
+            new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime()
+          );
+          this.loadingMessages = false;
+        },
+        error: (error) => {
+          console.error('Error loading messages:', error);
+          this.messageError = 'Failed to load conversation history';
+          this.loadingMessages = false;
+        }
+      });
+  }
+
+  /**
+   * Submit a reply/comment to the complaint
+   */
+  submitReply(): void {
+    if (!this.replyText || !this.complaint?.complaint_id || !this.currentUser?.userId) return;
+
+    this.submittingReply = true;
+
+    // Determine who to send the message to
+    // In most cases, this would be the complaint creator or the assignee
+    let receiverId = this.complaint.created_by;
+
+    // If the current user is the creator, send to the assignee instead
+    if (this.currentUser.userId === this.complaint.created_by && this.complaint.assigned_to) {
+      receiverId = this.complaint.assigned_to;
+    }
+
+    const payload: SendChatMessagePayload = {
+      complaintId: this.complaint.complaint_id,
+      senderId: this.currentUser.userId,
+      receiverId: receiverId,
+      message: this.replyText
+    };
+
+    this.complaintService.sendChatMessage(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          // Add the new message to the list
+          const newMessage: ChatMessage = {
+            complaint_id: this.complaint?.complaint_id || '',
+            sender_id: this.currentUser?.userId || '',
+            receiver_id: receiverId,
+            message: this.replyText,
+            timestamp: new Date().toISOString(),
+            sender_name: this.currentUser?.username || this.currentUser?.userId || '',
+            is_read: false
+          };
+
+          this.messages.push(newMessage);
+          this.replyText = '';
+          this.submittingReply = false;
+
+          // Scroll to the bottom to show the new message
+          setTimeout(() => {
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+          }, 100);
+        },
+        error: (err) => {
+          console.error('Error sending message:', err);
+          this.submittingReply = false;
+          this.messageError = 'Failed to send message. Please try again.';
+
+          // Clear error after 3 seconds
+          setTimeout(() => {
+            this.messageError = null;
+          }, 3000);
+        }
+      });
+  }
+
+  /**
+   * Cancel reply and clear the text
+   */
+  cancelReply(): void {
+    this.replyText = '';
   }
 
   /**
@@ -261,6 +378,187 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     }
 
     return `${sizeValue.toFixed(1)} ${units[unitIndex]}`;
+  }
+
+  /**
+ * Determine if the current user can edit the due date
+ */
+  setupDueDateEditPermission(): void {
+    // Only allow editing due date if:
+    // 1. User is HOD of the department the complaint is assigned to
+    // 2. User is the assigned employee
+
+    console.log('Setting up due date edit permission...');
+    // First, check if there is a current user
+    if (!this.currentUser) {
+      this.canUpdateDueDate = false;
+      return;
+    }
+
+
+    // Get current user role and ID
+    const userRole = this.currentUser.l_role_name?.toUpperCase();
+    const userId = this.currentUser.userId;
+
+    console.log(this.complaint);
+    // Check if complaint exists
+    if (!this.complaint) {
+      this.canUpdateDueDate = false;
+      return;
+    }
+    console.log('fcgcdtwgef duyab');
+
+    // HOD permission check
+    const isHOD = userRole === 'HOD';
+    const isForHODDepartment = this.complaint.department_id === this.currentUser.l_department_Id;
+
+    // Assigned employee check
+    const isAssignedEmployee = this.complaint.assigned_to === userId;
+
+    // Set permission based on conditions
+    this.canUpdateDueDate = (isHOD) || isAssignedEmployee;
+    console.log(this.updateComplaintStatus, isHOD, isForHODDepartment)
+  }
+
+  /**
+   * Toggle the due date picker
+   */
+  toggleDueDatePicker(event: Event): void {
+    event.stopPropagation();
+
+    this.showDueDatePicker = !this.showDueDatePicker;
+
+    if (this.showDueDatePicker) {
+      // Initialize the date picker with current due date
+      if (this.complaint?.due_date) {
+        const dueDate = new Date(this.complaint.due_date);
+
+        // Format date as YYYY-MM-DD for the date input
+        this.selectedDueDate = dueDate.toISOString().split('T')[0];
+
+        // Format time as HH:MM for the time input
+        const hours = String(dueDate.getHours()).padStart(2, '0');
+        const minutes = String(dueDate.getMinutes()).padStart(2, '0');
+        this.selectedDueTime = `${hours}:${minutes}`;
+      } else {
+        // Set default to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        this.selectedDueDate = tomorrow.toISOString().split('T')[0];
+        this.selectedDueTime = '17:00'; // Default to 5 PM
+      }
+    }
+  }
+
+  /**
+   * Close the date picker dropdown when clicking outside
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    // Close due date picker
+    if (this.showDueDatePicker) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-menu') && !target.closest('button')) {
+        this.showDueDatePicker = false;
+      }
+    }
+
+    // Existing code for other dropdowns...
+  }
+
+  /**
+   * Get today's date in YYYY-MM-DD format for min attribute
+   */
+  getTodayDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  /**
+   * Set due date based on preset values (days from today)
+   */
+  setDueDatePreset(days: number): void {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    // Update the date input
+    this.selectedDueDate = date.toISOString().split('T')[0];
+
+    // Keep the current time or set to end of day
+    if (!this.selectedDueTime) {
+      this.selectedDueTime = '17:00'; // 5 PM
+    }
+  }
+
+  /**
+   * Cancel due date change
+   */
+  cancelDueDateChange(): void {
+    this.showDueDatePicker = false;
+  }
+
+  /**
+   * Update the due date
+   */
+  updateDueDate(): void {
+    if (!this.complaint || !this.selectedDueDate) return;
+
+    this.updatingDueDate = true;
+
+    // Set default time if none selected
+    const timeToUse = this.selectedDueTime || '17:00';
+
+    // Combine date and time to create a complete timestamp
+    const [year, month, day] = this.selectedDueDate.split('-');
+    const [hours, minutes] = timeToUse.split(':');
+
+    // Format as YYYY-MM-DD HH:MM:SS.sss
+    const formattedDueDate = `${year}-${month}-${day} ${hours}:${minutes}:00.000`;
+
+    // Create updated complaint object
+    const updatedComplaint = {
+      ...this.complaint,
+      due_date: formattedDueDate,
+      l_previous_status: this.complaint.status,
+    };
+
+    // Create the proper payload structure (with empty attachments array)
+    const payload: Cl_createComplaintwithAttachmentPayload = {
+      complaint: updatedComplaint,
+      attachments: []
+    };
+
+    // Call API to update due date
+    this.complaintService.updateComplaint(updatedComplaint)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Refresh the complaint data to get updated fields
+            this.loadComplaintDetails(this.complaint?.complaint_id || '');
+
+            // Show a success message
+            this.successMessage = 'Due date updated successfully!';
+            setTimeout(() => {
+              this.successMessage = '';
+            }, 3000);
+          } else {
+            this.errorMessage = response?.statusMsg || 'Failed to update due date';
+          }
+          this.updatingDueDate = false;
+          this.showDueDatePicker = false;
+        },
+        error: (error) => {
+          console.error('Error updating due date:', error);
+          this.errorMessage = 'An error occurred while updating the due date';
+          this.updatingDueDate = false;
+          this.showDueDatePicker = false;
+
+          // Clear error after 3 seconds
+          setTimeout(() => {
+            // this.errorMessage = null;
+          }, 3000);
+        }
+      });
   }
 
   /**
@@ -532,31 +830,31 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   /**
    * Submit a reply/comment to the complaint
    */
-  submitReply(): void {
-    if (!this.replyText || !this.complaint?.complaint_id) return;
+  // submitReply(): void {
+  //   if (!this.replyText || !this.complaint?.complaint_id) return;
 
-    this.submittingReply = true;
+  //   this.submittingReply = true;
 
-    this.complaintService.addComment(this.complaint.complaint_id, this.replyText)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          // Update the complaint with the new comment
-          if (this.complaint && response) {
-            // Ideally, refresh the whole complaint or add the comment to the list
-            this.loadComplaintDetails(this.complaint.complaint_id);
-          }
-          this.replyText = '';
-          this.submittingReply = false;
-        },
-        error: (err) => {
-          console.error('Error adding comment:', err);
-          this.submittingReply = false;
-          // Display error message
-          this.error = 'Failed to add comment. Please try again.';
-        }
-      });
-  }
+  //   this.complaintService.addComment(this.complaint.complaint_id, this.replyText)
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (response) => {
+  //         // Update the complaint with the new comment
+  //         if (this.complaint && response) {
+  //           // Ideally, refresh the whole complaint or add the comment to the list
+  //           this.loadComplaintDetails(this.complaint.complaint_id);
+  //         }
+  //         this.replyText = '';
+  //         this.submittingReply = false;
+  //       },
+  //       error: (err) => {
+  //         console.error('Error adding comment:', err);
+  //         this.submittingReply = false;
+  //         // Display error message
+  //         this.error = 'Failed to add comment. Please try again.';
+  //       }
+  //     });
+  // }
 
   /**
  * Get status color class for timeline
@@ -808,7 +1106,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
 
     console.log('Selected user:', user);
     const userId = user ? user.userId : null;
-    const userName = user ? user.name : null;
+    const userName = user ? user.userName : null;
 
     // Close dropdown
     this.showAssigneeDropdown = false;
@@ -828,8 +1126,18 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     console.log('Updating complaint:', this.complaint);
 
     this.complaint.assigned_to = userId;
+    this.complaint.l_assigned_to = userName;
     console.log('Selected assignee:', userId);
-    this.complaintService.updateComplaint(this.complaint)
+    // Create update payload
+    const updatedComplaint = {
+      ...this.complaint,
+      l_previous_status: this.complaint.status,
+      l_assigned_to: userName,
+      status: ComplaintStatus.ASSIGNED,
+      // modified_by: this.currentUser?.userId,
+      // modified_on: new Date().toISOString() // Backend should handle proper date formatting
+    };
+    this.complaintService.updateComplaint(updatedComplaint)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -843,7 +1151,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
             // Clear success message and navigate after 2 seconds
             setTimeout(() => {
               this.successMessage = '';
-              this.router.navigate(['/user/complaints']);
+              // this.router.navigate(['/user/complaints']);
+              this.router.navigate(['/', this.role, 'complaints']);
+
             }, 2000);
           } else {
             this.errorMessage = response.statusMsg || 'Failed to update complaint';
