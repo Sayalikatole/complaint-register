@@ -22,6 +22,7 @@ import { HodComponent } from './pages/hod/hod.component';
 import { EmployeeLayoutComponent } from './layouts/employee-layout/employee-layout.component';
 import { HodLayoutComponent } from './layouts/hod-layout/hod-layout.component';
 import { UserComponent } from './pages/user/user.component';
+import { UserDashboardComponent } from './pages/user/user-dashboard/user-dashboard.component';
 
 
 // export const routes: Routes = [
@@ -60,6 +61,7 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
 
       { path: 'user', component: UserComponent },
+      // {path:'user-dashboard',component:UserDashboardComponent}
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
