@@ -4,6 +4,12 @@
 //     path:'login',
 // }];
 
+// import { Routes } from '@angular/router';
+
+// export const routes: Routes = [{
+//     path:'login',
+// }];
+
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './component/login-page/login-page.component';
@@ -76,6 +82,8 @@ export const routes: Routes = [
       // { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
+      { path: 'create-complaints', component: CreateComplaintComponent },
+
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -105,4 +113,5 @@ export const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
+
 

@@ -107,6 +107,10 @@ export class DashboardService {
     return this.http.post<Cl_getdashboardataPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getDashboardPayload);
   }
 
+  getClientTotalCompltStats(getClientDashboardPayload: Cl_getDashboardPayload): Observable<Cl_getClientDashboardPayload> {
+    return this.http.post<Cl_getClientDashboardPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getClientDashboardPayload);
+  }
+
 
   getAllDepatList(getDashboardPayload: Cl_getDashboardPayload): Observable<DeptmentList[]> {
    return this.http.post<DeptmentList[]>(`${this.baseUrl}/departments/getAllDepartment`, getDashboardPayload);
@@ -138,9 +142,15 @@ export class DashboardService {
 }
 export interface Cl_getDashboardPayload {
   oprId: string,
-  orgId: string
+  orgId: string,
+  id?:string
 };
 
+export interface Cl_getClientDashboardPayload {
+  oprId: string,
+  orgId: string,
+  userId:string,
+};
 export interface Cl_getDashboardMonthPayload {
   oprId: string,
   orgId: string
