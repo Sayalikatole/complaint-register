@@ -76,6 +76,8 @@ export const routes: Routes = [
       // { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
+      { path: 'create-complaints', component: CreateComplaintComponent },
+
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
