@@ -4,12 +4,6 @@
 //     path:'login',
 // }];
 
-// import { Routes } from '@angular/router';
-
-// export const routes: Routes = [{
-//     path:'login',
-// }];
-
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './component/login-page/login-page.component';
@@ -29,6 +23,7 @@ import { EmployeeLayoutComponent } from './layouts/employee-layout/employee-layo
 import { HodLayoutComponent } from './layouts/hod-layout/hod-layout.component';
 import { UserComponent } from './pages/user/user.component';
 import { UserDashboardComponent } from './pages/user/user-dashboard/user-dashboard.component';
+import { HODDashboardComponent } from './pages/hod/dashboard/dashboard.component';
 
 
 // export const routes: Routes = [
@@ -66,8 +61,8 @@ export const routes: Routes = [
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
 
-      { path: 'user', component: UserComponent },
-      // {path:'user-dashboard',component:UserDashboardComponent}
+      // { path: 'user', component: UserComponent },
+      {path:'dashboard',component:UserDashboardComponent}
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
@@ -82,8 +77,6 @@ export const routes: Routes = [
       // { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
-      { path: 'create-complaints', component: CreateComplaintComponent },
-
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -97,7 +90,8 @@ export const routes: Routes = [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
-      { path: 'user', component: UserComponent }
+      { path: 'user', component: UserComponent },
+      {path:'dashboard',component:HODDashboardComponent}
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
@@ -113,5 +107,4 @@ export const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
-
 
