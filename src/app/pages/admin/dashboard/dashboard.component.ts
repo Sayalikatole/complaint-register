@@ -136,8 +136,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(this.currentUser.userId)
     console.log(this.currentUser)
     const userComplaint_data: Cl_getUserComplaintPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
       id: this.currentUser.userId
     };
     this.complaintService.getUserComplaints(userComplaint_data)
@@ -303,8 +303,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
     };
 
     this.dashboardService.getHodPriorityComplaintStatus(department_data)

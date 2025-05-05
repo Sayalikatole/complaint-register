@@ -9,6 +9,8 @@ import { AuthService } from '../../../services/auth.service';
 import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend } from '../../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
+import { Complaint } from '../../../models/complaint';
 
 // ✅ Register chart.js components and plugin
 Chart.register(...registerables);
@@ -30,6 +32,9 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedDepartmentId: string = ''; // For ngModel binding
   filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
+    // Complaints data
+    complaints: Complaint[] = [];
+    filteredComplaints: Complaint[] = [];
 
   errorMessage: string = '';
   successMessage: string = '';
@@ -46,7 +51,8 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService
+    private authService: AuthService,
+    private complaintService: ComplaintService
   ) { }
 
   ngOnInit(): void {
@@ -61,6 +67,7 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loadgetDashboardComplaintStats();
           this.loadAllDepatList();
           this.loadgetHodPriorityComplaintStatus();
+          this.loadComplaints();
         }
       });
   }
@@ -76,6 +83,42 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
+
+    /**
+   * Load complaints from the service
+   */
+    loadComplaints(): void {
+      // this.isLoading = true;
+      if (!this.currentUser) return;
+  
+      console.log(this.currentUser.userId)
+      console.log(this.currentUser)
+      const userComplaint_data: Cl_getUserComplaintPayload = {
+        opr_id: this.currentUser.operatingUnitId,
+        org_id: this.currentUser.organizationId,
+        id: this.currentUser.userId
+      };
+      this.complaintService.getUserComplaints(userComplaint_data)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.complaints = data;
+            console.log(this.complaints)
+  
+            console.log(data)
+  
+            this.filteredComplaints = [...this.complaints];
+            console.log(this.filteredComplaints)
+            // this.applyFilters();
+            // this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error loading complaints:', error);
+            this.errorMessage = 'Failed to load complaints. Please try again.';
+            // this.isLoading = false;
+          }
+        });
+    }
 
   renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
     const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
@@ -216,9 +259,9 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
-      id:this.currentUser.l_department_Id
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id:this.currentUser.department_id
 
     };
 

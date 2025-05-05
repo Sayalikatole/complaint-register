@@ -142,15 +142,12 @@ export class DashboardService {
   getMonthlyComplaintCategoryStats(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintCategoryStats[]> {
     return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/admin/by-months`, getDashboardPayload);
   }
-<<<<<<< HEAD
  
   
-=======
   // getMonthlyComplaintTrend(payload: { org_id: number; opr_id: number }) {
   //   return this.http.post<any[]>('http://localhost:8081/api/Dashboard/admin/by-months', payload);
   // }
 
->>>>>>> main
 }
 export interface Cl_getDashboardPayload {
   opr_id: string,
@@ -169,12 +166,9 @@ export interface Cl_getDashboardMonthPayload {
 };
 
 
-<<<<<<< HEAD
 export interface Cl_getdashboardataPayload{
   avgRating: any;
-=======
-export interface Cl_getdashboardataPayload {
->>>>>>> main
+// export interface Cl_getdashboardataPayload {
   statusSummary: Cl_getstatusSummary[];
   avgResolutionTime: number;
   totalComplaints: number;
