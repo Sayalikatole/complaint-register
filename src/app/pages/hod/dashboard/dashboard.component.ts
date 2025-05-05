@@ -121,45 +121,73 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-  renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
-    const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
-
-    if (!canvas) return;
-
-    // Destroy existing chart if needed (optional if you're rendering multiple times)
-    if ((Chart as any).instances?.length) {
-      (Chart as any).instances.forEach((instance: any) => instance.destroy());
-    }
-
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Complaints per Month',
-          data: data,
-          fill: false,
-          borderColor: '#3b82f6',
-          tension: 0.3,
-          pointBackgroundColor: '#3b82f6'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            labels: { color: '#374151' }
-          }
+    renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
+      const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
+      if (!canvas) return;
+    
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+    
+      // Create gradient (top to bottom)
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // Tailwind blue-500 at top
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Transparent at bottom
+    
+      // Destroy previous chart instances on same canvas
+      if ((Chart as any).instances?.length) {
+        (Chart as any).instances.forEach((instance: any) => instance.destroy());
+      }
+    
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Complaints per Month',
+            data: data,
+            fill: true, // Enable gradient background
+            borderColor: '#3b82f6',
+            backgroundColor: gradient,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#3b82f6'
+          }]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { precision: 0 }
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#374151' // Tailwind gray-700
+              },
+              position: 'bottom'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#6b7280' } // Tailwind gray-500
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0,
+                color: '#6b7280'
+              },
+              title: {
+                display: true,
+                text: 'Number of Complaints',
+                color: '#374151'
+              }
+            }
           }
         }
-      }
-    });
-  }
+      });
+    }
+    
 
   getMonthName(monthNumber: string): string {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

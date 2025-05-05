@@ -92,43 +92,78 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
     const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
-
     if (!canvas) return;
-
-    // Destroy existing chart if needed (optional if you're rendering multiple times)
+  
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+  
+    // Create a smooth blue gradient for the background fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // Top: blue with opacity
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Bottom: transparent
+  
+    // Destroy all previous chart instances on the same canvas
     if ((Chart as any).instances?.length) {
       (Chart as any).instances.forEach((instance: any) => instance.destroy());
     }
-
-    new Chart(canvas, {
+  
+    new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
         datasets: [{
           label: 'Complaints per Month',
           data: data,
-          fill: false,
-          borderColor: '#3b82f6',
+          fill: true, // Enable fill below the line
+          borderColor: '#3B82F6', // Tailwind blue-500
+          backgroundColor: gradient,
           tension: 0.3,
-          pointBackgroundColor: '#3b82f6'
+          pointRadius: 5,
+          pointBackgroundColor: '#3B82F6',
+          pointBorderColor: '#fff',
         }]
       },
       options: {
         responsive: true,
         plugins: {
           legend: {
-            labels: { color: '#374151' }
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: '#374151' // Tailwind gray-700
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
           }
         },
         scales: {
+          x: {
+            ticks: {
+              color: '#6B7280' // Tailwind gray-500
+            }
+          },
           y: {
             beginAtZero: true,
-            ticks: { precision: 0 }
+            ticks: {
+              precision: 0,
+              color: '#6B7280'
+            },
+            title: {
+              display: true,
+              text: 'Number of Complaints',
+              color: '#374151',
+              font: {
+                weight: 'bold'
+              }
+            }
           }
         }
       }
     });
   }
+  
 
   getMonthName(monthNumber: string): string {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
