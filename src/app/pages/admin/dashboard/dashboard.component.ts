@@ -5,9 +5,10 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'; // ✅ UNCOMMENTED
 import { Subject, takeUntil } from 'rxjs';
 import { UserData } from '../../../models/auth';
 import { AuthService } from '../../../services/auth.service';
-import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats } from '../../../services/dashboard.service';
+import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend } from '../../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Cl_getUserComplaintPayload } from '../../../services/complaint.service';
 
 // ✅ Register chart.js components and plugin
 Chart.register(...registerables);
@@ -34,6 +35,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   successMessage: string = '';
   private destroy$ = new Subject<void>();
   totalComplaints: any;
+  avgRating:any
   openComplaints: any;
   pendingComplaints: any;
   resolvedComplaints: any;
@@ -44,6 +46,9 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   reopenComplaints: any;
   defferedComplaints: any;
   escalatedComplaints: any;
+  priority: ComplaintPriorityTrend[] = [];
+  complaints: any;
+  complaintService: any;
 
   constructor(
     private dashboardService: DashboardService,
@@ -60,6 +65,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
           this.loadDepartmentTotalCompltStats();
           this.loadgetDashboardComplaintStats();
           this.loadAllDepatList();
+          this.loadgetHodPriorityComplaintStatus();
         }
       });
   }
@@ -123,8 +129,40 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
     return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
   }
   
+  loadComplaints(): void {
+    // this.isLoading = true;
+    if (!this.currentUser) return;
 
+    console.log(this.currentUser.userId)
+    console.log(this.currentUser)
+    const userComplaint_data: Cl_getUserComplaintPayload = {
+      oprId: this.currentUser.operatingUnitId,
+      orgId: this.currentUser.organizationId,
+      id: this.currentUser.userId
+    };
+    this.complaintService.getUserComplaints(userComplaint_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          this.complaints = data;
+          console.log(this.complaints)
+  
+          console.log(data)
+
+          // this.filteredComplaints = [...this.complaints];
+          // console.log(this.filteredComplaints)
+          // this.applyFilters();
+          // this.isLoading = false;
+        },
+        error: (error: any) => {
+          console.error('Error loading complaints:', error);
+          this.errorMessage = 'Failed to load complaints. Please try again.';
+          // this.isLoading = false;
+        }
+      });
+  }
  
+  
   loadDepartmentTotalCompltStats(): void {
     if (!this.currentUser) return;
   
@@ -140,6 +178,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
           this.totalComplaints = data.totalComplaints
           this.avgResolutionTime = data.avgResolutionTime
+          this.avgRating = data.avgRating
           this.statusSummary = data.statusSummary
           this.openComplaints = this.statusSummary.find(item => item.status === 'OPEN')?.count || 0;
           this.pendingComplaints = this.statusSummary.find(item => item.status === 'IN_PROGRESS')?.count || 0;
@@ -260,7 +299,30 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   
     this.renderDepartmentChart();
   }
-  
+  loadgetHodPriorityComplaintStatus(): void {
+    if (!this.currentUser) return;
+
+    const department_data: Cl_getDashboardPayload = {
+      oprId: this.currentUser.operatingUnitId,
+      orgId: this.currentUser.organizationId,
+    };
+
+    this.dashboardService.getHodPriorityComplaintStatus(department_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.priority = data;
+          this.renderPriorityPieChart()
+          console.log(this.priority)
+         
+        },
+        error: (error) => {
+          console.error('Error loading complaint stats:', error);
+          this.errorMessage = 'Failed to load department complaints.';
+        }
+      });
+  }
+
   
   
   renderDepartmentChart(): void {
@@ -387,5 +449,74 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
       });
     }
   }
+  renderPriorityPieChart(): void {
+    const canvas = document.getElementById('hodsCharts') as HTMLCanvasElement;
+    if (!canvas) return;
   
+    // Destroy existing chart
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+      existingChart.destroy();
+    }
+  
+    // ✅ Ensure priority data is present
+    if (!this.priority || this.priority.length === 0) return;
+  
+    const labels = this.priority.map(item => item.priority);
+    const data = this.priority.map(item => item.count);
+  
+    const backgroundColors = [
+      'rgba(255, 99, 132, 0.6)',    // HIGH
+      'rgba(255, 206, 86, 0.6)',    // MEDIUM
+      'rgba(75, 192, 192, 0.6)'     // LOW
+    ];
+  
+    const borderColors = [
+      'rgba(255, 99, 132, 1)',
+      'rgba(255, 206, 86, 1)',
+      'rgba(75, 192, 192, 1)'
+    ];
+  
+    new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: data,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            backgroundColor: '#1f2937',
+            titleColor: '#fff',
+            bodyColor: '#f9fafb'
+          },
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#374151'
+            }
+          },
+          datalabels: {
+            color: '#000',
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: (value: number) => (value > 0 ? value : '')
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+
+
 }  

@@ -205,34 +205,22 @@
 
 
         <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 mb-6">
             <!-- Complaints by Department -->
             <div class="bg-white rounded-xl shadow-2xl p-6 hover:scale-105 transition-transform duration-100">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Complaints by Department</h3>
-                <!-- <div class="mb-4">
-                    <label for="departmentFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by
-                        Department</label>
-                    <select id="departmentFilter" [(ngModel)]="selectedDepartmentId" 
-                        
-                        class="block w-full md:w-1/2 rounded-lg border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">All Departments</option>
-                        <option *ngFor="let dep of departmentList" [value]="selectedDepartmentId">
-                            {{ dep.department_name }}
-                        </option>
-                    </select>
-                </div> -->
                 <div class="h-72">
                     <canvas id="departmentsChart"></canvas>
                 </div>
             </div>
 
             <!-- Complaints Status Trend -->
-            <!-- <div class="bg-white rounded-xl shadow-2xl p-6 hover:scale-105 transition-transform duration-100">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Status Trend (Last 7 Days)</h3>
-                <div class="h-72">
-                    <canvas id="statusTrendChart"></canvas>
-                </div>
-            </div> -->
+            <div class="bg-white rounded-xl shadow-2xl p-6 hover:scale-105 transition-transform duration-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Complaints by Priority</h3>
+                <div class="h-72 flex justify-center items-center">
+                    <canvas id="hodsCharts" class="max-w-[300px] w-full"></canvas>
+                  </div>
+            </div>
             <!-- Monthly Trend -->
             <div class="bg-white rounded-xl shadow-2xl p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Monthly Complaint Trend</h3>

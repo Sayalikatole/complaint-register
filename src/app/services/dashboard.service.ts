@@ -52,7 +52,8 @@ export interface Dashboardata {
   pendingComplaints: number;         // Number of complaints in progress
   resolvedComplaints: number;        // Number of resolved complaints
   closedComplaints: number;          // Number of closed complaints
-  avgResolutionTime: number;         // Average resolution time
+  avgResolutionTime: number; 
+  avgRating:number;        // Average resolution time
   statusSummary: statusSummary[];    // Array of status summary objects
   orgId: string;                     // Organization ID
   oprId: string;                     // Operating unit ID
@@ -64,6 +65,12 @@ export interface ComplaintStatusTrend {
   resolved: number;
   inProgress: number;
 }
+
+export interface ComplaintPriorityTrend {
+  count: number;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
 
 export interface ComplaintCategoryStats {
   assigned_complaints: number;
@@ -125,9 +132,9 @@ export class DashboardService {
   /**
    * Get 7-day trend of complaint status
    */
-  // getUserComplaintStatus(getDashboardMonthPayload: Cl_getDashboardMonthPayload): Observable<ComplaintStatusTrend[]> {
-  //   return this.http.post<ComplaintStatusTrend[]>(`${this.baseUrl}/status-trend`, getDashboardMonthPayload);
-  // }
+  getHodPriorityComplaintStatus(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintPriorityTrend[]> {
+    return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/admin/by-priority`, getDashboardPayload);
+  }
 
   /**
    * Get complaint count by Month (type)
@@ -135,9 +142,7 @@ export class DashboardService {
   getMonthlyComplaintCategoryStats(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintCategoryStats[]> {
     return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/admin/by-months`, getDashboardPayload);
   }
-  // getMonthlyComplaintTrend(payload: { orgId: number; oprId: number }) {
-  //   return this.http.post<any[]>('http://localhost:8081/api/Dashboard/admin/by-months', payload);
-  // }
+ 
   
 }
 export interface Cl_getDashboardPayload {
@@ -158,6 +163,7 @@ export interface Cl_getDashboardMonthPayload {
 
 
 export interface Cl_getdashboardataPayload{
+  avgRating: any;
   statusSummary: Cl_getstatusSummary[];
   avgResolutionTime:number;
   totalComplaints:number;

@@ -1,7 +1,7 @@
 <body class="bg-gray-100 text-gray-800" x-data="dashboardApp()">
     <main class="max-w-9xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <!-- Quick Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-9 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-6 mb-6">
             <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.1s">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 icon-circle z-10">
@@ -13,7 +13,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">Total Tickets</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{totalComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -36,7 +36,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">Resolved</p>
-                        <p class="text-2xl font-semibold text-gray-800">27</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{resolvedComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -61,7 +61,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">In Progress</p>
-                        <p class="text-2xl font-semibold text-gray-800">14</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{pendingComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -86,7 +86,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">Open</p>
-                        <p class="text-2xl font-semibold text-gray-800">7</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{openComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -108,8 +108,8 @@
                         </svg>
                     </div>
                     <div class="ml-4 z-10">
-                        <p class="text-sm font-medium text-gray-500">Escalated</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
+                        <p class="text-sm font-medium text-gray-500">Escalated Complaints</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{escalatedComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -133,7 +133,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">Assigned</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{assignedComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -156,7 +156,7 @@
                     </div>
                     <div class="ml-4 z-10">
                         <p class="text-sm font-medium text-gray-500">Deferred</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{defferedComplaints}}</p>
                     </div>
                 </div>
                 <div class="mt-4 z-10 relative">
@@ -169,53 +169,7 @@
                     </div>
                 </div>
             </div>
-            <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.1s">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 icon-circle z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-4 z-10">
-                        <p class="text-sm font-medium text-gray-500">Reopen</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
-                    </div>
-                </div>
-                <div class="mt-4 z-10 relative">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">Progress</span>
-                        <span class="text-gray-700 font-medium">68%</span>
-                    </div>
-                    <div class="mt-1 bg-gray-200 rounded-full h-2.5">
-                        <div class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 68%"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="quick-stats-card bg-white rounded-lg shadow p-6 animate-fadeIn" style="animation-delay: 0.1s">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 icon-circle z-10">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 11c1.105 0 2 .672 2 1.5v3c0 .828-.895 1.5-2 1.5s-2-.672-2-1.5v-3c0-.828.895-1.5 2-1.5zM17 11V7a5 5 0 00-10 0v4" />
-                          </svg>
-                    </div>
-                    <div class="ml-4 z-10">
-                        <p class="text-sm font-medium text-gray-500">Closed</p>
-                        <p class="text-2xl font-semibold text-gray-800">48</p>
-                    </div>
-                </div>
-                <div class="mt-4 z-10 relative">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">Progress</span>
-                        <span class="text-gray-700 font-medium">68%</span>
-                    </div>
-                    <div class="mt-1 bg-gray-200 rounded-full h-2.5">
-                        <div class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 68%"></div>
-                    </div>
-                </div>
-            </div>
+       
         </div>
 
         <!-- Main Dashboard Content -->

@@ -41,7 +41,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [roleGuard],
+    // canActivate: [roleGuard],
     data: { expectedRole: '1406827783519433' },
     children: [
       { path: 'dashboard', component: DashboardComponent },
@@ -54,7 +54,7 @@ export const routes: Routes = [
   {
     path: 'client',
     component: UserLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9816063224382954' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
@@ -71,7 +71,7 @@ export const routes: Routes = [
   {
     path: 'employee',
     component: EmployeeLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '8513155895269752' },
     children: [
       // { path: 'create-complaints', component: CreateComplaintComponent },
@@ -84,7 +84,7 @@ export const routes: Routes = [
   {
     path: 'hod',
     component: HodLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9381190731754782' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },

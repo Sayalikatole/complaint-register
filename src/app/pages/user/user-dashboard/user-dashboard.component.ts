@@ -149,6 +149,9 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   closedComplaints: any;
   statusSummary:Cl_getstatusSummary[]=[]
   assignedComplaints: any;
+  reopenComplaints: any;
+  defferedComplaints: any;
+  escalatedComplaints: any;
 
   constructor(
     private dashboardService: DashboardService,
@@ -254,9 +257,9 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
           this.resolvedComplaints = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
           this.assignedComplaints = this.statusSummary.find(item => item.status === 'ASSIGNED')?.count || 0;
           this.closedComplaints = this.statusSummary.find(item => item.status === 'CLOSED')?.count || 0;
-          // this.resolvedComplaints = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
-       
-       
+          this.reopenComplaints = this.statusSummary.find(item => item.status === 'REOPEN')?.count || 0;
+          this.defferedComplaints = this.statusSummary.find(item => item.status === 'DEFERRED')?.count || 0;
+          this.escalatedComplaints = this.statusSummary.find(item => item.status === 'ESCALATED')?.count || 0;
           console.log(this.statusSummary)
         },
         error: (error) => {
