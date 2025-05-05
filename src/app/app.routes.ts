@@ -48,9 +48,10 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'department', component: DepartmentComponent },
       { path: 'complaints', component: ListComplaintComponent },
+      { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'create-suggestion', component: CreateSuggestionComponent },
-      { path: 'listsuggestions', component: ListSuggestionComponent },
+      { path: 'suggestions', component: ListSuggestionComponent },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -69,7 +70,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: UserDashboardComponent },
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
-      { path: 'listsuggestions', component: ListSuggestionComponent },
+      { path: 'suggestions', component: ListSuggestionComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -86,7 +87,7 @@ export const routes: Routes = [
       { path: 'create-complaints', component: CreateComplaintComponent },
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
-      { path: 'listsuggestions', component: ListSuggestionComponent },
+      { path: 'suggestions', component: ListSuggestionComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
