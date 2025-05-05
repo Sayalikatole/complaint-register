@@ -119,7 +119,8 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       modified_by: '',
       org_id: 1,
       opr_id: 1,
-      is_active: 'YES'
+      is_active: 'YES',
+      l_created_by: ''
     };
   }
 
@@ -158,13 +159,8 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.complaints = data;
-
-          // Check for feedback status on all closed complaints
-          this.complaints.forEach(complaint => {
-            if (complaint.status.toUpperCase() === this.statusEnum.CLOSED) {
-              this.checkFeedbackExistsForComplaint(complaint);
-            }
-          });
+          // The has_feedback property is already included in the response
+          // No need to check again for each complaint
 
           this.filteredComplaints = [...this.complaints];
           this.applyFilters();
@@ -451,8 +447,22 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     return priority.toUpperCase() === ComplaintPriority.HIGH;
   }
 
+  /**
+   * Toggle the status dropdown, checking if the user has permission to change status
+   */
   toggleStatusDropdown(event: Event, complaint: Complaint): void {
     event.stopPropagation();
+
+    // For employees, prevent status changes on their own complaints
+    if (this.role === 'employee' && complaint.created_by === this.currentUser?.userId) {
+      // Show message that employees can't change status of their own complaints
+      this.errorMessage = "You cannot change the status of complaints you've created.";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 3000);
+      return;
+    }
+
 
     // Close other dropdowns first
     this.filteredComplaints.forEach(c => {
@@ -480,6 +490,54 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Check if the current user can update the status of this complaint
+   */
+  canUpdateStatus(complaint: Complaint): boolean {
+    // HODs can update any complaint status
+    if (this.role === 'hod') return true;
+
+    // Employees can only update complaints they didn't create
+    if (this.role === 'employee') {
+      return complaint.created_by !== this.currentUser?.userId;
+    }
+
+    // Other roles (admin, client) are determined by their own logic
+    return false;
+  }
+  /**
+ * Update the status of a complaint
+ */
+  updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
+    // Stop event propagation to prevent row click
+    event.stopPropagation();
+
+    // Close dropdown
+    complaint.showStatusDropdown = false;
+
+    // Check if user is authorized to update status
+    if (this.role === 'employee' && complaint.created_by === this.currentUser?.userId) {
+      this.errorMessage = "You cannot change the status of complaints you've created.";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 3000);
+      return;
+    }
+
+    // Skip if status didn't change
+    if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
+      return;
+    }
+
+    // Special handling for DEFERRED status
+    if (newStatus.toUpperCase() === ComplaintStatus.DEFERRED) {
+      this.handleDeferredStatus(complaint, newStatus);
+      return;
+    }
+
+    // Proceed with normal status update for other statuses
+    this.processStatusUpdate(complaint, newStatus);
+  }
   /**
    * Get allowed status transitions based on current status
    * This controls which statuses a user can change to from the current status
@@ -628,27 +686,27 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
    * Update the status of a complaint
    */
-  updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
-    // Stop event propagation to prevent row click
-    event.stopPropagation();
+  // updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
+  //   // Stop event propagation to prevent row click
+  //   event.stopPropagation();
 
-    // Close dropdown
-    complaint.showStatusDropdown = false;
+  //   // Close dropdown
+  //   complaint.showStatusDropdown = false;
 
-    // Skip if status didn't change
-    if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
-      return;
-    }
+  //   // Skip if status didn't change
+  //   if (complaint.status.toUpperCase() === newStatus.toUpperCase()) {
+  //     return;
+  //   }
 
-    // Special handling for DEFERRED status
-    if (newStatus.toUpperCase() === ComplaintStatus.DEFERRED) {
-      this.handleDeferredStatus(complaint, newStatus);
-      return;
-    }
+  //   // Special handling for DEFERRED status
+  //   if (newStatus.toUpperCase() === ComplaintStatus.DEFERRED) {
+  //     this.handleDeferredStatus(complaint, newStatus);
+  //     return;
+  //   }
 
-    // Proceed with normal status update for other statuses
-    this.processStatusUpdate(complaint, newStatus);
-  }
+  //   // Proceed with normal status update for other statuses
+  //   this.processStatusUpdate(complaint, newStatus);
+  // }
 
   /**
    * Special handling for DEFERRED status that requires due date and reason
