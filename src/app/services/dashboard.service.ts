@@ -52,8 +52,8 @@ export interface Dashboardata {
   pendingComplaints: number;         // Number of complaints in progress
   resolvedComplaints: number;        // Number of resolved complaints
   closedComplaints: number;          // Number of closed complaints
-  avgResolutionTime: number; 
-  avgRating:number;        // Average resolution time
+  avgResolutionTime: number;
+  avgRating: number;        // Average resolution time
   statusSummary: statusSummary[];    // Array of status summary objects
   org_id: string;                     // Organization ID
   opr_id: string;                     // Operating unit ID
@@ -84,6 +84,14 @@ export interface ComplaintCategoryStats {
   open_complaints: number;
   reopened_complaints: number;
 }
+export interface ComplaintDueDatetrend {
+  complaintId: string;
+  subject: string;
+  dueDate: string;         // Keep as string if you're not converting to Date object
+  departmentId: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH'; // Use union type if priority is fixed
+}
+
 
 
 export interface DeptmentList {
@@ -114,9 +122,14 @@ export class DashboardService {
     return this.http.post<Cl_getdashboardataPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getDashboardPayload);
   }
 
-  getClientTotalCompltStats(getClientDashboardPayload: Cl_getDashboardPayload): Observable<Cl_getClientDashboardPayload> {
-    return this.http.post<Cl_getClientDashboardPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getClientDashboardPayload);
+  // dashboard.service.ts
+  getClientTotalCompltStats(payload: Cl_getClientDashboardPayload): Observable<ClientComplaintStatsResponse> {
+    return this.http.post<ClientComplaintStatsResponse>(
+      `${this.baseUrl}/Dashboard/user/complaint-status-summary`,
+      payload
+    );
   }
+
 
 
   getAllDepatList(getDashboardPayload: Cl_getDashboardPayload): Observable<DeptmentList[]> {
@@ -136,17 +149,23 @@ export class DashboardService {
     return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/admin/by-priority`, getDashboardPayload);
   }
 
+  getDueDateComplaintStatus(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintDueDatetrend[]> {
+    return this.http.post<ComplaintDueDatetrend[]>(`${this.baseUrl}/Dashboard/admin/pending-complaints-nearing-due`, getDashboardPayload);
+  }
+
+
   /**
    * Get complaint count by Month (type)
    */
   getMonthlyComplaintCategoryStats(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintCategoryStats[]> {
     return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/admin/by-months`, getDashboardPayload);
   }
- 
-  
-  // getMonthlyComplaintTrend(payload: { org_id: number; opr_id: number }) {
-  //   return this.http.post<any[]>('http://localhost:8081/api/Dashboard/admin/by-months', payload);
-  // }
+
+  getMonthlyUserComplaintCategoryStats(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintCategoryStats[]> {
+    return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/user/by-months`, getDashboardPayload);
+  }
+
+
 
 }
 export interface Cl_getDashboardPayload {
@@ -155,20 +174,29 @@ export interface Cl_getDashboardPayload {
   id?: string
 };
 
+// payload.ts
 export interface Cl_getClientDashboardPayload {
-  opr_id: string,
-  org_id: string,
-  userId: string,
-};
+  opr_id: string;
+  org_id: string;
+  id?: string;
+}
+
+// response.ts
+export interface ClientComplaintStatsResponse {
+  totalComplaintCount: number;
+  avgResolutionTimeInHours: number | null;
+  statusWiseCount: { [status: string]: number }; // e.g., { "OPEN": 2, "CLOSED": 1 }
+}
+
 export interface Cl_getDashboardMonthPayload {
   opr_id: string,
   org_id: string
 };
 
 
-export interface Cl_getdashboardataPayload{
+export interface Cl_getdashboardataPayload {
   avgRating: any;
-// export interface Cl_getdashboardataPayload {
+  // export interface Cl_getdashboardataPayload {
   statusSummary: Cl_getstatusSummary[];
   avgResolutionTime: number;
   totalComplaints: number;

@@ -5,10 +5,11 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'; // ✅ UNCOMMENTED
 import { Subject, takeUntil } from 'rxjs';
 import { UserData } from '../../../models/auth';
 import { AuthService } from '../../../services/auth.service';
-import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend } from '../../../services/dashboard.service';
+import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend, ComplaintDueDatetrend } from '../../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Cl_getUserComplaintPayload } from '../../../services/complaint.service';
+import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
+import { Complaint } from '../../../models/complaint';
 
 // ✅ Register chart.js components and plugin
 Chart.register(...registerables);
@@ -46,13 +47,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   reopenComplaints: any;
   defferedComplaints: any;
   escalatedComplaints: any;
+  showOtherComplaintsModal = false;
   priority: ComplaintPriorityTrend[] = [];
-  complaints: any;
-  complaintService: any;
+   // Complaints data
+   complaints: Complaint[] = [];
+   dueDateComplaints: ComplaintDueDatetrend[] = [];
+   filteredComplaints: Complaint[] = [];
+  allComplaints: Complaint[] = [];
 
+  
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService
+    private authService: AuthService,
+    private complaintService: ComplaintService
   ) { }
 
   ngOnInit(): void {
@@ -65,7 +72,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loadDepartmentTotalCompltStats();
           this.loadgetDashboardComplaintStats();
           this.loadAllDepatList();
-          this.loadgetHodPriorityComplaintStatus();
+          this.loadgetAdminPriorityComplaintStatus();
+          this.loadComplaints();
         }
       });
   }
@@ -129,6 +137,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
   }
 
+  /**
+   * Load complaints from the service
+   */
   loadComplaints(): void {
     // this.isLoading = true;
     if (!this.currentUser) return;
@@ -143,25 +154,30 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.complaintService.getUserComplaints(userComplaint_data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: any) => {
-          this.complaints = data;
+        next: (data) => {
+          this.allComplaints = data
+          this.complaints = this.allComplaints.slice(0, 5);
           console.log(this.complaints)
-  
+
           console.log(data)
 
-          // this.filteredComplaints = [...this.complaints];
-          // console.log(this.filteredComplaints)
+          this.filteredComplaints = [...this.complaints];
+          console.log(this.filteredComplaints)
           // this.applyFilters();
           // this.isLoading = false;
         },
-        error: (error: any) => {
+        error: (error) => {
           console.error('Error loading complaints:', error);
           this.errorMessage = 'Failed to load complaints. Please try again.';
           // this.isLoading = false;
         }
       });
   }
- 
+
+  closeModal() {
+    this.showOtherComplaintsModal = false;
+  }
+
  
   loadDepartmentTotalCompltStats(): void {
     if (!this.currentUser) return;
@@ -200,6 +216,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
+  loadDueDateComplaints(): void {
+    if (!this.currentUser) return;
+  
+    const payload: Cl_getDashboardPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: "0333157788020510"  // Set dynamically if needed
+    };
+  
+    this.dashboardService.getDueDateComplaintStatus(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.dueDateComplaints = data;
+          this.showOtherComplaintsModal = true;
+          console.log('Due date complaints:', this.dueDateComplaints);
+          // Optionally call a method to render this in a table or chart
+        },
+        error: (error) => {
+          console.error('Error loading due date complaints:', error);
+          this.errorMessage = 'Failed to load due date complaints.';
+        }
+      });
+  }
+  
 
   loadAllDepatList(): void {
     if (!this.currentUser) return;
@@ -299,7 +340,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.renderDepartmentChart();
   }
-  loadgetHodPriorityComplaintStatus(): void {
+  loadgetAdminPriorityComplaintStatus(): void {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {

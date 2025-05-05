@@ -48,6 +48,7 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   statusSummary: Cl_getstatusSummary[] = []
   assignedComplaints: any;
   priority: ComplaintPriorityTrend[] = [];
+  avgRating: any;
 
   constructor(
     private dashboardService: DashboardService,
@@ -186,13 +187,14 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
           this.totalComplaints = data.totalComplaints
           this.avgResolutionTime = data.avgResolutionTime
+          this.avgRating = data.avgRating
           this.statusSummary = data.statusSummary
           this.openComplaints = this.statusSummary.find(item => item.status === 'OPEN')?.count || 0;
           this.pendingComplaints = this.statusSummary.find(item => item.status === 'IN_PROGRESS')?.count || 0;
           this.resolvedComplaints = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
           this.assignedComplaints = this.statusSummary.find(item => item.status === 'ASSIGNED')?.count || 0;
           this.closedComplaints = this.statusSummary.find(item => item.status === 'CLOSED')?.count || 0;
-          // this.resolvedComplaints = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
+          // this.avgRating = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
 
 
           console.log(this.statusSummary)
