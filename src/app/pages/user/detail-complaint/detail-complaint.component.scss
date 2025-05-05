@@ -1,0 +1,64 @@
+// Animation for messages
+.message-item {
+    animation: fadeIn 0.3s ease-out;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Customize scrollbar for messages container
+.messages-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+
+// Additional styles for date picker
+.date-picker-container {
+    z-index: 30;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+// Animation for dropdown
+.dropdown-menu {
+    animation: fadeInDown 0.2s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

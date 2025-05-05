@@ -24,6 +24,10 @@ export interface Complaint {
     resolution_comments?: string;
     resolution_date?: string;
     attachments?: string[];
+    l_department_name?: string;
+    l_assigned_to?: string;
+    l_created_by?: string;
+    l_deffered_reason?: string;
 }
 
 // Create payload interface
@@ -120,3 +124,18 @@ export interface ComplaintHistoryItem {
     changed_on: string;
 }
 
+// Add this interface to your complaint service
+export interface ChatMessage {
+    chat_id?: string;
+    complaint_id: string;
+    sender_id: string;
+    receiver_id: string;
+    message: string;
+    timestamp?: string;
+    sender_name?: string;
+    sender_role?: string;
+    is_read?: boolean;
+    attachments?: string[];
+    l_sender_id?: string;
+    l_receiver_id?: string;
+}

@@ -1,0 +1,147 @@
+<div class="container mx-auto px-4 py-6 max-w-4xl">
+    <div class="rounded-lg bg-white p-6 shadow-md">
+        <!-- Form Header -->
+        <div class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Submit New Suggestion</h1>
+            <p class="text-gray-600">Fill in the details below to submit your suggestion</p>
+        </div>
+
+        <!-- Success Message Display -->
+        <div *ngIf="successMessage"
+            class="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded flex items-center">
+            <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <p>{{ successMessage }}</p>
+        </div>
+
+        <!-- Error Message Display -->
+        <div *ngIf="errorMessage"
+            class="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
+            <svg class="h-5 w-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <p>{{ errorMessage }}</p>
+        </div>
+
+        <!-- Suggestion Form -->
+        <form (ngSubmit)="onSubmit()" #suggestionForm="ngForm" class="space-y-5">
+            <!-- Subject -->
+            <div class="mb-5">
+                <label for="subject" class="mb-1 block text-sm font-medium text-gray-700">Subject
+                    <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="subject" name="subject" [(ngModel)]="suggestionData.subject"
+                    #subjectInput="ngModel"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    [ngClass]="{'border-red-300': subjectInput.invalid && (subjectInput.dirty || subjectInput.touched)}"
+                    placeholder="Enter a clear subject for your suggestion" required maxlength="30" />
+                <div *ngIf="subjectInput.invalid && (subjectInput.dirty || subjectInput.touched)"
+                    class="text-red-500 text-xs mt-1 pl-1">
+                    <div *ngIf="subjectInput.errors?.['required']">Subject is required.</div>
+                    <div *ngIf="subjectInput.errors?.['maxlength']">Subject cannot exceed 30 characters.</div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1" *ngIf="suggestionData.subject">
+                    {{ 30 - suggestionData.subject.length }} characters remaining
+                </p>
+            </div>
+
+            <!-- Description - full width with height control -->
+            <div class="mb-5">
+                <label for="description" class="mb-1 block text-sm font-medium text-gray-700">Description
+                    <span class="text-red-500">*</span>
+                </label>
+                <textarea id="description" name="description" [(ngModel)]="suggestionData.description"
+                    #descriptionInput="ngModel" rows="5"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    [ngClass]="{'border-red-300': descriptionInput.invalid && (descriptionInput.dirty || descriptionInput.touched)}"
+                    placeholder="Provide detailed information about your suggestion" required minlength="10"
+                    maxlength="500"></textarea>
+                <div class="flex justify-between items-center mt-1">
+                    <div *ngIf="descriptionInput.invalid && (descriptionInput.dirty || descriptionInput.touched)"
+                        class="text-red-500 text-xs pl-1">
+                        <div *ngIf="descriptionInput.errors?.['required']">Description is required.</div>
+                        <div *ngIf="descriptionInput.errors?.['minlength']">Description must be at least 10 characters.
+                        </div>
+                        <div *ngIf="descriptionInput.errors?.['maxlength']">Description cannot exceed 500 characters.
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500" *ngIf="suggestionData.description">
+                        {{ 500 - suggestionData.description.length }} characters remaining
+                    </p>
+                </div>
+            </div>
+
+            <!-- Department -->
+            <div class="mb-5">
+                <label for="department_id" class="mb-1 block text-sm font-medium text-gray-700">Department</label>
+                <select id="department_id" name="department_id" [(ngModel)]="suggestionData.department_id"
+                    #departmentInput="ngModel"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <option value="">Select Department (Optional)</option>
+                    <option *ngFor="let department of departments" [value]="department.department_id">
+                        {{ department.department_name }}
+                    </option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Optional - Select if suggestion is for a specific department</p>
+            </div>
+
+            <!-- Attachment - improved visual design -->
+            <div class="mb-6">
+                <label for="attachment" class="mb-1 block text-sm font-medium text-gray-700">Attachment</label>
+                <div class="border border-dashed border-gray-400 rounded-md bg-gray-50 p-1">
+                    <label
+                        class="flex cursor-pointer flex-col items-center rounded-md bg-white px-4 py-4 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-indigo-500 mb-2"></i>
+                        <span class="text-sm text-gray-600">Drop files here or click to browse</span>
+                        <input id="attachment" name="attachment" type="file" class="hidden"
+                            (change)="onFileSelected($event)" />
+                    </label>
+                </div>
+
+                <!-- Selected file -->
+                <div *ngIf="selectedFile" class="mt-2">
+                    <div class="flex items-center bg-indigo-50 p-2 rounded mb-1">
+                        <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
+                        <span class="mr-2 text-sm truncate max-w-xs">{{ selectedFile.name }}</span>
+                        <span class="text-xs text-gray-500 mr-auto">{{ (selectedFile.size / 1024).toFixed(1) }}
+                            KB</span>
+                        <button type="button" (click)="removeSelectedFile()"
+                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p class="mt-1 text-xs text-gray-500">Supported formats: PDF, DOC, JPG, PNG (max 10MB)</p>
+            </div>
+
+            <!-- Form actions - with visual separation -->
+            <div class="flex justify-end space-x-4 pt-4 border-t mt-6">
+                <button type="button" (click)="resetForm(suggestionForm)"
+                    class="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors">
+                    <i class="fas fa-redo-alt mr-1"></i> Reset
+                </button>
+                <button type="submit" [disabled]="suggestionForm.invalid || isSubmitting"
+                    class="rounded-md bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
+                    [ngClass]="{'opacity-70 cursor-not-allowed': suggestionForm.invalid || isSubmitting}">
+                    <span *ngIf="isSubmitting" class="inline-flex items-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Submitting...
+                    </span>
+                    <span *ngIf="!isSubmitting"><i class="fas fa-paper-plane mr-1"></i> Submit Suggestion</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
