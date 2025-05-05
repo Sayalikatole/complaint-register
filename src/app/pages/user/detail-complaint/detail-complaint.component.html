@@ -668,7 +668,7 @@
                 <!-- Error state -->
                 <div *ngIf="historyError && !loadingHistory" class="text-center py-6">
                     <div class="text-red-500 mb-2">{{ historyError }}</div>
-                    <button (click)="loadComplaintHistory(complaint?.complaint_id || '')"
+                    <button (click)="loadComplaintHistory(complaint.complaint_id || '')"
                         class="text-indigo-600 hover:text-indigo-800">
                         Try again
                     </button>

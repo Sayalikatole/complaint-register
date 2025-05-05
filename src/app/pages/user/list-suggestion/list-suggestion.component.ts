@@ -119,8 +119,8 @@ export class ListSuggestionComponent implements OnInit, OnDestroy {
     if (!this.currentUser) return;
 
     const departmentData: Cl_getDepartmentPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId
     };
 
     this.departmentService.getDepartments(departmentData)
@@ -143,8 +143,8 @@ export class ListSuggestionComponent implements OnInit, OnDestroy {
     if (!this.currentUser) return;
 
     const suggestionData: Cl_getSuggestionPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
       id: this.currentUser.userId
     };
 
@@ -303,7 +303,7 @@ export class ListSuggestionComponent implements OnInit, OnDestroy {
 
     // HOD can edit suggestions from their department
     if (this.role === 'hod' && this.currentUser) {
-      return suggestion.department_id === this.currentUser.l_department_Id;
+      return suggestion.department_id === this.currentUser.department_id;
     }
 
     // Users can edit their own suggestions

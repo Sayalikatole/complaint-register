@@ -95,11 +95,12 @@ export class AuthService {
   private roleKey = 'user_role';
   private userIdKey = 'user_id';
   private usernameKey = 'username';
-  private orgIdKey = 'org_id';
-  private oprIdKey = 'opr_id';
+  private org_idKey = 'org_id';
+  private opr_idKey = 'opr_id';
   private l_role_name = 'l_role_name';
   private l_org_name = 'l_org_name';
   private l_department_Id = 'l_department_Id';
+  private l_department_name = 'l_department_name';
 
   // Session management
   private timeoutId: any;
@@ -130,11 +131,12 @@ export class AuthService {
         email: '',  // We don't usually store email in localStorage for security
         role: localStorage.getItem(this.roleKey) || '',
         token: token,
-        organizationId: localStorage.getItem(this.orgIdKey) || '',
-        operatingUnitId: localStorage.getItem(this.oprIdKey) || '',
+        organizationId: localStorage.getItem(this.org_idKey) || '',
+        operatingUnitId: localStorage.getItem(this.opr_idKey) || '',
         l_role_name: localStorage.getItem(this.l_role_name) || '',
         l_org_name: localStorage.getItem(this.l_org_name) || '',
-        l_department_Id: localStorage.getItem(this.l_department_Id) || '',
+        department_id: localStorage.getItem(this.l_department_Id) || '',
+        department_name: localStorage.getItem(this.l_department_name) || '',
         account_id: ''
       };
       this.currentUserSubject.next(userData);
@@ -166,7 +168,8 @@ export class AuthService {
               operatingUnitId: response.opr_id,
               l_org_name: response.l_org_name,
               l_role_name: response.l_role_name,
-              l_department_Id: response.l_department_Id,
+              department_id: response.l_department_Id,
+              department_name: response.l_department_name,
               account_id: ''
             };
             this.currentUserSubject.next(userData);
@@ -187,8 +190,8 @@ export class AuthService {
     localStorage.setItem(this.roleKey, response.role);
     localStorage.setItem(this.userIdKey, response.userId);
     localStorage.setItem(this.usernameKey, response.username);
-    localStorage.setItem(this.orgIdKey, response.org_id.toString());
-    localStorage.setItem(this.oprIdKey, response.opr_id.toString());
+    localStorage.setItem(this.org_idKey, response.org_id.toString());
+    localStorage.setItem(this.opr_idKey, response.opr_id.toString());
     localStorage.setItem(this.l_role_name, response.l_role_name.toString());
     localStorage.setItem(this.l_org_name, response.l_org_name.toString());
   }
@@ -204,12 +207,12 @@ export class AuthService {
 
   /**
    * Get all roles for the given organization and operating unit
-   * @param orgId Organization ID
-   * @param oprId Operating Unit ID
+   * @param org_id Organization ID
+   * @param opr_id Operating Unit ID
    * @returns Observable with roles list
    */
-  getRoles(orgId: string, oprId: string): Observable<Role[]> {
-    const payload = { orgId, oprId };
+  getRoles(org_id: string, opr_id: string): Observable<Role[]> {
+    const payload = { org_id, opr_id };
     return this.http.post<Role[]>(`${this.baseUrl}/roles/getAllRole`, payload);
   }
 
@@ -266,8 +269,8 @@ export class AuthService {
    * @returns Organization ID or null if not logged in
    */
   getOrganizationId(): number | null {
-    const orgId = localStorage.getItem(this.orgIdKey);
-    return orgId ? parseInt(orgId) : null;
+    const org_id = localStorage.getItem(this.org_idKey);
+    return org_id ? parseInt(org_id) : null;
   }
 
   /**
@@ -275,8 +278,8 @@ export class AuthService {
    * @returns Operating unit ID or null if not logged in
    */
   getOperatingUnitId(): number | null {
-    const oprId = localStorage.getItem(this.oprIdKey);
-    return oprId ? parseInt(oprId) : null;
+    const opr_id = localStorage.getItem(this.opr_idKey);
+    return opr_id ? parseInt(opr_id) : null;
   }
 
   /**
@@ -310,8 +313,8 @@ export class AuthService {
       if (userData.role) localStorage.setItem(this.roleKey, userData.role);
       if (userData.userId) localStorage.setItem(this.userIdKey, userData.userId);
       if (userData.username) localStorage.setItem(this.usernameKey, userData.username);
-      if (userData.organizationId) localStorage.setItem(this.orgIdKey, userData.organizationId.toString());
-      if (userData.operatingUnitId) localStorage.setItem(this.oprIdKey, userData.operatingUnitId.toString());
+      if (userData.organizationId) localStorage.setItem(this.org_idKey, userData.organizationId.toString());
+      if (userData.operatingUnitId) localStorage.setItem(this.opr_idKey, userData.operatingUnitId.toString());
     }
   }
 
@@ -325,8 +328,8 @@ export class AuthService {
     localStorage.removeItem(this.roleKey);
     localStorage.removeItem(this.userIdKey);
     localStorage.removeItem(this.usernameKey);
-    localStorage.removeItem(this.orgIdKey);
-    localStorage.removeItem(this.oprIdKey);
+    localStorage.removeItem(this.org_idKey);
+    localStorage.removeItem(this.opr_idKey);
 
     // Clear behavior subject
     this.currentUserSubject.next(null);
@@ -337,7 +340,7 @@ export class AuthService {
     // Navigate to login page
     this.router.navigate(['/login']);
 
-    alert('Session expired or logout. Please login again.');
+    // alert('Session expired or logout. Please login again.');
   }
 
   /**
@@ -381,7 +384,7 @@ export class AuthService {
 
 
 export interface Cl_getAssignableUsers {
-  orgId: string,
-  oprId: string,
+  org_id: string,
+  opr_id: string,
   id: string,
 }

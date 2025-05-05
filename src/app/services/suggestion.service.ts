@@ -78,8 +78,8 @@ export class SuggestionService {
 }
 
 export interface Cl_getSuggestionPayload {
-  orgId: string;
-  oprId: string;
+  org_id: string;
+  opr_id: string;
   id?: string;
 }
 
