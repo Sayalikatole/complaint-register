@@ -62,7 +62,7 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
 
       // { path: 'user', component: UserComponent },
-      {path:'dashboard',component:UserDashboardComponent}
+      { path: 'dashboard', component: UserDashboardComponent }
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
@@ -91,7 +91,7 @@ export const routes: Routes = [
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'user', component: UserComponent },
-      {path:'dashboard',component:HODDashboardComponent}
+      { path: 'dashboard', component: HODDashboardComponent }
 
       // { path: 'suggestions', component: SuggestionsComponent },
       // { path: 'analytics', component: AnalyticsComponent },
