@@ -22,6 +22,7 @@ export class NavbarComponent implements OnInit {
 
   // Dropdown control
   showNewDropdown: boolean = false;
+  showCreateDropdown: boolean = false;
   showUserMenu: boolean = false;
   showMobileMenu: boolean = false;
 
@@ -87,6 +88,19 @@ export class NavbarComponent implements OnInit {
     // Close other menus when opening this one
     if (this.showNewDropdown) {
       this.showUserMenu = false;
+      this.showCreateDropdown = false;
+    }
+  }
+
+  /**
+   * Toggle Create dropdown for non-admin users
+   */
+  toggleCreateDropdown(): void {
+    this.showCreateDropdown = !this.showCreateDropdown;
+    // Close other menus when opening this one
+    if (this.showCreateDropdown) {
+      this.showUserMenu = false;
+      this.showNewDropdown = false;
     }
   }
 
@@ -98,6 +112,7 @@ export class NavbarComponent implements OnInit {
     // Close other menus when opening this one
     if (this.showUserMenu) {
       this.showNewDropdown = false;
+      this.showCreateDropdown = false;
     }
   }
 
@@ -109,13 +124,15 @@ export class NavbarComponent implements OnInit {
     // Close dropdowns when toggling mobile menu
     this.showNewDropdown = false;
     this.showUserMenu = false;
+    this.showCreateDropdown = false;
   }
 
   /**
-   * Open create complaint form (for non-admin users)
+   * Open create complaint form (for non-admin users) - deprecated
+   * Now replaced by dropdown menu
    */
   openCreateComplaint(): void {
-    console.log(this.role)
+    console.log(this.role);
     if (this.role === 'client') {
       this.router.navigate(['/client/create-complaints']);
     }
@@ -129,13 +146,19 @@ export class NavbarComponent implements OnInit {
 
   /**
    * Close menus when clicking outside
-   * Add this to your document click handler
    */
+  @HostListener('document:click', ['$event'])
   closeMenus(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.user-menu-container') && !target.closest('.new-dropdown-container')) {
+
+    // Don't close if clicked on toggle buttons
+    if (target.closest('.dropdown-toggle')) return;
+
+    // Close menus when clicking outside their containers
+    if (!target.closest('.user-menu-container') && !target.closest('.dropdown-container')) {
       this.showUserMenu = false;
       this.showNewDropdown = false;
+      this.showCreateDropdown = false;
     }
   }
 

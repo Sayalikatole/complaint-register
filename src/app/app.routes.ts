@@ -23,7 +23,8 @@ import { EmployeeLayoutComponent } from './layouts/employee-layout/employee-layo
 import { HodLayoutComponent } from './layouts/hod-layout/hod-layout.component';
 import { UserComponent } from './pages/user/user.component';
 import { UserDashboardComponent } from './pages/user/user-dashboard/user-dashboard.component';
-
+import { CreateSuggestionComponent } from './pages/user/create-suggestion/create-suggestion.component';
+import { ListSuggestionComponent } from './pages/user/list-suggestion/list-suggestion.component';
 
 // export const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -47,6 +48,9 @@ export const routes: Routes = [
       { path: 'department', component: DepartmentComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
+      { path: 'create-suggestion', component: CreateSuggestionComponent },
+      { path: 'listsuggestions', component: ListSuggestionComponent },
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
   },
@@ -63,7 +67,9 @@ export const routes: Routes = [
       { path: 'user', component: UserComponent },
       // {path:'user-dashboard',component:UserDashboardComponent}
 
-      // { path: 'suggestions', component: SuggestionsComponent },
+      { path: 'create-suggestion', component: CreateSuggestionComponent },
+      { path: 'listsuggestions', component: ListSuggestionComponent },
+
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },
@@ -78,7 +84,9 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'create-complaints', component: CreateComplaintComponent },
 
-      // { path: 'suggestions', component: SuggestionsComponent },
+      { path: 'create-suggestion', component: CreateSuggestionComponent },
+      { path: 'listsuggestions', component: ListSuggestionComponent },
+
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },
@@ -91,9 +99,11 @@ export const routes: Routes = [
       { path: 'create-complaints', component: CreateComplaintComponent },
       { path: 'complaints', component: ListComplaintComponent },
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
-      { path: 'user', component: UserComponent }
+      { path: 'user', component: UserComponent },
 
-      // { path: 'suggestions', component: SuggestionsComponent },
+      { path: 'create-suggestion', component: CreateSuggestionComponent },
+      { path: 'suggestions', component: ListSuggestionComponent },
+
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },
