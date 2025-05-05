@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
 import { Cl_createComplaintwithAttachmentPayload, Cl_getAttachmentPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService, GetChatMessagesPayload, SendChatMessagePayload } from '../../../services/complaint.service';
-import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem } from '../../../models/complaint';
+import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem, FeedbackData } from '../../../models/complaint';
 import { AuthService, Cl_getAssignableUsers } from '../../../services/auth.service';
 import { UserByDepartment, UserData } from '../../../models/auth';
 import { ComplaintStatus } from '../../../enums/complaint_status';
@@ -22,8 +22,18 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   error: string | null = null;
   replyText: string = '';
-  activeTab: 'conversation' | 'attachments' | 'history' = 'conversation';
-  submittingReply: boolean = false;
+
+  // For feedback response (admin/HOD feature)
+  feedbackResponse: string = '';
+  canRespondToFeedback: boolean = false;
+  submittingResponse: boolean = false;
+
+  // For sending reminders
+  canSendReminder: boolean = false;
+  sendingReminder: boolean = false;
+
+  // Update the activeTab type to include 'feedback'
+  activeTab: 'conversation' | 'attachments' | 'history' | 'feedback' = 'conversation'; submittingReply: boolean = false;
   currentUser: UserData | null = null;
 
   role: string = '';
@@ -63,7 +73,11 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   loadingHistory: boolean = false;
   historyError: string | null = null;
 
-
+  // Add these properties for feedback
+  feedback: FeedbackData | null = null;
+  loadingFeedback: boolean = false;
+  feedbackError: string | null = null;
+  hasFeedback: boolean = false;
   messages: ChatMessage[] = [];
   loadingMessages: boolean = false;
   messageError: string | null = null;
@@ -116,9 +130,6 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   }
 
 
-  /**
-   * Load complaint details by ID
-   */
   loadComplaintDetails(id: string): void {
     if (!this.currentUser) return;
     this.loading = true;
@@ -137,10 +148,14 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           this.complaint = data;
           this.loading = false;
 
-          console.log("loading")
           // After loading complaint details, load attachments
           this.loadAttachments(id);
           this.setupDueDateEditPermission();
+
+          // Check if complaint is closed, then check for feedback
+          if (this.complaint.status?.toUpperCase() === 'CLOSED') {
+            this.checkFeedbackExists(id);
+          }
         },
         error: (err) => {
           console.error('Error loading complaint details:', err);
@@ -150,6 +165,30 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Check if feedback exists for this complaint
+   */
+  checkFeedbackExists(complaintId: string): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      complaint_id: complaintId,
+      org_id: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId
+    };
+
+    this.complaintService.checkFeedbackExists(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (exists) => {
+          this.hasFeedback = exists;
+        },
+        error: (error) => {
+          console.error('Error checking feedback existence:', error);
+          this.hasFeedback = false;
+        }
+      });
+  }
 
   /**
  * Load complaint history
@@ -823,9 +862,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
   /**
    * Change the active tab
    */
-  setActiveTab(tab: 'conversation' | 'attachments' | 'history'): void {
-    this.activeTab = tab;
-  }
+  // setActiveTab(tab: 'conversation' | 'attachments' | 'history'): void {
+  //   this.activeTab = tab;
+  // }
 
   /**
    * Submit a reply/comment to the complaint
@@ -1275,6 +1314,136 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           this.loading = false;
         }
       });
+  }
+
+
+  /**
+ * Load feedback for this complaint
+ */
+  loadFeedback(complaintId: string): void {
+    if (!this.currentUser) return;
+
+    this.loadingFeedback = true;
+    this.feedbackError = null;
+
+    const payload = {
+      complaint_id: complaintId,
+      org_id: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId
+    };
+
+    this.complaintService.getFeedbackByComplaintId(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (feedbackData) => {
+          this.feedback = feedbackData;
+          this.hasFeedback = !!feedbackData;
+          this.loadingFeedback = false;
+
+          // Check if user can respond to feedback
+          this.canRespondToFeedback = this.role === 'admin' || this.role === 'hod';
+
+          // Check if user can send reminders
+          this.canSendReminder = !this.hasFeedback &&
+            (this.role === 'admin' || this.role === 'hod' ||
+              this.complaint?.assigned_to === this.currentUser?.userId);
+        },
+        error: (error) => {
+          console.error('Error loading feedback:', error);
+          this.feedbackError = 'Failed to load feedback. Please try again.';
+          this.loadingFeedback = false;
+        }
+      });
+  }
+
+  /**
+   * Submit response to feedback (admin/HOD feature)
+   */
+  submitFeedbackResponse(): void {
+    // if (!this.feedback || !this.feedbackResponse.trim()) return;
+
+    // this.submittingResponse = true;
+
+    // // Create the response payload
+    // const responsePayload = {
+    //   feedback_id: this.feedback.feedback_id,
+    //   response_text: this.feedbackResponse,
+    //   responder_id: this.currentUser?.userId
+    // };
+
+    // // Call service method (you would need to implement this)
+    // this.complaintService.respondToFeedback(responsePayload)
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe({
+    //     next: (response) => {
+    //       if (response && response.status) {
+    //         // Show success message
+    //         this.successMessage = 'Response submitted successfully';
+
+    //         // Refresh feedback
+    //         this.loadFeedback(this.complaint?.complaint_id || '');
+
+    //         // Clear response text
+    //         this.feedbackResponse = '';
+    //       } else {
+    //         this.errorMessage = response?.statusMsg || 'Failed to submit response';
+    //       }
+    //       this.submittingResponse = false;
+    //     },
+    //     error: (error) => {
+    //       console.error('Error submitting response:', error);
+    //       this.errorMessage = 'An error occurred while submitting response';
+    //       this.submittingResponse = false;
+    //     }
+    //   });
+  }
+
+  /**
+   * Send reminder for feedback (admin/HOD/assigned employee feature)
+   */
+  sendFeedbackReminder(): void {
+    // if (!this.complaint) return;
+
+    // this.sendingReminder = true;
+
+    // // Create the reminder payload
+    // const reminderPayload = {
+    //   complaint_id: this.complaint.complaint_id,
+    //   sender_id: this.currentUser?.userId,
+    //   recipient_id: this.complaint.created_by
+    // };
+
+    // // Call service method (you would need to implement this)
+    // this.complaintService.sendFeedbackReminder(reminderPayload)
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe({
+    //     next: (response) => {
+    //       if (response && response.status) {
+    //         // Show success message
+    //         this.successMessage = 'Feedback reminder sent successfully';
+    //       } else {
+    //         this.errorMessage = response?.statusMsg || 'Failed to send reminder';
+    //       }
+    //       this.sendingReminder = false;
+    //     },
+    //     error: (error) => {
+    //       console.error('Error sending reminder:', error);
+    //       this.errorMessage = 'An error occurred while sending reminder';
+    //       this.sendingReminder = false;
+    //     }
+    //   });
+  }
+
+  /**
+   * Modified setActiveTab to include feedback
+   */
+  setActiveTab(tab: 'conversation' | 'attachments' | 'history' | 'feedback'): void {
+    this.activeTab = tab;
+
+    // If switching to feedback tab, load feedback data
+    if (tab === 'feedback' && this.complaint) {
+      this.loadFeedback(this.complaint.complaint_id || '');
+    }
   }
 
   /**
