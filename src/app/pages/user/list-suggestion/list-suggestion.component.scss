@@ -1,0 +1,62 @@
+// Status dropdown styling
+.actions-dropdown {
+    z-index: 30;
+    animation: dropdown 0.2s ease-out;
+}
+
+@keyframes dropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// For better handling of nested clickable elements
+.row-has-dropdown-open {
+    z-index: 20;
+    position: relative;
+}
+
+// Toast notification
+[class*="fixed bottom-"] {
+    animation: toast-in 0.3s ease-out;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Add a subtle hover effect to list items
+.hover\:bg-gray-50:hover {
+    transition: background-color 0.2s ease;
+}
+
+// Make the modal element properly positioned
+.inline-block {
+    animation: modal-appear 0.3s ease-out;
+}
+
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

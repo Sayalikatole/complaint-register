@@ -135,6 +135,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     const seconds = String(dueDate.getSeconds()).padStart(2, '0');
 
     this.complaintData.due_date = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.000`;
+    this.complaintData.due_date = '';
+
   }
 
   /**

@@ -1,0 +1,232 @@
+<div class="flex flex-col h-full overflow-hidden bg-white">
+    <!-- Suggestion List Header -->
+    <div class="flex items-center justify-between border-b p-4">
+        <div class="flex items-center">
+            <i class="fas fa-lightbulb mr-2 text-amber-500"></i>
+            <span class="mr-2 font-medium">All Suggestions</span>
+
+            <!-- Department filter dropdown -->
+            <div class="relative ml-3">
+                <button (click)="isDepartmentFilterOpen = !isDepartmentFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-amber-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedDepartment === 'all' ? 'All Departments' : selectedDepartmentName }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isDepartmentFilterOpen"
+                    class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
+                    <a (click)="onDepartmentChange('all'); isDepartmentFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        All Departments
+                    </a>
+                    <!-- Use the available departments array to generate options -->
+                    <a *ngFor="let department of departments"
+                        (click)="onDepartmentChange(department.department_id); isDepartmentFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        {{ department.department_name }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add filter button -->
+            <button class="ml-4 text-gray-500 hover:text-amber-600 focus:outline-none" title="Add filter">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+
+        <!-- Sort and search options -->
+        <div class="flex items-center space-x-3">
+            <!-- Search -->
+            <div class="relative">
+                <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search suggestions..."
+                    class="pl-8 pr-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="relative">
+                <button (click)="isSortOpen = !isSortOpen"
+                    class="flex items-center rounded px-2 py-1 text-gray-700 hover:text-amber-600 focus:outline-none dropdown-toggle">
+                    <span>SORT</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isSortOpen"
+                    class="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
+                    <a (click)="onSortChange('newest'); isSortOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Newest first
+                    </a>
+                    <a (click)="onSortChange('oldest'); isSortOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Oldest first
+                    </a>
+                </div>
+            </div>
+
+            <button class="text-gray-500 hover:text-amber-600 focus:outline-none" title="More options">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <button class="text-gray-500 hover:text-amber-600 focus:outline-none" title="Info">
+                <i class="fas fa-info-circle"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+        <p class="mt-4 text-gray-600">Loading your suggestions...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage && !isLoading" class="flex flex-col items-center justify-center py-10">
+        <div class="text-red-500 text-center">
+            <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+            <p>{{ errorMessage }}</p>
+            <button (click)="loadSuggestions()"
+                class="mt-4 px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700">
+                Retry
+            </button>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredSuggestions.length === 0"
+        class="flex flex-col items-center justify-center py-20">
+        <div class="text-center">
+            <i class="fas fa-lightbulb text-5xl text-gray-300 mb-3"></i>
+            <h3 class="text-lg font-medium text-gray-800 mb-1">No suggestions found</h3>
+            <p class="text-gray-500 mb-4">{{ searchTerm ? 'No results match your search criteria.' : 'You haven\'t
+                submitted any suggestions yet.' }}</p>
+            <a [routerLink]="['/', role, 'complaints']"
+                class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700">
+                <i class="fas fa-plus mr-2"></i> Submit New Suggestion
+            </a>
+        </div>
+    </div>
+
+    <!-- Suggestion List -->
+    <div *ngIf="!isLoading && !errorMessage && filteredSuggestions.length > 0" class="divide-y overflow-auto flex-1">
+        <!-- Suggestion Item Template -->
+        <div *ngFor="let suggestion of filteredSuggestions"
+            class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors relative"
+            (click)="viewSuggestionDetails(suggestion.suggestion_id)">
+            <div class="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <i class="far fa-lightbulb"></i>
+            </div>
+            <div class="flex-1">
+                <div class="font-medium">{{ suggestion.subject }}</div>
+                <div class="flex flex-wrap gap-2 text-sm text-gray-600">
+                    <span>#{{ suggestion.suggestion_id }}</span>
+                    <span>•</span>
+                    <span>{{ suggestion.l_created_by }}</span>
+                    <span *ngIf="suggestion.l_department_name">•</span>
+                    <span *ngIf="suggestion.l_department_name">{{ suggestion.l_department_name }}</span>
+                    <span>•</span>
+                    <span>{{ formatDate(suggestion.created_on) }}</span>
+                </div>
+            </div>
+            <!-- Attachment indicator -->
+            <div *ngIf="suggestion.attachment_id" class="flex items-center justify-center mr-2">
+                <i class="fas fa-paperclip text-gray-400" title="Has attachment"></i>
+            </div>
+            <!-- Actions dropdown for admins and HODs -->
+            <div *ngIf="role === 'admin' || role === 'hod'" class="status-container" (click)="$event.stopPropagation()">
+                <div class="relative dropdown-container">
+                    <button (click)="toggleActionsDropdown($event, suggestion)"
+                        class="rounded p-2 transition-colors text-gray-500 hover:text-amber-600 hover:bg-amber-50">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+
+                    <!-- Actions dropdown menu -->
+                    <div *ngIf="suggestion.showActionsDropdown"
+                        class="actions-dropdown absolute right-0 mt-1 w-48 rounded-md bg-white shadow-lg py-1 border border-gray-200 dropdown-menu z-20">
+                        <a *ngIf="canEdit(suggestion)" (click)="editSuggestion($event, suggestion)"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            <i class="fas fa-edit mr-2"></i> Edit
+                        </a>
+                        <a *ngIf="canDelete(suggestion)" (click)="deleteSuggestion($event, suggestion)"
+                            class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer">
+                            <i class="fas fa-trash-alt mr-2"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+            <!-- Modal panel -->
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Delete Suggestion
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    Are you sure you want to delete this suggestion? This action cannot be undone.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" (click)="confirmDeleteSuggestion()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete
+                    </button>
+                    <button type="button" (click)="cancelDeleteSuggestion()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Notification Toast -->
+    <div *ngIf="successMessage"
+        class="fixed bottom-4 right-4 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg transition-opacity duration-500 z-50">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm">{{ successMessage }}</p>
+            </div>
+            <div class="ml-auto pl-3">
+                <div class="-mx-1.5 -my-1.5">
+                    <button (click)="successMessage = ''"
+                        class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem } from '../models/complaint';
+import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage } from '../models/complaint';
 
 @Injectable({
   providedIn: 'root'
@@ -149,6 +149,20 @@ export class ComplaintService {
   }
 
   /**
+ * Send a chat message
+ */
+  sendChatMessage(payload: SendChatMessagePayload): Observable<any> {
+    return this.http.post<any>(`http://192.168.1.36:8081/api/complaints/chat/send`, payload);
+  }
+
+  /**
+ * Get chat messages for a complaint
+ */
+  getChatMessages(payload: GetChatMessagesPayload): Observable<ChatMessage[]> {
+    return this.http.post<ChatMessage[]>(`http://192.168.1.36:8081/api/complaints/chat/get`, payload);
+  }
+
+  /**
    * Assign complaint to user
    */
   assignComplaint(complaintId: string, userId: string): Observable<Complaint> {
@@ -283,5 +297,17 @@ export interface Cl_getAttachmentPayload {
 export interface Cl_getComplaintHistoryPayload {
   orgId: string;
   oprId: string;
+  id: string;
+}
+
+
+export interface SendChatMessagePayload {
+  complaintId: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+}
+
+export interface GetChatMessagesPayload {
   id: string;
 }
