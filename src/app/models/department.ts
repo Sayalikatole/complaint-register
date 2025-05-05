@@ -24,9 +24,9 @@ export interface DepartmentRequest {
     name: string;
     description: string;
     isActive: string;
-    orgId: string;
-    oprId: string;
-    createdBy: string;
+    org_id: string;
+    opr_id: string;
+    created_by: string;
 }
 
 /**

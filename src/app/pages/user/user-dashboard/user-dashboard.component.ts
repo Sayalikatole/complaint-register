@@ -22,7 +22,7 @@
 //   // Error messages
 //   errorMessage: string = '';
 //   successMessage: string = '';
-  
+
 //   private destroy$ = new Subject<void>();
 //  constructor( private dashboardService: DashboardService,
 //   private authService: AuthService){}
@@ -100,7 +100,7 @@
 //     });
 //   }
 
- 
+
 // }
 
 
@@ -123,19 +123,19 @@ Chart.register(ChartDataLabels);
 
 
 @Component({
-   selector: 'app-user-dashboard',
-     standalone: true,
-     imports: [CommonModule,FormsModule],
-     templateUrl: './user-dashboard.component.html',
-     styleUrl: './user-dashboard.component.scss'
-   })
+  selector: 'app-user-dashboard',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './user-dashboard.component.html',
+  styleUrl: './user-dashboard.component.scss'
+})
 export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   currentUser: UserData | null = null;
   dashboardData: Dashboardata[] = [];
   dashDepStatus: DepartmentWiseComplaint[] = [];
-  departmentList:DeptmentList[]=[];
+  departmentList: DeptmentList[] = [];
   selectedDepartmentId: string = ''; // For ngModel binding
-filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
+  filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
 
   errorMessage: string = '';
@@ -147,7 +147,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   resolvedComplaints: any;
   avgResolutionTime: any;
   closedComplaints: any;
-  statusSummary:Cl_getstatusSummary[]=[]
+  statusSummary: Cl_getstatusSummary[] = []
   assignedComplaints: any;
   reopenComplaints: any;
   defferedComplaints: any;
@@ -156,7 +156,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$
@@ -185,16 +185,16 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
 
 
-  renderMonthlyTrendChart(labels: string[],  data: (number | null)[]): void {
+  renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
     const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
-  
+
     if (!canvas) return;
-  
+
     // Destroy existing chart if needed (optional if you're rendering multiple times)
     if ((Chart as any).instances?.length) {
       (Chart as any).instances.forEach((instance: any) => instance.destroy());
     }
-  
+
     new Chart(canvas, {
       type: 'line',
       data: {
@@ -226,24 +226,24 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
   }
 
   getMonthName(monthNumber: string): string {
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const index = parseInt(monthNumber, 10) - 1;
     return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
   }
-  
 
- 
+
+
   loadDepartmentTotalCompltStats(): void {
     console.log(this.currentUser)
     if (!this.currentUser) return;
-  
+
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
-      id:this.currentUser.userId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
     };
-  
+
     this.dashboardService.getAdminTotalCompltStats(department_data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -268,16 +268,16 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
         }
       });
   }
-  
 
-  
+
+
   loadAllDepatList(): void {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
-      
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+
     };
 
     this.dashboardService.getAllDepatList(department_data)
@@ -299,9 +299,9 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
-      id:this.currentUser.userId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
 
     };
 
@@ -322,13 +322,13 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
   loadMonthlyComplaintTrend(): void {
     if (!this.currentUser) return;
-  
+
     const payload: Cl_getDashboardPayload = {
-      orgId: this.currentUser.organizationId,
-      oprId: this.currentUser.operatingUnitId,
-      id:this.currentUser.userId
+      org_id: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      id: this.currentUser.userId
     };
-  
+
     this.dashboardService.getMonthlyComplaintCategoryStats(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -338,17 +338,17 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
           response.forEach(item => {
             monthMap.set(item.month, item.total_complaints);
           });
-  
+
           const labels: string[] = [];
           const data: (number | null)[] = [];
-  
+
           // Fill data for all 12 months
           for (let i = 1; i <= 12; i++) {
             const monthStr = i.toString().padStart(2, '0'); // '01' to '12'
             labels.push(this.getMonthName(monthStr));
             data.push(monthMap.get(monthStr) ?? null); // Use null if data is missing
           }
-  
+
           this.renderMonthlyTrendChart(labels, data);
         },
         error: (err) => {
@@ -357,23 +357,23 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
         }
       });
   }
-  
-  
-  
+
+
+
   renderDepartmentChart(): void {
     const canvas = document.getElementById('departmentsChart') as HTMLCanvasElement;
     if (!canvas) return;
-  
+
     // Destroy previous chart if exists
     if (Chart.getChart(canvas)) {
       Chart.getChart(canvas)?.destroy();
     }
-  
+
     // ✅ Make sure data is present
     if (!this.filteredDepStatus || this.filteredDepStatus.length === 0) return;
-  
+
     const dept = this.filteredDepStatus[0]; // Only one department data expected
-  
+
     const chartOptions: ChartConfiguration['options'] = {
       responsive: true,
       animation: {
@@ -413,7 +413,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
         }
       }
     };
-  
+
     // ✅ Extract status-wise data
     const statusCounts = dept.status_counts || {};
     const labels = ['Open', 'In Progress', 'Resolved', 'Closed', 'Escalated'];
@@ -424,7 +424,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
       statusCounts.CLOSED || 0,
       statusCounts.ESCALATED || 0
     ];
-  
+
     const backgroundColors = [
       'rgba(255, 99, 132, 0.2)',       // Open
       'rgba(255, 206, 86, 0.2)',       // In Progress
@@ -432,7 +432,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
       'rgba(54, 162, 235, 0.2)',       // Closed
       'rgba(255, 159, 64, 0.2)'        // Escalated
     ];
-  
+
     const borderColors = [
       'rgba(255, 99, 132, 0.8)',
       'rgba(255, 206, 86, 0.8)',
@@ -440,7 +440,7 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
       'rgba(54, 162, 235, 0.8)',
       'rgba(255, 159, 64, 0.8)'
     ];
-  
+
     new Chart(canvas, {
       type: 'bar',
       data: {
@@ -459,6 +459,6 @@ filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
       plugins: [ChartDataLabels]
     });
   }
-  
-  
+
+
 }  

@@ -200,8 +200,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   loadDepartments(): void {
     // Using default org and opr ids - should be updated based on selection
     const department_data: Cl_getDepartmentPayload = {
-      oprId: '1',
-      orgId: '1'
+      opr_id: '1',
+      org_id: '1'
     };
 
     this.departmentService.getDepartments(department_data)

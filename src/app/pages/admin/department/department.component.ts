@@ -89,8 +89,8 @@ export class DepartmentComponent implements OnInit, OnDestroy {
     // Using default org and opr ids - should be updated based on selection
 
     const department_data: Cl_getDepartmentPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId
     };
 
     this.departmentService.getDepartments(department_data)

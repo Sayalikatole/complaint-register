@@ -167,8 +167,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId
     };
 
     this.dashboardService.getAdminTotalCompltStats(department_data)
@@ -185,11 +185,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.resolvedComplaints = this.statusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
           this.assignedComplaints = this.statusSummary.find(item => item.status === 'ASSIGNED')?.count || 0;
           this.closedComplaints = this.statusSummary.find(item => item.status === 'CLOSED')?.count || 0;
-           this.reopenComplaints = this.statusSummary.find(item => item.status === 'REOPEN')?.count || 0;
-           this.defferedComplaints = this.statusSummary.find(item => item.status === 'DEFERRED')?.count || 0;
-           this.escalatedComplaints = this.statusSummary.find(item => item.status === 'ESCALATED')?.count || 0;
-       
-       
+          this.reopenComplaints = this.statusSummary.find(item => item.status === 'REOPEN')?.count || 0;
+          this.defferedComplaints = this.statusSummary.find(item => item.status === 'DEFERRED')?.count || 0;
+          this.escalatedComplaints = this.statusSummary.find(item => item.status === 'ESCALATED')?.count || 0;
+
+
           console.log(this.statusSummary)
         },
         error: (error) => {
@@ -205,8 +205,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId
     };
 
     this.dashboardService.getAllDepatList(department_data)
@@ -228,8 +228,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const department_data: Cl_getDashboardPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId
     };
 
     this.dashboardService.getDashboardComplaintStats(department_data)
@@ -251,8 +251,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentUser) return;
 
     const payload: Cl_getDashboardPayload = {
-      orgId: this.currentUser.organizationId,
-      oprId: this.currentUser.operatingUnitId
+      org_id: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId
     };
 
     this.dashboardService.getMonthlyComplaintCategoryStats(payload)

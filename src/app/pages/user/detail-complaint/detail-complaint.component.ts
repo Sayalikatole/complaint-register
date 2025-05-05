@@ -125,8 +125,8 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     this.error = null;
 
     const userComplaint_data: Cl_getUserComplaintPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
       id: id
     };
 
@@ -160,8 +160,8 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     this.historyError = null;
 
     const historyPayload: Cl_getComplaintHistoryPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
       id: complaintId
     };
 
@@ -410,7 +410,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
 
     // HOD permission check
     const isHOD = userRole === 'HOD';
-    const isForHODDepartment = this.complaint.department_id === this.currentUser.l_department_Id;
+    const isForHODDepartment = this.complaint.department_id === this.currentUser.department_id;
 
     // Assigned employee check
     const isAssignedEmployee = this.complaint.assigned_to === userId;
@@ -1073,9 +1073,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     this.loadingAssignees = true;
 
     const getAssignableUsers_payload: Cl_getAssignableUsers = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
-      id: this.currentUser.l_department_Id
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.department_id
     };
     // Replace with your actual API call to get users
     this.authService.getAssignableUsers(getAssignableUsers_payload)

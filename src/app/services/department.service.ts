@@ -12,8 +12,8 @@ export class DepartmentService {
   constructor(private http: HttpClient) { }
   /**
    * Get all departments for the given organization and operating unit
-   * @param orgId Organization ID
-   * @param oprId Operating Unit ID
+   * @param org_id Organization ID
+   * @param opr_id Operating Unit ID
    * @returns Observable with departments list
    */
   getDepartments(getDepartmentPayload: Cl_getDepartmentPayload): Observable<Department[]> {
@@ -53,6 +53,6 @@ export class DepartmentService {
 }
 
 export interface Cl_getDepartmentPayload {
-  oprId: string,
-  orgId: string
+  opr_id: string,
+  org_id: string
 };

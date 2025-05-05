@@ -201,6 +201,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   showRegPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
+  successMessage: string = '';
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -269,8 +270,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     // Using default org and opr ids - should be updated based on selection
 
     const department_data: Cl_getDepartmentPayload = {
-      oprId: '1',
-      orgId: '1'
+      opr_id: '1',
+      org_id: '1'
     };
 
     this.departmentService.getDepartments(department_data)
@@ -347,8 +348,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const orgId = parseInt(this.selectedOrganizationId);
-    this.filteredOperatingUnits = this.operatingUnits.filter(unit => unit.org_id === orgId);
+    const org_id = parseInt(this.selectedOrganizationId);
+    this.filteredOperatingUnits = this.operatingUnits.filter(unit => unit.org_id === org_id);
   }
 
   /**
@@ -446,22 +447,27 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     // const hashedPassword = this.cryptoService.hashPassword(this.password);
 
     const registerData: RegisterRequest = {
+      account_id: '',
       name: this.fullName,
       email: this.email,
-      phoneNo: this.phoneNumber,
+      phone_no: this.phoneNumber,
       password: this.password,
-      l_department_Id: this.selectedl_department_Id || '8977304036509213', // Using default if not selected
-      roleId: this.selectedRoleId || "9065837334047421", // Using default if not selected
-      orgId: this.selectedOrganizationId.toString() || '1',
-      oprId: this.selectedOperatingUnitId.toString() || '1',
-      createdBy: 'admin'
+      department_id: this.selectedl_department_Id || '8977304036509213', // Using default if not selected
+      role_id: this.selectedRoleId || "9065837334047421", // Using default if not selected
+      org_id: this.selectedOrganizationId.toString() || '1',
+      opr_id: this.selectedOperatingUnitId.toString() || '1',
+      created_by: 'd4b8ca35df954910',
+      created_on: '',
+      modified_by: '',
+      modified_on: '',
+      is_active: 'YES'
     };
 
     this.authService.register(registerData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          alert('Registered successfully! Please login.');
+          this.successMessage = 'Registered successfully! Please login.';
           this.togglePage();  // After register, show login form
         },
         error: (error) => {

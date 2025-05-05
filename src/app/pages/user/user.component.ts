@@ -136,8 +136,8 @@ export class UserComponent {
 
     console.log(this.currentUser)
     const userComplaint_data: Cl_getUserComplaintPayload = {
-      oprId: this.currentUser.operatingUnitId,
-      orgId: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
       id: this.currentUser.userId
     };
     this.complaintService.getUserComplaints(userComplaint_data)

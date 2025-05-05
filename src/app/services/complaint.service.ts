@@ -98,8 +98,8 @@ export class ComplaintService {
 
     // if (userData) {
     //   params
-    //     .set('oprId', userData.oprId)
-    //     .set('orgId', userData.orgId)
+    //     .set('opr_id', userData.opr_id)
+    //     .set('org_id', userData.org_id)
     //     .set('userId', userData.userId);
     // }
 
@@ -261,15 +261,15 @@ export class ComplaintService {
 }
 
 export interface Cl_getUserComplaintPayload {
-  orgId: string,
-  oprId: string,
+  org_id: string,
+  opr_id: string,
   id: string,
 }
 
 // interface for the getComplaintById payload if needed
 export interface Cl_getComplaintByIdPayload {
-  orgId: string,
-  oprId: string,
+  org_id: string,
+  opr_id: string,
   id: string,
 }
 
@@ -295,8 +295,8 @@ export interface Cl_getAttachmentPayload {
 
 // Add this interface for the payload
 export interface Cl_getComplaintHistoryPayload {
-  orgId: string;
-  oprId: string;
+  org_id: string;
+  opr_id: string;
   id: string;
 }
 

@@ -12,7 +12,7 @@
 
 //   constructor(private http: HttpClient) { }
 
- 
+
 // }
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -20,8 +20,8 @@ import { Observable } from 'rxjs';
 
 // You should create these interfaces in a models file for type safety
 export interface DashboardService {
-  orgId: string;
-  oprId: string;
+  org_id: string;
+  opr_id: string;
 }
 
 export interface DepartmentWiseComplaint {
@@ -31,8 +31,8 @@ export interface DepartmentWiseComplaint {
   department_name: string;
   departmentName: string;
   totalComplaints: number;
-  open:number;
-  in_progress:number;
+  open: number;
+  in_progress: number;
   resolved: number;
   pending: number;
   // avgResolutionTime: string; // e.g., '2 days'
@@ -55,8 +55,8 @@ export interface Dashboardata {
   avgResolutionTime: number; 
   avgRating:number;        // Average resolution time
   statusSummary: statusSummary[];    // Array of status summary objects
-  orgId: string;                     // Organization ID
-  oprId: string;                     // Operating unit ID
+  org_id: string;                     // Organization ID
+  opr_id: string;                     // Operating unit ID
 }
 
 export interface ComplaintStatusTrend {
@@ -86,17 +86,17 @@ export interface ComplaintCategoryStats {
 }
 
 
-export interface DeptmentList{
+export interface DeptmentList {
   department_id: string;
-    org_id: string;
-    department_name: string;
-    description: string;
-    created_by?: string;
-    created_on?: string;
-    modified_by?: string;
-    modified_on?: string;
-    is_active: string;
-    opr_id: string;
+  org_id: string;
+  department_name: string;
+  description: string;
+  created_by?: string;
+  created_on?: string;
+  modified_by?: string;
+  modified_on?: string;
+  is_active: string;
+  opr_id: string;
 }
 
 @Injectable({
@@ -107,10 +107,10 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-   /**
-   * Get department-wise complaint summary
-   */
-   getAdminTotalCompltStats(getDashboardPayload: Cl_getDashboardPayload): Observable<Cl_getdashboardataPayload> {
+  /**
+  * Get department-wise complaint summary
+  */
+  getAdminTotalCompltStats(getDashboardPayload: Cl_getDashboardPayload): Observable<Cl_getdashboardataPayload> {
     return this.http.post<Cl_getdashboardataPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getDashboardPayload);
   }
 
@@ -120,8 +120,8 @@ export class DashboardService {
 
 
   getAllDepatList(getDashboardPayload: Cl_getDashboardPayload): Observable<DeptmentList[]> {
-   return this.http.post<DeptmentList[]>(`${this.baseUrl}/departments/getAllDepartment`, getDashboardPayload);
- }
+    return this.http.post<DeptmentList[]>(`${this.baseUrl}/departments/getAllDepartment`, getDashboardPayload);
+  }
   /**
    * Get department-wise complaint summary
    */
@@ -142,34 +142,45 @@ export class DashboardService {
   getMonthlyComplaintCategoryStats(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintCategoryStats[]> {
     return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/admin/by-months`, getDashboardPayload);
   }
+<<<<<<< HEAD
  
   
+=======
+  // getMonthlyComplaintTrend(payload: { org_id: number; opr_id: number }) {
+  //   return this.http.post<any[]>('http://localhost:8081/api/Dashboard/admin/by-months', payload);
+  // }
+
+>>>>>>> main
 }
 export interface Cl_getDashboardPayload {
-  oprId: string,
-  orgId: string,
-  id?:string
+  opr_id: string,
+  org_id: string,
+  id?: string
 };
 
 export interface Cl_getClientDashboardPayload {
-  oprId: string,
-  orgId: string,
-  userId:string,
+  opr_id: string,
+  org_id: string,
+  userId: string,
 };
 export interface Cl_getDashboardMonthPayload {
-  oprId: string,
-  orgId: string
+  opr_id: string,
+  org_id: string
 };
 
 
+<<<<<<< HEAD
 export interface Cl_getdashboardataPayload{
   avgRating: any;
+=======
+export interface Cl_getdashboardataPayload {
+>>>>>>> main
   statusSummary: Cl_getstatusSummary[];
-  avgResolutionTime:number;
-  totalComplaints:number;
+  avgResolutionTime: number;
+  totalComplaints: number;
 }
 
-export interface Cl_getstatusSummary{
-  count:number;
-  status:string;
+export interface Cl_getstatusSummary {
+  count: number;
+  status: string;
 }
