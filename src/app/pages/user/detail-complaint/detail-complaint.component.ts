@@ -112,6 +112,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
               this.loadComplaintHistory(id); // Add this line
               this.loadMessages(id); // Add this line
               this.setupDueDateEditPermission();
+              this.loadFeedback(id)
             }
           });
         }
@@ -1327,7 +1328,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     this.feedbackError = null;
 
     const payload = {
-      complaint_id: complaintId,
+      id: complaintId,
       org_id: this.currentUser.organizationId,
       opr_id: this.currentUser.operatingUnitId
     };
@@ -1339,6 +1340,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           this.feedback = feedbackData;
           this.hasFeedback = !!feedbackData;
           this.loadingFeedback = false;
+          console.log(this.feedback)
 
           // Check if user can respond to feedback
           this.canRespondToFeedback = this.role === 'admin' || this.role === 'hod';
