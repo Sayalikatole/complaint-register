@@ -28,6 +28,8 @@ export interface Complaint {
     l_assigned_to?: string;
     l_created_by?: string;
     l_deffered_reason?: string;
+    has_feedback?: boolean;
+    // showStatusDropdown?: boolean;
 }
 
 // Create payload interface
@@ -138,4 +140,27 @@ export interface ChatMessage {
     attachments?: string[];
     l_sender_id?: string;
     l_receiver_id?: string;
+}
+
+
+export interface FeedbackData {
+    feedback_id: string;
+    subject: string;
+    description: string;
+    rating: number;
+    complaint_id: string;
+    created_by: string;
+    created_on: string;
+    modified_on: string;
+    modified_by: string;
+    org_id: number;
+    opr_id: number;
+    is_active: string;
+}
+
+
+export interface FeedbackResponse {
+    status: boolean;
+    statusMsg?: string;
+    data?: any;
 }

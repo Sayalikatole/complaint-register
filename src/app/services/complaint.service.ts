@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage } from '../models/complaint';
+import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage, FeedbackData, FeedbackResponse } from '../models/complaint';
 
 @Injectable({
   providedIn: 'root'
@@ -162,6 +162,52 @@ export class ComplaintService {
     return this.http.post<ChatMessage[]>(`http://192.168.1.36:8081/api/complaints/chat/get`, payload);
   }
 
+  /**
+ * Save feedback for a complaint
+ */
+  saveFeedback(feedbackData: FeedbackData): Observable<FeedbackResponse> {
+    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/saveFeedback', feedbackData);
+  }
+
+  /**
+   * Check if a complaint has feedback
+   */
+  checkFeedbackExists(payload: { complaint_id: string, org_id: string, opr_id: string }): Observable<boolean> {
+    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/checkFeedbackExists', payload)
+      .pipe(
+        map(response => {
+          if (response.status) {
+            return !!response.data;
+          } else {
+            return false;
+          }
+        }),
+        catchError(error => {
+          console.error('Error checking feedback existence:', error);
+          return of(false);
+        })
+      );
+  }
+
+  /**
+   * Get feedback for a complaint
+   */
+  getFeedbackByComplaintId(payload: { complaint_id: string, org_id: string, opr_id: string }): Observable<FeedbackData | null> {
+    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/getFeedbackByComplaintId', payload)
+      .pipe(
+        map(response => {
+          if (response.status && response.data) {
+            return response.data;
+          } else {
+            return null;
+          }
+        }),
+        catchError(error => {
+          console.error('Error fetching feedback:', error);
+          return of(null);
+        })
+      );
+  }
   /**
    * Assign complaint to user
    */

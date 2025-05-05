@@ -112,6 +112,8 @@
     <!-- Ticket List -->
     <div *ngIf="!isLoading && !errorMessage && filteredComplaints.length > 0" class="divide-y overflow-auto flex-1">
         <!-- Complaint Item Template -->
+        <!-- Inside the complaint item template, add the Submit Feedback button before the status container -->
+        <!-- Inside the complaint item template -->
         <div *ngFor="let complaint of filteredComplaints"
             class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors relative"
             (click)="viewComplaintDetails(complaint.complaint_id)">
@@ -133,7 +135,21 @@
                         class="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs">
                         High Priority
                     </span>
+                    <!-- Feedback indicator badge -->
+                    <span *ngIf="complaint.has_feedback"
+                        class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full text-xs">
+                        Feedback Submitted
+                    </span>
                 </div>
+            </div>
+
+            <!-- Submit Feedback button - only show for CLOSED complaints without feedback -->
+            <div *ngIf="complaint.status.toUpperCase() === statusEnum.CLOSED && !complaint.has_feedback" class="mr-2"
+                (click)="$event.stopPropagation()">
+                <button (click)="openFeedbackModal($event, complaint)"
+                    class="text-xs bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded transition-colors">
+                    Submit Feedback
+                </button>
             </div>
             <!-- Status section with improved styling and positioning -->
             <div class="status-container" (click)="$event.stopPropagation()">
@@ -282,6 +298,114 @@
                         </span>
                     </button>
                     <button type="button" [disabled]="submittingDeferral" (click)="cancelDeferralUpdate()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Feedback Modal -->
+    <div *ngIf="showFeedbackModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+        role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+            <!-- Modal panel -->
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start mb-4">
+                        <!-- Change the feedback modal icon background and color to amber/yellow -->
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Complaint Feedback
+                            </h3>
+                            <div class="mt-1">
+                                <p class="text-sm text-gray-500">
+                                    Please rate your experience and provide any additional feedback.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Subject field -->
+                        <div>
+                            <label for="feedback-subject" class="block text-sm font-medium text-gray-700">Subject
+                                <span class="text-red-500">*</span></label>
+                            <!-- Change the focus styles for input fields in the feedback modal to use amber -->
+                            <input type="text" id="feedback-subject" [(ngModel)]="feedbackData.subject"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                                placeholder="Enter feedback subject">
+                            <div *ngIf="feedbackSubjectError" class="text-red-500 text-xs mt-1">
+                                {{ feedbackSubjectError }}
+                            </div>
+                        </div>
+
+                        <!-- Rating field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Rating <span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex items-center mt-1 space-x-1">
+                                <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                    <button type="button" (click)="setRating(star)"
+                                        class="text-2xl focus:outline-none transition-colors"
+                                        [ngClass]="{'text-yellow-400': star <= feedbackData.rating, 'text-gray-300': star > feedbackData.rating}">
+                                        ★
+                                    </button>
+                                </ng-container>
+                            </div>
+                            <div *ngIf="feedbackRatingError" class="text-red-500 text-xs mt-1">
+                                {{ feedbackRatingError }}
+                            </div>
+                        </div>
+
+                        <!-- Description field -->
+                        <div>
+                            <label for="feedback-description"
+                                class="block text-sm font-medium text-gray-700">Description
+                                <span class="text-red-500">*</span></label>
+                            <textarea id="feedback-description" [(ngModel)]="feedbackData.description" rows="4"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                                placeholder="Provide your detailed feedback..."></textarea>
+                            <div *ngIf="feedbackDescriptionError" class="text-red-500 text-xs mt-1">
+                                {{ feedbackDescriptionError }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <!-- Change the Submit Feedback button in the modal to amber -->
+                    <button type="button" [disabled]="submittingFeedback" (click)="submitFeedback()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="!submittingFeedback">Submit Feedback</span>
+                        <span *ngIf="submittingFeedback" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Processing...
+                        </span>
+                    </button>
+                    <button type="button" [disabled]="submittingFeedback" (click)="cancelFeedback()"
                         class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                         Cancel
                     </button>

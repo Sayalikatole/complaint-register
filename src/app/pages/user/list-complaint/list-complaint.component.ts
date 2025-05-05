@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 // Import the necessary services and models
 import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
-import { Complaint } from '../../../models/complaint';
+import { Complaint, FeedbackData } from '../../../models/complaint';
 import { AuthService } from '../../../services/auth.service';
 import { UserData } from '../../../models/auth';
 import { Router } from '@angular/router';
@@ -60,6 +60,16 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   deferralDueTime: string = '17:00'; // Default to 5 PM
 
 
+  // Add these new properties
+  showFeedbackModal: boolean = false;
+  feedbackData: FeedbackData = this.getEmptyFeedbackData();
+  submittingFeedback: boolean = false;
+  feedbackSubjectError: string = '';
+  feedbackDescriptionError: string = '';
+  feedbackRatingError: string = '';
+  selectedComplaintForFeedback: Complaint | null = null;
+
+
   role: string = '';
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
@@ -94,6 +104,26 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   }
 
   /**
+ * Initialize empty feedback data object
+ */
+  getEmptyFeedbackData(): FeedbackData {
+    return {
+      feedback_id: '',
+      subject: 'Feedback on Complaint Resolution',
+      description: '',
+      rating: 0,
+      complaint_id: '',
+      created_by: '',
+      created_on: '',
+      modified_on: '',
+      modified_by: '',
+      org_id: 1,
+      opr_id: 1,
+      is_active: 'YES'
+    };
+  }
+
+  /**
    * Handle clicks outside the dropdown to close them
    */
   handleOutsideClick(event: MouseEvent): void {
@@ -114,34 +144,63 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Load complaints from the service
    */
   loadComplaints(): void {
-    // this.isLoading = true;
+    this.isLoading = true;
     if (!this.currentUser) return;
 
-    console.log(this.currentUser.userId)
-    console.log(this.currentUser)
-    const userComplaint_data: Cl_getUserComplaintPayload = {
+    const complaintData: Cl_getUserComplaintPayload = {
       opr_id: this.currentUser.operatingUnitId,
       org_id: this.currentUser.organizationId,
       id: this.currentUser.userId
     };
-    this.complaintService.getUserComplaints(userComplaint_data)
+
+    this.complaintService.getUserComplaints(complaintData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.complaints = data;
-          console.log(this.complaints)
 
-          console.log(data)
+          // Check for feedback status on all closed complaints
+          this.complaints.forEach(complaint => {
+            if (complaint.status.toUpperCase() === this.statusEnum.CLOSED) {
+              this.checkFeedbackExistsForComplaint(complaint);
+            }
+          });
 
           this.filteredComplaints = [...this.complaints];
-          console.log(this.filteredComplaints)
           this.applyFilters();
-          // this.isLoading = false;
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading complaints:', error);
           this.errorMessage = 'Failed to load complaints. Please try again.';
-          // this.isLoading = false;
+          this.isLoading = false;
+        }
+      });
+  }
+
+  /**
+   * Check if feedback exists for a complaint
+   */
+  checkFeedbackExistsForComplaint(complaint: Complaint): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      complaint_id: complaint.complaint_id,
+      org_id: this.currentUser.organizationId,
+      opr_id: this.currentUser.operatingUnitId
+    };
+
+    this.complaintService.checkFeedbackExists(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (hasFeedback) => {
+          // Update the complaint with feedback status
+          complaint.has_feedback = hasFeedback;
+        },
+        error: (error) => {
+          console.error('Error checking feedback existence:', error);
+          // Default to false if there's an error
+          complaint.has_feedback = false;
         }
       });
   }
@@ -876,6 +935,158 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
           console.error('Error updating status:', error);
           this.errorMessage = 'An error occurred while updating status';
           this.isLoading = false;
+
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 5000);
+        }
+      });
+  }
+
+
+  /**
+   * Open feedback modal for a complaint
+   */
+  openFeedbackModal(event: Event, complaint: Complaint): void {
+    event.stopPropagation();
+
+    // If feedback already exists, don't allow submitting new feedback
+    if (complaint.has_feedback) {
+      this.successMessage = 'Feedback has already been submitted for this complaint';
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 5000);
+      return;
+    }
+
+    // Reset feedback form
+    this.feedbackData = this.getEmptyFeedbackData();
+    this.feedbackData.complaint_id = complaint.complaint_id;
+    this.feedbackData.subject = `Feedback on Complaint #${complaint.complaint_id}`;
+
+    // Set user info
+    if (this.currentUser) {
+      this.feedbackData.created_by = this.currentUser.userId;
+      this.feedbackData.org_id = parseInt(this.currentUser.organizationId) || 1;
+      this.feedbackData.opr_id = parseInt(this.currentUser.operatingUnitId) || 1;
+    }
+
+    // Store selected complaint
+    this.selectedComplaintForFeedback = complaint;
+
+    // Reset error messages
+    this.feedbackSubjectError = '';
+    this.feedbackDescriptionError = '';
+    this.feedbackRatingError = '';
+
+    // Show modal
+    this.showFeedbackModal = true;
+  }
+  /**
+   * Set rating for feedback
+   */
+  setRating(rating: number): void {
+    this.feedbackData.rating = rating;
+    this.feedbackRatingError = '';
+  }
+
+  /**
+   * Cancel feedback submission
+   */
+  cancelFeedback(): void {
+    this.showFeedbackModal = false;
+    this.selectedComplaintForFeedback = null;
+  }
+
+  /**
+   * Validate feedback form
+   */
+  validateFeedbackForm(): boolean {
+    let isValid = true;
+
+    // Validate subject
+    if (!this.feedbackData.subject || this.feedbackData.subject.trim().length === 0) {
+      this.feedbackSubjectError = 'Subject is required';
+      isValid = false;
+    } else {
+      this.feedbackSubjectError = '';
+    }
+
+    // Validate rating
+    if (this.feedbackData.rating === 0) {
+      this.feedbackRatingError = 'Please provide a rating';
+      isValid = false;
+    } else {
+      this.feedbackRatingError = '';
+    }
+
+    // Validate description
+    if (!this.feedbackData.description || this.feedbackData.description.trim().length === 0) {
+      this.feedbackDescriptionError = 'Description is required';
+      isValid = false;
+    } else if (this.feedbackData.description.trim().length < 10) {
+      this.feedbackDescriptionError = 'Please provide more detailed feedback (at least 10 characters)';
+      isValid = false;
+    } else {
+      this.feedbackDescriptionError = '';
+    }
+
+    return isValid;
+  }
+
+
+  /**
+   * Submit feedback
+   */
+  submitFeedback(): void {
+    // Validate form
+    if (!this.validateFeedbackForm()) {
+      return;
+    }
+
+    this.submittingFeedback = true;
+
+    // Add timestamps
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.000`;
+
+    // this.feedbackData.created_on = formattedDate;
+    this.feedbackData.created_on = '';
+
+
+    // Submit feedback using the service
+    this.complaintService.saveFeedback(this.feedbackData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            // Update local complaint to show feedback was submitted
+            if (this.selectedComplaintForFeedback) {
+              this.selectedComplaintForFeedback.has_feedback = true;
+            }
+
+            // Show success message
+            this.successMessage = 'Feedback submitted successfully';
+            setTimeout(() => {
+              this.successMessage = '';
+            }, 5000);
+
+            // Close modal
+            this.showFeedbackModal = false;
+            this.selectedComplaintForFeedback = null;
+          } else {
+            // Handle error from API
+            this.errorMessage = response?.statusMsg || 'Failed to submit feedback';
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 5000);
+          }
+          this.submittingFeedback = false;
+        },
+        error: (error) => {
+          console.error('Error submitting feedback:', error);
+          this.errorMessage = 'An error occurred while submitting feedback';
+          this.submittingFeedback = false;
 
           setTimeout(() => {
             this.errorMessage = '';
