@@ -33,7 +33,8 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-gray-500 text-xl font-medium mb-1">Total Complaints</p>
-                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{ totalComplaints }}
+                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{
+                            totalComplaints }}
                         </h3>
                         <!-- <p class="text-sm mt-2 text-indigo-500"><span>↑ 12%</span> from last month</p> -->
                     </div>
@@ -58,7 +59,8 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-gray-500 text-xl font-medium mb-1">Open Complaints</p>
-                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{ openComplaints }}
+                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{
+                            openComplaints }}
                         </h3>
                         <!-- <p class="text-sm mt-2 text-yellow-500"><span>↑ 8%</span> from last month</p> -->
                     </div>
@@ -125,80 +127,83 @@
                     </div>
                 </div>
             </div> -->
-  <!-- Assigned Complaints -->
-  <div
-  class="rounded-xl border-l-4 border-orange-400 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
-  <div class="flex justify-between items-center">
-      <div>
-          <p class="text-gray-500 text-xl font-medium mb-1">Assigned Complaints</p>
-          <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{ assignedComplaints }}
-          </h3>
-          <!-- <p class="text-sm mt-2 text-orange-400"><span>↑ 14%</span> from last month</p> -->
-      </div>
-      <div
-          class="relative p-3 rounded-full bg-orange-100 text-orange-500 transition-transform duration-300 group-hover:rotate-12">
-          <!-- Icon with ripple -->
-          <div
-              class="absolute inset-0 rounded-full bg-orange-200 opacity-50 animate-ping z-0 group-hover:block hidden">
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-      </div>
-  </div>
- </div>
- 
- <div
- class="rounded-xl border-l-4 border-sky-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
- <div class="flex justify-between items-center">
-     <div>
-         <p class="text-gray-500 text-xl font-medium mb-1">Average Rating</p>
-         <h3 class="text-5xl font-medium font-bold size hodheading text-gray-800 group-hover:animate-bounce">{{ avgRating }}
-             <span class="text-yellow-400 ml-1 text-2xl">★</span>
-         </h3>
+            <!-- Assigned Complaints -->
+            <div
+                class="rounded-xl border-l-4 border-orange-400 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-xl font-medium mb-1">Assigned Complaints</p>
+                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{
+                            assignedComplaints }}
+                        </h3>
+                        <!-- <p class="text-sm mt-2 text-orange-400"><span>↑ 14%</span> from last month</p> -->
+                    </div>
+                    <div
+                        class="relative p-3 rounded-full bg-orange-100 text-orange-500 transition-transform duration-300 group-hover:rotate-12">
+                        <!-- Icon with ripple -->
+                        <div
+                            class="absolute inset-0 rounded-full bg-orange-200 opacity-50 animate-ping z-0 group-hover:block hidden">
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
-     </div>
-     <div
-         class="relative p-3 rounded-full bg-sky-100 text-sky-600 transition-transform duration-300 group-hover:rotate-12">
-         <div
-             class="absolute inset-0 rounded-full bg-sky-200 opacity-50 animate-ping z-0 group-hover:block hidden">
-         </div>
-         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                 d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-         </svg>
-     </div>
- </div>
-</div>
+            <div
+                class="rounded-xl border-l-4 border-yellow-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-xl font-medium mb-1">Average Rating</p>
+                        <h3
+                            class="text-5xl font-medium font-bold size hodheading text-gray-800 group-hover:animate-bounce">
+                            {{ avgRating | number: '1.1-1' }}
+                            <span class="text-yellow-400 ml-1 text-2xl">★</span>
+                        </h3>
+                    </div>
+                    <div
+                        class="relative p-3 rounded-full bg-yellow-100 text-yellow-600 transition-transform duration-300 group-hover:rotate-12">
+                        <div
+                            class="absolute inset-0 rounded-full bg-yellow-200 opacity-50 animate-ping z-0 group-hover:block hidden">
+                        </div>
+                        <!-- Changed Icon to Thumbs Up -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2s-3 1.343-3 3 1.343 3 3 3zM6.4 14l1.2-4.8L4 7.2l5-.4L12 2l3 4.8 5 .4-3.6 2 1.2 4.8L12 12.6 6.4 14z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
 
 
-
-             <!-- Closed Complaints -->
- <div
- class="rounded-xl border-l-4 border-green-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
- <div class="flex justify-between items-center">
-     <div>
-         <p class="text-gray-500 text-xl font-medium mb-1">Closed Complaints</p>
-         <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{ closedComplaints }}
-         </h3>
-         <!-- <p class="text-sm mt-2 text-green-500"><span>↑ 14%</span> from last month</p> -->
-     </div>
-     <div
-         class="relative p-3 rounded-full bg-green-100 text-green-600 transition-transform duration-300 group-hover:rotate-12">
-         <!-- Icon with ripple -->
-         <div
-             class="absolute inset-0 rounded-full bg-green-200 opacity-50 animate-ping z-0 group-hover:block hidden">
-         </div>
-         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-         </svg>
-     </div>
- </div>
-</div>
+            <!-- Closed Complaints -->
+            <div
+                class="rounded-xl border-l-4 border-green-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-xl font-medium mb-1">Closed Complaints</p>
+                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{
+                            closedComplaints }}
+                        </h3>
+                        <!-- <p class="text-sm mt-2 text-green-500"><span>↑ 14%</span> from last month</p> -->
+                    </div>
+                    <div
+                        class="relative p-3 rounded-full bg-green-100 text-green-600 transition-transform duration-300 group-hover:rotate-12">
+                        <!-- Icon with ripple -->
+                        <div
+                            class="absolute inset-0 rounded-full bg-green-200 opacity-50 animate-ping z-0 group-hover:block hidden">
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
             <!-- Average Resolution Time Card -->
             <div
@@ -206,7 +211,8 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-gray-500 text-xl font-medium mb-1">Average Time</p>
-                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{ avgResolutionTime }}
+                        <h3 class="text-3xl font-bold text-gray-800 hodheading group-hover:animate-bounce">{{
+                            avgResolutionTime }}
                             mins</h3>
                         <!-- <p class="text-sm mt-2 text-sky-500"><span>↑ 5%</span> from last month</p> -->
                     </div>
@@ -243,7 +249,7 @@
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Complaints by Priority</h3>
                 <div class="h-72 flex justify-center items-center">
                     <canvas id="hodsCharts" class="max-w-[300px] w-full"></canvas>
-                  </div>
+                </div>
             </div>
             <!-- Monthly Trend -->
             <div class="bg-white rounded-xl shadow-2xl p-6">
@@ -280,42 +286,48 @@
         <!-- Recent Complaints -->
         <div class="bg-white rounded-xl shadow-md animate-fade-in animate-delay-400">
             <div class="p-6 border-b border-gray-200">
-              <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-gray-800">Recent Complaints</h3>
-                <div class="flex space-x-2">
-                  <!-- <button class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-all">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800">Recent Complaints</h3>
+                    <div class="flex space-x-2">
+                        <!-- <button class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-all">
                     <i class="fas fa-filter mr-1"></i> Filter
                   </button>
                   <button class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all">
                     View All
                   </button> -->
+                    </div>
                 </div>
-              </div>
             </div>
-          
+
             <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr *ngFor="let complaint of complaints.slice(0, 5)"  class="hover:bg-gray-50 transition-all">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ complaint.complaint_id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ complaint.subject }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">{{ complaint.l_department_name || 'N/A' }}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span 
-                        class="px-2 py-1 rounded-md text-xs"
-                        [ngClass]="{
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Department</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr *ngFor="let complaint of complaints.slice(0, 5)" class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
+                                complaint.complaint_id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ complaint.subject }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">{{
+                                    complaint.l_department_name || 'N/A' }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md text-xs" [ngClass]="{
                             'bg-yellow-100 text-yellow-600': complaint.status === 'ASSIGNED',
                             'bg-blue-100 text-blue-600': complaint.status === 'IN_PROGRESS',
                             'bg-gray-200 text-gray-600': complaint.status === 'OPEN',
@@ -326,26 +338,25 @@
                             'bg-red-100 text-red-600': complaint.status === 'CLOSED'
           
                           }">
-                        {{ complaint.status.replace('_', ' ') }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span 
-                        class="px-2 py-1 rounded-md text-xs"
-                        [ngClass]="{
+                                    {{ complaint.status.replace('_', ' ') }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 rounded-md text-xs" [ngClass]="{
                           'bg-red-100 text-red-800': complaint.priority === 'HIGH',
                           'bg-yellow-100 text-yellow-800': complaint.priority === 'MEDIUM',
                           'bg-green-100 text-green-800': complaint.priority === 'LOW'
                         }">
-                        {{ complaint.priority }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {{ complaint.created_on | date: 'yyyy-MM-dd' }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                                    {{ complaint.priority }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ complaint.created_on | date: 'yyyy-MM-dd' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-          </div>    </main>
+        </div>
+    </main>
 </div>
