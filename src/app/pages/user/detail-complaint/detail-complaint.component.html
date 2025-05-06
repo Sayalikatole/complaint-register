@@ -359,7 +359,7 @@
                     <div class="mt-1 flex items-center text-sm text-gray-600">
                         <span>{{ complaint.complaint_id }}</span>
                         <span class="mx-1">•</span>
-                        <span>{{ complaint.created_by }}</span>
+                        <span>{{ complaint.l_created_by }}</span>
                         <span class="mx-1">•</span>
                         <span>{{ formatDate(complaint.created_on) }}</span>
                     </div>
@@ -812,7 +812,7 @@
                             <div class="mt-2 text-sm text-gray-500">
                                 <span>Submitted on {{ formatDate(feedback.created_on) }}</span>
                                 <span *ngIf="feedback.created_by" class="ml-2">by {{ feedback.l_created_by
- }}</span>
+                                    }}</span>
                             </div>
                         </div>
 

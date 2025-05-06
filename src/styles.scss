@@ -11,7 +11,7 @@
 
 /* Define font variables */
 :root {
-    --font-heading: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -28,7 +28,7 @@ h6,
 .text-4xl,
 .font-bold,
 .font-semibold {
-    font-family: var(--font-heading);
+    font-family: var(--font-heading) !important;
     letter-spacing: -0.02em;
     /* Slightly tighter tracking for headings */
 }

@@ -250,6 +250,8 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           console.error('Error loading messages:', error);
           this.messageError = 'Failed to load conversation history';
           this.loadingMessages = false;
+          this.messages = [];
+
         }
       });
   }
