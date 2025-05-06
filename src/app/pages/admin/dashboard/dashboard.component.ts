@@ -257,7 +257,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const payload: Cl_getDashboardPayload = {
       opr_id: this.currentUser.operatingUnitId,
       org_id: this.currentUser.organizationId,
-      id: "0333157788020510"  // Set dynamically if needed
+      // id: "0333157788020510"  // Set dynamically if needed
     };
   
     this.dashboardService.getDueDateComplaintStatus(payload)

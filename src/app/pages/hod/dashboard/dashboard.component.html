@@ -149,29 +149,7 @@
   </div>
  </div>
  
- <div
- class="rounded-xl border-l-4 border-sky-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
- <div class="flex justify-between items-center">
-     <div>
-         <p class="text-gray-500 text-xl font-medium mb-1">Average Rating</p>
-         <h3 class="text-5xl font-medium font-bold size hodheading text-gray-800 group-hover:animate-bounce">{{ avgRating }}
-             <span class="text-yellow-400 ml-1 text-2xl">★</span>
-         </h3>
 
-     </div>
-     <div
-         class="relative p-3 rounded-full bg-sky-100 text-sky-600 transition-transform duration-300 group-hover:rotate-12">
-         <div
-             class="absolute inset-0 rounded-full bg-sky-200 opacity-50 animate-ping z-0 group-hover:block hidden">
-         </div>
-         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                 d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-         </svg>
-     </div>
- </div>
-</div>
 
 
 
@@ -199,6 +177,32 @@
      </div>
  </div>
 </div>
+
+<div
+  class="rounded-xl border-l-4 border-sky-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-gray-500 text-xl font-medium mb-1">Average Rating</p>
+      <h3 class="text-5xl font-medium font-bold size hodheading text-gray-800 group-hover:animate-bounce">
+        {{ avgRating | number: '1.1-1' }}
+        <span class="text-yellow-400 ml-1 text-2xl">★</span>
+      </h3>
+    </div>
+    <div
+      class="relative p-3 rounded-full bg-sky-100 text-sky-600 transition-transform duration-300 group-hover:rotate-12">
+      <div
+        class="absolute inset-0 rounded-full bg-sky-200 opacity-50 animate-ping z-0 group-hover:block hidden">
+      </div>
+      <!-- Changed Icon to Thumbs Up -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2s-3 1.343-3 3 1.343 3 3 3zM6.4 14l1.2-4.8L4 7.2l5-.4L12 2l3 4.8 5 .4-3.6 2 1.2 4.8L12 12.6 6.4 14z" />
+      </svg>
+    </div>
+  </div>
+</div>
+
 
             <!-- Average Resolution Time Card -->
             <div
