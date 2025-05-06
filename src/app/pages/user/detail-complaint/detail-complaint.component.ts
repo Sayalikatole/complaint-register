@@ -242,7 +242,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (messages) => {
           this.messages = messages.sort((a, b) =>
-            new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime()
+            new Date(a.sent_on || 0).getTime() - new Date(b.sent_on || 0).getTime()
           );
           this.loadingMessages = false;
         },
@@ -290,7 +290,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
             sender_id: this.currentUser?.userId || '',
             receiver_id: receiverId,
             message: this.replyText,
-            timestamp: new Date().toISOString(),
+            sent_on: new Date().toISOString(),
             sender_name: this.currentUser?.username || this.currentUser?.userId || '',
             is_read: false
           };

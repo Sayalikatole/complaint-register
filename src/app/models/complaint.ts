@@ -133,7 +133,7 @@ export interface ChatMessage {
     sender_id: string;
     receiver_id: string;
     message: string;
-    timestamp?: string;
+    sent_on?: string;
     sender_name?: string;
     sender_role?: string;
     is_read?: boolean;

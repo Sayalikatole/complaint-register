@@ -453,8 +453,18 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   toggleStatusDropdown(event: Event, complaint: Complaint): void {
     event.stopPropagation();
 
-    // For employees, prevent status changes on their own complaints
-    if (this.role === 'employee' && complaint.created_by === this.currentUser?.userId) {
+    // Store the selected complaint for use in getAllowedStatusTransitions
+    this.selectedComplaint = complaint;
+
+    // Special case for resolved complaints - creators can change to reopen or closed
+    const isResolvedCreatorComplaint =
+      complaint.status.toUpperCase() === ComplaintStatus.RESOLVED &&
+      complaint.created_by === this.currentUser?.userId;
+
+    // For employees, prevent status changes on their own complaints (except when resolved)
+    if (this.role === 'employee' &&
+      complaint.created_by === this.currentUser?.userId &&
+      !isResolvedCreatorComplaint) {
       // Show message that employees can't change status of their own complaints
       this.errorMessage = "You cannot change the status of complaints you've created.";
       setTimeout(() => {
@@ -462,7 +472,6 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       }, 3000);
       return;
     }
-
 
     // Close other dropdowns first
     this.filteredComplaints.forEach(c => {
@@ -494,10 +503,16 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Check if the current user can update the status of this complaint
    */
   canUpdateStatus(complaint: Complaint): boolean {
+    // Special case: Allow the original creator to reopen or close a RESOLVED complaint
+    if (complaint.status.toUpperCase() === ComplaintStatus.RESOLVED &&
+      complaint.created_by === this.currentUser?.userId) {
+      return true;
+    }
+
     // HODs can update any complaint status
     if (this.role === 'hod') return true;
 
-    // Employees can only update complaints they didn't create
+    // Employees can only update complaints they didn't create (except for the RESOLVED case above)
     if (this.role === 'employee') {
       return complaint.created_by !== this.currentUser?.userId;
     }
@@ -506,6 +521,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     return false;
   }
   /**
+/**
  * Update the status of a complaint
  */
   updateComplaintStatus(event: Event, complaint: Complaint, newStatus: string): void {
@@ -515,8 +531,17 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     // Close dropdown
     complaint.showStatusDropdown = false;
 
-    // Check if user is authorized to update status
-    if (this.role === 'employee' && complaint.created_by === this.currentUser?.userId) {
+    // Special case: Allow complaint creator to reopen or close their resolved complaints
+    const isCreatorWithResolvedComplaint =
+      complaint.created_by === this.currentUser?.userId &&
+      complaint.status.toUpperCase() === ComplaintStatus.RESOLVED &&
+      (newStatus.toUpperCase() === ComplaintStatus.REOPEN ||
+        newStatus.toUpperCase() === ComplaintStatus.CLOSED);
+
+    // Check if user is authorized to update status (with special case for creator)
+    if (this.role === 'employee' &&
+      complaint.created_by === this.currentUser?.userId &&
+      !isCreatorWithResolvedComplaint) {
       this.errorMessage = "You cannot change the status of complaints you've created.";
       setTimeout(() => {
         this.errorMessage = '';
@@ -536,19 +561,28 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     }
 
     if (newStatus.toUpperCase() === ComplaintStatus.ASSIGNED) {
-      this.errorMessage = "You cannot change the status of assigned until anyone is assigent to this complaint.";
-      return
+      this.errorMessage = "You cannot change the status to assigned until anyone is assigned to this complaint.";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 3000);
+      return;
     }
 
     // Proceed with normal status update for other statuses
     this.processStatusUpdate(complaint, newStatus);
   }
   /**
-   * Get allowed status transitions based on current status
-   * This controls which statuses a user can change to from the current status
+   * Get allowed status transitions based on current status and user permissions
    */
   getAllowedStatusTransitions(currentStatus: string): string[] {
     const status = currentStatus.toUpperCase();
+
+    // Special case: If this is a RESOLVED complaint and the current user is the creator,
+    // allow both REOPEN and CLOSED actions
+    if (status === ComplaintStatus.RESOLVED &&
+      this.selectedComplaint?.created_by === this.currentUser?.userId) {
+      return [ComplaintStatus.REOPEN, ComplaintStatus.CLOSED];
+    }
 
     // Define valid transitions for each status
     switch (status) {
@@ -562,7 +596,8 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         return [ComplaintStatus.RESOLVED, ComplaintStatus.ESCALATED, ComplaintStatus.DEFERRED];
 
       case ComplaintStatus.RESOLVED:
-        return [ComplaintStatus.CLOSED, ComplaintStatus.REOPEN];
+        // For other users who aren't the creator, they can still close
+        return [ComplaintStatus.CLOSED];
 
       case ComplaintStatus.REOPEN:
         return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.ASSIGNED];
