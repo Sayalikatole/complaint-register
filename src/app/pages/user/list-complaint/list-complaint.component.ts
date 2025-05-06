@@ -535,6 +535,11 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (newStatus.toUpperCase() === ComplaintStatus.ASSIGNED) {
+      this.errorMessage = "You cannot change the status of assigned until anyone is assigent to this complaint.";
+      return
+    }
+
     // Proceed with normal status update for other statuses
     this.processStatusUpdate(complaint, newStatus);
   }
@@ -548,7 +553,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     // Define valid transitions for each status
     switch (status) {
       case ComplaintStatus.OPEN:
-        return [ComplaintStatus.ASSIGNED, ComplaintStatus.IN_PROGRESS];
+        return [ComplaintStatus.ASSIGNED];
 
       case ComplaintStatus.ASSIGNED:
         return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.DEFERRED];
