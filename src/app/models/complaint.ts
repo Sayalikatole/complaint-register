@@ -133,7 +133,7 @@ export interface ChatMessage {
     sender_id: string;
     receiver_id: string;
     message: string;
-    timestamp?: string;
+    sent_on?: string;
     sender_name?: string;
     sender_role?: string;
     is_read?: boolean;
@@ -156,6 +156,7 @@ export interface FeedbackData {
     org_id: number;
     opr_id: number;
     is_active: string;
+    l_created_by: string;
 }
 
 

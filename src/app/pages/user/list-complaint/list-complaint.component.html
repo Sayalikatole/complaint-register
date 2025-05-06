@@ -144,6 +144,7 @@
             </div>
 
             <!-- Submit Feedback button - only show for CLOSED complaints without feedback -->
+            <!-- Submit Feedback button - only show for CLOSED complaints without feedback -->
             <div *ngIf="complaint.status.toUpperCase() === statusEnum.CLOSED && !complaint.has_feedback" class="mr-2"
                 (click)="$event.stopPropagation()">
                 <button (click)="openFeedbackModal($event, complaint)"
@@ -152,9 +153,11 @@
                 </button>
             </div>
             <!-- Status section with improved styling and positioning -->
+            <!-- Status section with improved styling and positioning -->
+            <!-- Replace the entire status section (lines ~154-199) with this corrected version -->
             <div class="status-container" (click)="$event.stopPropagation()">
-                <!-- For HOD and employee roles: show status dropdown -->
-                <div *ngIf="role === 'hod' || role === 'employee'" class="relative dropdown-container">
+                <!-- Show status dropdown for users who can update status -->
+                <div *ngIf="canUpdateStatus(complaint)" class="relative dropdown-container">
                     <button (click)="toggleStatusDropdown($event, complaint)"
                         class="rounded px-3 py-1 transition-colors flex items-center dropdown-toggle"
                         [ngClass]="getStatusClass(complaint.status)">
@@ -178,8 +181,8 @@
                     </div>
                 </div>
 
-                <!-- For non-editable roles (read-only status) -->
-                <div *ngIf="role !== 'hod' && role !== 'employee'" class="rounded px-3 py-1"
+                <!-- For users who cannot update status (read-only status) -->
+                <div *ngIf="!canUpdateStatus(complaint)" class="rounded px-3 py-1"
                     [ngClass]="getStatusClass(complaint.status)">
                     {{ getStatusDisplay(complaint.status) }}
                 </div>

@@ -192,12 +192,12 @@ export class ComplaintService {
   /**
    * Get feedback for a complaint
    */
-  getFeedbackByComplaintId(payload: { complaint_id: string, org_id: string, opr_id: string }): Observable<FeedbackData | null> {
-    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/getFeedbackByComplaintId', payload)
+  getFeedbackByComplaintId(payload: { id: string, org_id: string, opr_id: string }): Observable<FeedbackData | null> {
+    return this.http.post<FeedbackData>('http://192.168.1.36:8081/api/feedback/getFeedbackByComplaint', payload)
       .pipe(
         map(response => {
-          if (response.status && response.data) {
-            return response.data;
+          if (response) {
+            return response;
           } else {
             return null;
           }

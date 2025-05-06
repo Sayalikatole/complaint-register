@@ -112,6 +112,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
               this.loadComplaintHistory(id); // Add this line
               this.loadMessages(id); // Add this line
               this.setupDueDateEditPermission();
+              this.loadFeedback(id)
             }
           });
         }
@@ -241,7 +242,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (messages) => {
           this.messages = messages.sort((a, b) =>
-            new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime()
+            new Date(a.sent_on || 0).getTime() - new Date(b.sent_on || 0).getTime()
           );
           this.loadingMessages = false;
         },
@@ -249,6 +250,8 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           console.error('Error loading messages:', error);
           this.messageError = 'Failed to load conversation history';
           this.loadingMessages = false;
+          this.messages = [];
+
         }
       });
   }
@@ -287,7 +290,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
             sender_id: this.currentUser?.userId || '',
             receiver_id: receiverId,
             message: this.replyText,
-            timestamp: new Date().toISOString(),
+            sent_on: new Date().toISOString(),
             sender_name: this.currentUser?.username || this.currentUser?.userId || '',
             is_read: false
           };
@@ -1327,7 +1330,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
     this.feedbackError = null;
 
     const payload = {
-      complaint_id: complaintId,
+      id: complaintId,
       org_id: this.currentUser.organizationId,
       opr_id: this.currentUser.operatingUnitId
     };
@@ -1339,6 +1342,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy {
           this.feedback = feedbackData;
           this.hasFeedback = !!feedbackData;
           this.loadingFeedback = false;
+          console.log(this.feedback)
 
           // Check if user can respond to feedback
           this.canRespondToFeedback = this.role === 'admin' || this.role === 'hod';
