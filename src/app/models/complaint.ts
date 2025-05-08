@@ -128,18 +128,20 @@ export interface ComplaintHistoryItem {
 
 // Add this interface to your complaint service
 export interface ChatMessage {
-    chat_id?: string;
+    complaint_message_history_id?: string;
     complaint_id: string;
     sender_id: string;
     receiver_id: string;
     message: string;
-    timestamp?: string;
-    sender_name?: string;
-    sender_role?: string;
-    is_read?: boolean;
-    attachments?: string[];
+    sent_on?: string;
+    // sender_name?: string;
+    // sender_role?: string;
+    // is_read?: boolean;
+    attachment: Attachment | null;
     l_sender_id?: string;
     l_receiver_id?: string;
+    l_sender_role?: string;
+    l_receiver_role?: string;
 }
 
 

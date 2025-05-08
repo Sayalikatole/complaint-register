@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage, FeedbackData, FeedbackResponse } from '../models/complaint';
+import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage, FeedbackData, FeedbackResponse, Attachment } from '../models/complaint';
 
 @Injectable({
   providedIn: 'root'
@@ -352,8 +352,16 @@ export interface SendChatMessagePayload {
   senderId: string;
   receiverId: string;
   message: string;
+  attachmentTrn: Attachment | null;
 }
 
+export interface SendChatAttachment {
+  attachmentId: string;
+  uploadedFileName: string;
+  filePath: string;
+  storedFileName: string;
+  l_encrypted_file?: string;
+}
 export interface GetChatMessagesPayload {
   id: string;
 }
