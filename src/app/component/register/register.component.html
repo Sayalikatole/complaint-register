@@ -1,0 +1,240 @@
+<div class="space-y-4 transition-opacity duration-300">
+    <h2 class="text-xl font-bold text-center text-gray-800 mb-4">Create your account</h2>
+
+    <!-- Personal Information Section -->
+    <div class="border border-gray-200 rounded-md p-4 mb-4">
+        <h3 class="text-lg font-medium text-indigo-700 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            Personal Information
+        </h3>
+
+        <!-- Full Name -->
+        <div class="mb-3">
+            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span
+                    class="text-red-500">*</span></label>
+            <input type="text" id="fullName" name="fullName" [(ngModel)]="fullName" #fullNameInput="ngModel" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': fullNameInput.invalid && (fullNameInput.dirty || fullNameInput.touched)}"
+                placeholder="Enter your full name">
+            <div *ngIf="fullNameInput.invalid && (fullNameInput.dirty || fullNameInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="fullNameInput.errors?.['required']">Full name is required.</div>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label for="regEmail" class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                    class="text-red-500">*</span></label>
+            <input type="email" id="regEmail" name="regEmail" [(ngModel)]="email" #regEmailInput="ngModel" required
+                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': regEmailInput.invalid && (regEmailInput.dirty || regEmailInput.touched)}"
+                placeholder="Enter your email address">
+            <div *ngIf="regEmailInput.invalid && (regEmailInput.dirty || regEmailInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="regEmailInput.errors?.['required']">Email is required.</div>
+                <div *ngIf="regEmailInput.errors?.['pattern']">Please enter a valid email address.</div>
+            </div>
+        </div>
+
+        <!-- Phone Number -->
+        <div>
+            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span
+                    class="text-red-500">*</span></label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" [(ngModel)]="phoneNumber" #phoneInput="ngModel"
+                required pattern="[0-9]{10}" maxlength="10"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': phoneInput.invalid && (phoneInput.dirty || phoneInput.touched)}"
+                placeholder="Enter your 10-digit phone number">
+            <div *ngIf="phoneInput.invalid && (phoneInput.dirty || phoneInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="phoneInput.errors?.['required']">Phone number is required.</div>
+                <div *ngIf="phoneInput.errors?.['pattern']">Please enter a valid 10-digit phone number.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Information Section -->
+    <div class="border border-gray-200 rounded-md p-4 mb-4">
+        <h3 class="text-lg font-medium text-indigo-700 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clip-rule="evenodd" />
+            </svg>
+            Security Information
+        </h3>
+
+        <!-- Password in Registration Form -->
+        <div class="mb-3">
+            <label for="regPassword" class="block text-sm font-medium text-gray-700 mb-1">Password <span
+                    class="text-red-500">*</span></label>
+            <div class="relative">
+                <input [type]="showRegPassword ? 'text' : 'password'" id="regPassword" name="regPassword"
+                    [(ngModel)]="password" #regPasswordInput="ngModel" required minlength="8"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    [ngClass]="{'border-red-300': regPasswordInput.invalid && (regPasswordInput.dirty || regPasswordInput.touched)}"
+                    placeholder="Create a strong password">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button type="button" (click)="showRegPassword = !showRegPassword"
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <!-- Show password icon (eye) -->
+                        <svg *ngIf="!showRegPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd"
+                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <!-- Hide password icon (eye-slash) -->
+                        <svg *ngIf="showRegPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                                clip-rule="evenodd" />
+                            <path
+                                d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="regPasswordInput.invalid && (regPasswordInput.dirty || regPasswordInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="regPasswordInput.errors?.['required']">Password is required.</div>
+                <div *ngIf="regPasswordInput.errors?.['minlength']">Password must be at least 8 characters.</div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Use at least 8 characters with a mix of letters, numbers & symbols
+            </p>
+        </div>
+
+        <!-- Confirm Password in Registration Form -->
+        <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span
+                    class="text-red-500">*</span></label>
+            <div class="relative">
+                <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" name="confirmPassword"
+                    [(ngModel)]="confirmPassword" #confirmPasswordInput="ngModel" required
+                    [ngClass]="{'border-red-300 bg-red-50': passwordMismatchError}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Confirm your password">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button type="button" (click)="showConfirmPassword = !showConfirmPassword"
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <!-- Show password icon (eye) -->
+                        <svg *ngIf="!showConfirmPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd"
+                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <!-- Hide password icon (eye-slash) -->
+                        <svg *ngIf="showConfirmPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                                clip-rule="evenodd" />
+                            <path
+                                d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="confirmPasswordInput.invalid && (confirmPasswordInput.dirty || confirmPasswordInput.touched) && !passwordMismatchError"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="confirmPasswordInput.errors?.['required']">Please confirm your password.</div>
+            </div>
+            <p *ngIf="passwordMismatchError" class="text-xs text-red-500 mt-1">Passwords do not match</p>
+        </div>
+    </div>
+
+    <!-- Organization Information Section -->
+    <div class="border border-gray-200 rounded-md p-4">
+        <h3 class="text-lg font-medium text-indigo-700 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
+                    clip-rule="evenodd" />
+            </svg>
+            Organization Details
+        </h3>
+
+        <!-- Organization -->
+        <div class="mb-3">
+            <label for="organization" class="block text-sm font-medium text-gray-700 mb-1">Organization <span
+                    class="text-red-500">*</span></label>
+            <select id="organization" name="organization" [(ngModel)]="selectedOrganizationId" #orgInput="ngModel"
+                (change)="onOrganizationChange()" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': orgInput.invalid && (orgInput.dirty || orgInput.touched)}">
+                <option value="">Select Organization</option>
+                <option *ngFor="let org of organizations" [value]="org.org_id">
+                    {{ org.org_name }}
+                </option>
+            </select>
+            <div *ngIf="orgInput.invalid && (orgInput.dirty || orgInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="orgInput.errors?.['required']">Organization is required.</div>
+            </div>
+        </div>
+
+        <!-- Operating Unit -->
+        <div class="mb-3">
+            <label for="operatingUnit" class="block text-sm font-medium text-gray-700 mb-1">Operating Unit <span
+                    class="text-red-500">*</span></label>
+            <select id="operatingUnit" name="operatingUnit" [(ngModel)]="selectedOperatingUnitId" #oprInput="ngModel"
+                required [disabled]="!selectedOrganizationId"
+                [ngClass]="{'bg-gray-100': !selectedOrganizationId, 'border-red-300': oprInput.invalid && (oprInput.dirty || oprInput.touched)}"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <option [ngValue]="0">Select Operating Unit</option>
+                <option *ngFor="let unit of filteredOperatingUnits" [ngValue]="unit.opr_id">
+                    {{ unit.opr_name }}
+                </option>
+            </select>
+            <div *ngIf="oprInput.invalid && (oprInput.dirty || oprInput.touched) && selectedOrganizationId"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="oprInput.errors?.['required']">Operating Unit is required.</div>
+            </div>
+        </div>
+
+        <!-- Department -->
+        <div class="mb-3">
+            <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department <span
+                    class="text-red-500">*</span></label>
+            <select id="department" name="department" [(ngModel)]="selectedl_department_Id" #deptInput="ngModel"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': deptInput.invalid && (deptInput.dirty || deptInput.touched)}">
+                <option value="">Select Department</option>
+                <option *ngFor="let department of departments" [value]="department.department_id">
+                    {{ department.department_name }}
+                </option>
+            </select>
+            <div *ngIf="deptInput.invalid && (deptInput.dirty || deptInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="deptInput.errors?.['required']">Department is required.</div>
+            </div>
+        </div>
+
+        <!-- Role -->
+        <div>
+            <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role <span
+                    class="text-red-500">*</span></label>
+            <select id="role" name="role" [(ngModel)]="selectedRoleId" #roleInput="ngModel" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [ngClass]="{'border-red-300': roleInput.invalid && (roleInput.dirty || roleInput.touched)}">
+                <option value="">Select Role</option>
+                <option *ngFor="let role of roles" [value]="role.role_id">
+                    {{ role.role_name }}
+                </option>
+            </select>
+            <div *ngIf="roleInput.invalid && (roleInput.dirty || roleInput.touched)"
+                class="text-red-500 text-xs mt-1 pl-1">
+                <div *ngIf="roleInput.errors?.['required']">Role is required.</div>
+            </div>
+        </div>
+    </div>
+</div>

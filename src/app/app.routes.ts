@@ -7,6 +7,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './component/login-page/login-page.component';
+import { RegisterComponent } from './component/register/register.component';
+
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { ComplaintRegistrationComponent } from './component/complaint-registration/complaint-registration.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
@@ -42,7 +44,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [roleGuard],
+    // canActivate: [roleGuard],
     data: { expectedRole: '1406827783519433' },
     children: [
       { path: 'dashboard', component: DashboardComponent },
@@ -52,6 +54,7 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      { path: 'register-user', component: ComplaintRegistrationComponent },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -59,7 +62,7 @@ export const routes: Routes = [
   {
     path: 'client',
     component: UserLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9816063224382954' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
@@ -78,7 +81,7 @@ export const routes: Routes = [
   {
     path: 'employee',
     component: EmployeeLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '8513155895269752' },
     children: [
       // { path: 'create-complaints', component: CreateComplaintComponent },
@@ -95,7 +98,7 @@ export const routes: Routes = [
   {
     path: 'hod',
     component: HodLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9381190731754782' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
@@ -110,7 +113,11 @@ export const routes: Routes = [
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },
+  { path: 'complaint-register', component: ComplaintRegistrationComponent },
+
   { path: 'login', component: LoginPageComponent },
+  { path: 'register', component: RegisterComponent },
+
   { path: '**', redirectTo: 'login' }
 ];
 
