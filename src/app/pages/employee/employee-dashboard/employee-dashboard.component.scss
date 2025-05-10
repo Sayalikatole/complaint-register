@@ -1,0 +1,68 @@
+// HOD dashboard style
+.hodheading {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+// User dashboard style
+.quick-stats-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(10, 7, 7, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.quick-stats-card:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.animate-fadeIn {
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.icon-circle {
+    transition: all 0.4s ease;
+}
+
+.quick-stats-card:hover .icon-circle {
+    transform: rotate(10deg) scale(1.1);
+}
+
+// Circular chart for SLA
+.circular-chart {
+    height: 100%;
+    width: 100%;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 3.8;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 3.8;
+    stroke-linecap: round;
+    animation: progress 1s ease-out forwards;
+}
+
+@keyframes progress {
+    0% {
+        stroke-dasharray: 0 100;
+    }
+}
