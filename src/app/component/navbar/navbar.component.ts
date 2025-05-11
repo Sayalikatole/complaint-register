@@ -15,10 +15,14 @@ import { RouterModule } from '@angular/router';
 export class NavbarComponent implements OnInit {
   // User information
   username: string = '';
+  userEmail: string = '';
   userInitials: string = '';
   userRole: string = '';
   role: string = '';
   organizationName: string = '';
+  
+  // Notification count (mock data - can be replaced with actual API integration)
+  notificationCount: number = 3;
 
   // Dropdown control
   showNewDropdown: boolean = false;
@@ -42,6 +46,7 @@ export class NavbarComponent implements OnInit {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.username = user.username || user.username || 'User';
+      this.userEmail = user.email || 'user@example.com';
       this.userInitials = this.getInitials(this.username);
       this.organizationName = user.l_org_name || 'Micropro';
 
@@ -50,6 +55,26 @@ export class NavbarComponent implements OnInit {
 
       // Format role for display
       this.userRole = this.formatRole(this.role);
+    }
+  }
+
+  /**
+   * Format role for display with proper capitalization and spacing
+   */
+  formatRoleDisplay(role: string): string {
+    if (!role) return 'User';
+    
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'Administrator';
+      case 'hod':
+        return 'Department Head';
+      case 'employee':
+        return 'Employee';
+      case 'client':
+        return 'Client';
+      default:
+        return this.formatRole(role);
     }
   }
 
@@ -125,23 +150,6 @@ export class NavbarComponent implements OnInit {
     this.showNewDropdown = false;
     this.showUserMenu = false;
     this.showCreateDropdown = false;
-  }
-
-  /**
-   * Open create complaint form (for non-admin users) - deprecated
-   * Now replaced by dropdown menu
-   */
-  openCreateComplaint(): void {
-    console.log(this.role);
-    if (this.role === 'client') {
-      this.router.navigate(['/client/create-complaints']);
-    }
-    if (this.role === 'hod') {
-      this.router.navigate(['/hod/create-complaints']);
-    }
-    if (this.role === 'employee') {
-      this.router.navigate(['/employee/create-complaints']);
-    }
   }
 
   /**

@@ -1,6 +1,7 @@
 <app-navbar></app-navbar>
 <div class="flex flex-1 overflow-hidden">
-      <!-- <app-sidebar></app-sidebar> -->
+  <!-- <app-sidebar [sidebarOpen]="sidebarOpen" (sidebarToggled)="handleSidebarToggle($event)">
+  </app-sidebar> -->
   <main class="flex-1 overflow-auto bg-white">
     <router-outlet></router-outlet>
   </main>
