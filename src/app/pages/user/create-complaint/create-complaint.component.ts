@@ -1,5 +1,5 @@
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,6 +11,10 @@ import { AuthService } from '../../../services/auth.service';
 import { CreateComplaintPayload } from '../../../models/complaint';
 import { ComplaintPriority, getPriorityDisplayName } from '../../../enums/complaint_priority';
 import { ComplaintStatus, getStatusDisplayName } from '../../../enums/complaint_status';
+import { Category } from '../../../models/category';
+import { CategoryService } from '../../../services/category.service';
+import { TagsService } from '../../../services/tags.service';
+import { Tags } from '../../../models/tags';
 
 interface Department {
   department_id: string;
@@ -37,6 +41,8 @@ interface Department {
 })
 export class CreateComplaintComponent implements OnInit, OnDestroy {
 
+  @ViewChild('tagSearchInput') tagSearchInput!: ElementRef;
+
   priorities = Object.values(ComplaintPriority);
   statuses = Object.values(ComplaintStatus);
 
@@ -46,7 +52,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     org_id: 1,                // Default value, will be updated from user info
     subject: '',              // Changed from title
     description: '',
-    priority: ComplaintPriority.MEDIUM, // Use enum here
+    priority: '', // Use enum here
     status: ComplaintStatus.OPEN, // Use enum here
     department_id: '',
     created_by: '',
@@ -57,6 +63,9 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     due_date: '',             // Can be calculated based on priority
     is_active: 'YES',         // Default for new complaints
     opr_id: 1,                // Default value, will be updated from user info
+    is_anonymous: 'NO',       // Default to not anonymous
+    category_id: '',          // New field
+    tag_id: [],               // New field
   };
 
   // Form state
@@ -68,9 +77,15 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
 
   role: string = '';
 
+  isTagDropdownOpen: boolean = false;
+  selectedTags: string[] = [];
+  tagSearchTerm: string = '';
+  filteredTags: Tags[] = [];
+
   // Dropdown data
   departments: Department[] = [];
-  // categories: Category[] = [];
+  categories: Category[] = [];
+  tags: Tags[] = [];
   // subCategories: SubCategory[] = [];
   // filteredSubCategories: SubCategory[] = [];
 
@@ -86,18 +101,19 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
   currentUser: any;
-  categoryService: any;
 
   constructor(
     private complaintService: ComplaintService,
     private departmentService: DepartmentService,
+    private categoryService: CategoryService,
+    private tagService: TagsService,
     private authService: AuthService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadDepartments();
-    this.loadCategories();
+    // this.loadCategories();
     this.setCurrentUserInfo();
 
     // Calculate default due date based on medium priority
@@ -112,6 +128,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.editingComplaintId = complaintId;
       // this.loadComplaintDetails(complaintId);
     }
+    // Initialize selectedTags array
+    this.selectedTags = [];
   }
 
   ngOnDestroy(): void {
@@ -218,36 +236,198 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load categories for dropdown
+   * Load categories by department
    */
-  loadCategories(): void {
-    // Placeholder for when you implement category service
-    // this.categoryService.getCategories()
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({...});
+  loadCategoriesByDepartment(departmentId: string): void {
+    if (!departmentId) {
+      this.categories = [];
+      this.complaintData.category_id = '';
+      this.tags = [];
+      this.complaintData.tag_id = [];
+      return;
+    }
+
+    const payload = {
+      org_id: this.complaintData.org_id,
+      opr_id: this.complaintData.opr_id,
+      id: departmentId
+    };
+
+    this.categoryService.getCategoriesByDepartment(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.categories = data;
+          // Reset category and tag selection
+          this.complaintData.category_id = '';
+          this.tags = [];
+          this.complaintData.tag_id = [];
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+          this.errorMessage = 'Failed to load categories. Please try again.';
+        }
+      });
   }
 
   /**
-   * Filter subcategories when category changes
+    * Update the loadTagsByCategory method to initialize filteredTags
+    */
+  loadTagsByCategory(categoryId: string): void {
+    if (!categoryId) {
+      this.tags = [];
+      this.selectedTags = [];
+      this.filteredTags = [];
+      return;
+    }
+
+    const payload = {
+      org_id: this.complaintData.org_id,
+      opr_id: this.complaintData.opr_id,
+      id: categoryId
+    };
+
+    this.tagService.getTagsByCategory(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.tags = data;
+          this.filteredTags = [...this.tags];
+          // Reset tag selection
+          this.selectedTags = [];
+        },
+        error: (error) => {
+          console.error('Error loading tags:', error);
+          this.errorMessage = 'Failed to load tags. Please try again.';
+        }
+      });
+  }
+
+  /**
+  * Filter tags based on search term
+  */
+  filterTags(): void {
+    if (!this.tagSearchTerm) {
+      this.filteredTags = [...this.tags];
+      return;
+    }
+
+    const term = this.tagSearchTerm.toLowerCase();
+    this.filteredTags = this.tags.filter(tag =>
+      tag.tag_name.toLowerCase().includes(term)
+    );
+  }
+
+  /**
+   * Toggle a tag selection
    */
-  // onCategoryChange(): void {
-  //   if (this.complaintData.category_id) {
-  //     this.filteredSubCategories = this.subCategories.filter(
-  //       subcat => subcat.category_id === this.complaintData.category_id
-  //     );
-  //     this.complaintData.sub_category_id = ''; // Reset subcategory selection
-  //   } else {
-  //     this.filteredSubCategories = [];
-  //   }
-  // }
+  toggleTag(tagId: string): void {
+    const index = this.selectedTags.indexOf(tagId);
+    if (index === -1) {
+      this.selectedTags.push(tagId);
+    } else {
+      this.selectedTags.splice(index, 1);
+    }
+
+    // Update the complaint data
+    this.complaintData.tag_id = [...this.selectedTags];
+  }
+
+  /**
+   * Check if a tag is selected
+   */
+  isTagSelected(tagId: string): boolean {
+    return this.selectedTags.includes(tagId);
+  }
+
+  /**
+   * Get the tag name from its ID
+   */
+  getTagName(tagId: string): string {
+    const tag = this.tags.find(t => t.tag_id === tagId);
+    return tag ? tag.tag_name : '';
+  }
+
+  /**
+   * Remove a tag from selection when clicking the (x) button
+   */
+  removeTag(tagId: string, event: Event): void {
+    event.stopPropagation();
+    const index = this.selectedTags.indexOf(tagId);
+    if (index !== -1) {
+      this.selectedTags.splice(index, 1);
+      // Update the complaint data
+      this.complaintData.tag_id = [...this.selectedTags];
+    }
+  }
+
+  /**
+   * Check if all tags are selected
+   */
+  areAllTagsSelected(): boolean {
+    return this.tags.length > 0 && this.selectedTags.length === this.tags.length;
+  }
+
+  /**
+   * Toggle selection of all tags
+   */
+  toggleAllTags(): void {
+    if (this.areAllTagsSelected()) {
+      // Deselect all
+      this.selectedTags = [];
+    } else {
+      // Select all
+      this.selectedTags = this.tags.map(tag => tag.tag_id);
+    }
+
+    // Update the complaint data
+    this.complaintData.tag_id = [...this.selectedTags];
+  }
+
+  /**
+   * When a tag dropdown is opened, focus the search input
+   */
+  onTagDropdownOpen(): void {
+    this.isTagDropdownOpen = true;
+    setTimeout(() => {
+      if (this.tagSearchInput) {
+        this.tagSearchInput.nativeElement.focus();
+      }
+    });
+  }
+
+
+  /**
+   * Handle department change and load relevant categories
+   */
+  onDepartmentChange(): void {
+    if (this.complaintData.department_id) {
+      this.loadCategoriesByDepartment(this.complaintData.department_id);
+    }
+  }
+
+  /**
+   * Handle category change and load relevant tags
+   */
+  onCategoryChange(): void {
+    if (this.complaintData.category_id) {
+      this.loadTagsByCategory(this.complaintData.category_id);
+    }
+  }
+
+  /**
+   * Handle anonymous checkbox change
+   */
+  onAnonymousChange(event: any): void {
+    this.complaintData.is_anonymous = event.target.checked ? 'YES' : 'NO';
+  }
 
   /**
    * Handle priority change and recalculate due date
    */
   onPriorityChange(): void {
-    this.calculateDueDate(this.complaintData.priority);
+    // this.calculateDueDate(this.complaintData.priority);
   }
-
 
   /**
    * Handle file selection
@@ -313,11 +493,11 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
  */
   async onSubmit(form?: NgForm): Promise<void> {
     // Validate form
-    if (!this.complaintData.subject.trim() || !this.complaintData.description.trim() ||
-      !this.complaintData.priority || !this.complaintData.department_id) {
-      this.errorMessage = 'Please fill all required fields.';
-      return;
-    }
+    // if (!this.complaintData.subject.trim() || !this.complaintData.description.trim() ||
+    //   !this.complaintData.priority || !this.complaintData.department_id) {
+    //   this.errorMessage = 'Please fill all required fields.';
+    //   return;
+    // }
 
     if (!this.currentUser) {
       this.errorMessage = 'User authentication required';
@@ -353,6 +533,9 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
 
     try {
       let complaintResponse;
+
+      this.complaintData.tag_id = this.selectedTags.length > 0 ? [...this.selectedTags] : [];
+
 
       // Process files and create attachment array
       const attachmentPromises = this.selectedFiles.map(async file => {
@@ -390,6 +573,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
             complaint: this.complaintData as any, // Cast to Complaint
             attachments: []
           };
+          console.log('createPayload', createPayload);
           // No attachments, just create the complaint
           complaintResponse = await this.createComplaintWithAttachmentsPromise(createPayload);
         }
@@ -454,7 +638,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       org_id: this.currentUser ? parseInt(this.currentUser.organizationId) || 1 : 1,
       subject: '',
       description: '',
-      priority: ComplaintPriority.MEDIUM, // Use enum here
+      priority: '', // Use enum here
       status: ComplaintStatus.OPEN, // Use enum here
       department_id: '',
       created_by: this.currentUser?.userId || '',
@@ -466,7 +650,9 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       is_active: 'YES',
       opr_id: this.currentUser ? parseInt(this.currentUser.operatingUnitId) || 1 : 1,
       category_id: '',
-      sub_category_id: ''
+      sub_category_id: '',
+      is_anonymous: 'NO', // Reset to not anonymous
+      tag_id: []
     };
 
     // Recalculate the due date
@@ -475,10 +661,30 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     this.selectedFiles = [];
     this.errorMessage = '';
     this.successMessage = '';
-    // this.filteredSubCategories = [];
+    this.categories = [];
+    this.tags = [];
+    this.filteredTags = [];
+    this.selectedTags = [];
+    this.tagSearchTerm = '';
     this.isEditMode = false;
     this.editingComplaintId = '';
   }
+
+  /**
+ * Handle document clicks to close the dropdown when clicking outside
+ */
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent): void {
+    // Check if the click is outside the tags dropdown
+    if (this.isTagDropdownOpen) {
+      const clickedElement = event.target as HTMLElement;
+      const dropdown = document.querySelector('.tag-dropdown-container');
+      if (dropdown && !dropdown.contains(clickedElement)) {
+        this.isTagDropdownOpen = false;
+      }
+    }
+  }
+
 
   // You can use getPriorityDisplayName helper function to display user-friendly names
   getPriorityDisplay(priority: string): string {

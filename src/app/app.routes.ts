@@ -27,6 +27,9 @@ import { HODDashboardComponent } from './pages/hod/dashboard/dashboard.component
 import { CreateSuggestionComponent } from './pages/user/create-suggestion/create-suggestion.component';
 import { ListSuggestionComponent } from './pages/user/list-suggestion/list-suggestion.component';
 import { EmployeeDashboardComponent } from './pages/employee/employee-dashboard/employee-dashboard.component';
+import { ProfileComponent } from './component/profile/profile.component';
+import { CategoryComponent } from './pages/admin/category/category.component';
+import { TagsComponent } from './pages/admin/tags/tags.component';
 
 // export const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -53,6 +56,9 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      { path: 'profile-info', component: ProfileComponent },
+      { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
+      { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -109,7 +115,8 @@ export const routes: Routes = [
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
-
+      { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
+      { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },

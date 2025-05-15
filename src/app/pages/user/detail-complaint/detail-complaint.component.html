@@ -846,14 +846,28 @@
                             <!-- Don't show vertical line for the last item -->
                             <div *ngIf="!isLast" class="w-0.5 flex-1 bg-gray-200"></div>
                         </div>
-                        <div [class.pb-6]="!isLast">
-                            <p class="text-sm font-medium">Status Changed</p>
+                        <div [class.pb-6]="!isLast" class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <p class="text-sm font-medium">Status Changed</p>
+                                <!-- Display user who made the change with avatar -->
+                                <div *ngIf="item.changed_by" class="flex items-center">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs mr-2 shadow-sm">
+                                        {{ getInitials(item.l_changed_by || item.changed_by) }}
+                                    </div>
+                                    <span class="text-xs text-gray-600">{{ item.l_changed_by || item.changed_by
+                                        }}</span>
+                                </div>
+                            </div>
                             <p class="text-xs text-gray-500">{{ formatDate(item.changed_on) }}</p>
                             <div class="mt-1 text-sm text-gray-600">
-                                <p *ngIf="item.from_status">Status changed from "{{ item.from_status }}" to "{{
-                                    item.to_status }}"
+                                <p *ngIf="item.from_status">Status changed from <span class="font-medium">"{{
+                                        item.from_status }}"</span> to
+                                    <span class="font-medium">"{{ item.to_status }}"</span>
                                 </p>
-                                <p *ngIf="!item.from_status">Complaint created with status "{{ item.to_status }}"</p>
+                                <p *ngIf="!item.from_status">Complaint created with status <span class="font-medium">"{{
+                                        item.to_status
+                                        }}"</span></p>
                                 <p *ngIf="item.reason" class="mt-1 italic text-gray-500">"{{ item.reason }}"</p>
                             </div>
                         </div>

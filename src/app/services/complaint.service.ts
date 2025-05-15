@@ -317,6 +317,7 @@ export interface Cl_getComplaintByIdPayload {
   org_id: string,
   opr_id: string,
   id: string,
+  email:string
 }
 
 

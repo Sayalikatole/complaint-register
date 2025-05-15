@@ -1,0 +1,641 @@
+<div class="bg-gray-50 dark:bg-gray-900 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page header -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Manage your personal information and account preferences
+            </p>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="loading" class="flex justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+        </div>
+
+        <!-- Profile content -->
+        <div *ngIf="!loading" class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <!-- Profile header with avatar and user info -->
+            <div
+                class="p-6 md:p-8 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+                <div class="flex flex-col md:flex-row items-center md:items-start">
+                    <!-- User avatar -->
+                    <div class="mb-4 md:mb-0 md:mr-6">
+                        <div class="relative group">
+                            <div
+                                class="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+                                <img *ngIf="profileImage" [src]="profileImage" alt="Profile photo"
+                                    class="w-full h-full object-cover">
+                                <span *ngIf="!profileImage">{{ userInitials }}</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0">
+                                <label for="profile-upload"
+                                    class="cursor-pointer bg-white dark:bg-gray-700 rounded-full p-1.5 shadow-md border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-4 w-4 text-gray-500 dark:text-gray-300" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path
+                                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                </label>
+                                <input id="profile-upload" type="file" accept="image/*" class="hidden"
+                                    (change)="onFileSelected($event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User info -->
+                    <div class="text-center md:text-left flex-1">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                            {{ profileForm.get('firstName')?.value || '' }} {{ profileForm.get('lastName')?.value || ''
+                            }}
+                        </h2>
+                        <p class="text-gray-500 dark:text-gray-400">{{ profileForm.get('email')?.value || '' }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ profileForm.get('jobTitle')?.value
+                            || 'Job Title not set' }}</p>
+
+                        <!-- Badges -->
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-3">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                [ngClass]="{
+                'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300': userRole === 'admin',
+                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': userRole === 'hod',
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': userRole === 'employee',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': userRole === 'client'
+              }">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                {{ userRole | titlecase }}
+                            </span>
+
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1.581.814L10 14.229l-4.419 2.585A1 1 0 014 16V4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                {{ departmentName }}
+                            </span>
+
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                {{ organizationName }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation tabs -->
+            <div class="border-b border-gray-200 dark:border-gray-700">
+                <nav class="-mb-px flex">
+                    <button (click)="switchTab('profile')"
+                        class="py-4 px-6 font-medium text-sm border-b-2 focus:outline-none transition-colors duration-200"
+                        [ngClass]="{'border-indigo-500 text-indigo-600 dark:text-indigo-400': activeTab === 'profile', 
+            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300': activeTab !== 'profile'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Profile Information
+                    </button>
+                    <button (click)="switchTab('security')"
+                        class="py-4 px-6 font-medium text-sm border-b-2 focus:outline-none transition-colors duration-200"
+                        [ngClass]="{'border-indigo-500 text-indigo-600 dark:text-indigo-400': activeTab === 'security', 
+            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300': activeTab !== 'security'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Security
+                    </button>
+                    <button (click)="switchTab('activity')"
+                        class="py-4 px-6 font-medium text-sm border-b-2 focus:outline-none transition-colors duration-200"
+                        [ngClass]="{'border-indigo-500 text-indigo-600 dark:text-indigo-400': activeTab === 'activity', 
+            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300': activeTab !== 'activity'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Activity
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- Profile Information Tab -->
+                <div *ngIf="activeTab === 'profile'">
+                    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="firstName"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First
+                                    Name</label>
+                                <input type="text" id="firstName" formControlName="firstName"
+                                    class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                <div *ngIf="profileForm.get('firstName')?.invalid && (profileForm.get('firstName')?.dirty || profileForm.get('firstName')?.touched)"
+                                    class="text-red-500 text-sm mt-1">
+                                    First name is required
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last
+                                    Name</label>
+                                <input type="text" id="lastName" formControlName="lastName"
+                                    class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                <div *ngIf="profileForm.get('lastName')?.invalid && (profileForm.get('lastName')?.dirty || profileForm.get('lastName')?.touched)"
+                                    class="text-red-500 text-sm mt-1">
+                                    Last name is required
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="email" formControlName="email"
+                                    class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                <div *ngIf="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)"
+                                    class="text-red-500 text-sm mt-1">
+                                    Please enter a valid email address
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone
+                                    Number</label>
+                                <input type="tel" id="phone" formControlName="phone"
+                                    class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                <div *ngIf="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)"
+                                    class="text-red-500 text-sm mt-1">
+                                    Please enter a valid 10-digit phone number
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="jobTitle"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job
+                                    Title</label>
+                                <input type="text" id="jobTitle" formControlName="jobTitle"
+                                    class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+
+                            <div class="form-group md:col-span-2">
+                                <label for="bio"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+                                <textarea id="bio" formControlName="bio" rows="4"
+                                    class="form-textarea block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="Tell us a little about yourself"></textarea>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    Brief description for your profile. URLs are hyperlinked.
+                                </p>
+                                <div *ngIf="profileForm.get('bio')?.invalid && (profileForm.get('bio')?.dirty || profileForm.get('bio')?.touched)"
+                                    class="text-red-500 text-sm mt-1">
+                                    Bio is too long (max 500 characters)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Success/Error Message -->
+                        <div *ngIf="saveSuccess"
+                            class="mt-4 p-3 bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200 rounded">
+                            <div class="flex">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Profile updated successfully!</span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="saveError"
+                            class="mt-4 p-3 bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200 rounded">
+                            <div class="flex">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>{{ errorMessage }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" [disabled]="profileForm.invalid || loading"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg *ngIf="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                {{ loading ? 'Saving...' : 'Save Changes' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Tab -->
+                <div *ngIf="activeTab === 'security'">
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Password</h3>
+                        <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="currentPassword"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current
+                                        Password</label>
+                                    <input type="password" id="currentPassword" formControlName="currentPassword"
+                                        class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                    <div *ngIf="passwordForm.get('currentPassword')?.invalid && (passwordForm.get('currentPassword')?.dirty || passwordForm.get('currentPassword')?.touched)"
+                                        class="text-red-500 text-sm mt-1">
+                                        Current password is required
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="newPassword"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New
+                                        Password</label>
+                                    <input type="password" id="newPassword" formControlName="newPassword"
+                                        class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                    <div *ngIf="passwordForm.get('newPassword')?.invalid && (passwordForm.get('newPassword')?.dirty || passwordForm.get('newPassword')?.touched)"
+                                        class="text-red-500 text-sm mt-1">
+                                        Password must be at least 8 characters
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirmPassword"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm
+                                        New Password</label>
+                                    <input type="password" id="confirmPassword" formControlName="confirmPassword"
+                                        class="form-input block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                    <div *ngIf="passwordForm.hasError('passwordMismatch') && (passwordForm.get('confirmPassword')?.dirty || passwordForm.get('confirmPassword')?.touched)"
+                                        class="text-red-500 text-sm mt-1">
+                                        Passwords do not match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit" [disabled]="passwordForm.invalid || loading"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <svg *ngIf="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    {{ loading ? 'Updating...' : 'Update Password' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Two-Factor Authentication
+                        </h3>
+                        <div class="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-md mb-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Attention
+                                        needed</h3>
+                                    <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-200">
+                                        <p>For enhanced security, enable two-factor authentication. This adds an extra
+                                            layer of protection to your account.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">Two-factor authentication is
+                                    currently <span class="font-medium text-red-600 dark:text-red-400">disabled</span>.
+                                </p>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">When enabled, you'll be
+                                    required to enter a security code in addition to your password when signing in.</p>
+                            </div>
+                            <button type="button"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Enable
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Account Security</h3>
+
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Sessions</h4>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your active sessions
+                                        and sign out from other devices.</p>
+                                </div>
+                                <button type="button"
+                                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Manage
+                                </button>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Account Activity</h4>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">View the security activity
+                                        and events on your account.</p>
+                                </div>
+                                <button type="button"
+                                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                        <path fill-rule="evenodd"
+                                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-6">
+                        <h3 class="text-lg font-medium text-red-600 dark:text-red-400 mb-4">Danger Zone</h3>
+
+                        <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800 dark:text-red-300">Deactivate Account
+                                    </h3>
+                                    <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                        <p>Deactivating your account will make your profile and content no longer
+                                            visible. You can always reactivate later.</p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="button"
+                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 dark:focus:ring-offset-gray-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Deactivate Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div *ngIf="activeTab === 'activity'">
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Account Summary</h3>
+
+                        <div
+                            class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm overflow-hidden">
+                            <dl class="grid grid-cols-1 md:grid-cols-3">
+                                <div
+                                    class="px-4 py-5 sm:p-6 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-600">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Account
+                                        Created</dt>
+                                    <dd class="mt-1 flex items-center justify-between">
+                                        <div class="text-xl font-semibold text-gray-900 dark:text-white">{{
+                                            accountCreatedDate }}</div>
+                                        <div class="flex-shrink-0 rounded-full bg-green-100 dark:bg-green-800/40 p-1">
+                                            <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </dd>
+                                </div>
+
+                                <div
+                                    class="px-4 py-5 sm:p-6 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-600">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Last Login
+                                    </dt>
+                                    <dd class="mt-1 flex items-center justify-between">
+                                        <div class="text-xl font-semibold text-gray-900 dark:text-white">{{
+                                            lastLoginDate }}</div>
+                                        <div class="flex-shrink-0 rounded-full bg-blue-100 dark:bg-blue-800/40 p-1">
+                                            <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </dd>
+                                </div>
+
+                                <div class="px-4 py-5 sm:p-6">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Login
+                                        Status</dt>
+                                    <dd class="mt-1 flex items-center justify-between">
+                                        <div class="text-xl font-semibold text-gray-900 dark:text-white">Active</div>
+                                        <div class="flex-shrink-0 rounded-full bg-green-100 dark:bg-green-800/40 p-1">
+                                            <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Complaint Statistics</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div
+                                class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center">
+                                    <div
+                                        class="p-3 rounded-full bg-indigo-600 bg-opacity-10 text-indigo-600 dark:text-indigo-400">
+                                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{
+                                            complaintStats.created }}</h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Complaints Created</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 border border-green-200 dark:border-green-700 rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center">
+                                    <div
+                                        class="p-3 rounded-full bg-green-600 bg-opacity-10 text-green-600 dark:text-green-400">
+                                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{
+                                            complaintStats.resolved }}</h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Complaints Resolved</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center">
+                                    <div
+                                        class="p-3 rounded-full bg-yellow-600 bg-opacity-10 text-yellow-600 dark:text-yellow-400">
+                                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{
+                                            complaintStats.pending }}</h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Pending Complaints</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+
+                        <div
+                            class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                Activity
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                Date
+                                            </th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+                                        <tr *ngFor="let activity of activityLog">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full"
+                                                        [ngClass]="activity.iconBg">
+                                                        <svg class="h-4 w-4" [ngClass]="activity.iconColor"
+                                                            fill="currentColor" viewBox="0 0 20 20">
+                                                            <path [attr.d]="activity.iconPath" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                            {{ activity.title }}</div>
+                                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{
+                                                            activity.description }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900 dark:text-white">{{ activity.date }}
+                                                </div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ activity.time
+                                                    }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                    [ngClass]="activity.statusBg">
+                                                    {{ activity.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

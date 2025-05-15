@@ -1,0 +1,279 @@
+<div class="container mx-auto py-6 px-4">
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Left Side: Add/Edit Category Form -->
+        <div class="w-full md:w-1/3">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <!-- Form Header -->
+                <div class="mb-6">
+                    <h1 class="text-xl font-bold text-gray-800">{{ isEditMode ? 'Edit' : 'Add New' }} Category</h1>
+                    <p class="text-gray-600 text-sm">{{ isEditMode ? 'Update existing' : 'Create a new' }} category in
+                        the system</p>
+                </div>
+
+                <!-- Success Message Display -->
+                <div *ngIf="successMessage"
+                    class="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <p>{{ successMessage }}</p>
+                </div>
+
+                <!-- Error Message Display -->
+                <div *ngIf="errorMessage"
+                    class="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
+                    <svg class="h-5 w-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <p>{{ errorMessage }}</p>
+                </div>
+
+                <!-- Category Form -->
+                <form (ngSubmit)="onSubmit(formRef)" #formRef="ngForm" class="min-w-full">
+                    <!-- Department Selection (Required) -->
+                    <div class="mb-4">
+                        <label for="selectedDepartmentId"
+                            class="block text-sm font-medium text-gray-700 mb-1">Department
+                            <span class="text-red-500">*</span></label>
+                        <select id="selectedDepartmentId" name="selectedDepartmentId" [(ngModel)]="selectedDepartmentId"
+                            #departmentInput="ngModel"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            [ngClass]="{'border-red-300': departmentInput.invalid && (departmentInput.dirty || departmentInput.touched)}"
+                            required>
+                            <option value="" disabled selected>Select department</option>
+                            <option *ngFor="let department of departments" [value]="department.department_id">
+                                {{ department.department_name }}
+                            </option>
+                        </select>
+                        <div *ngIf="departmentInput.invalid && (departmentInput.dirty || departmentInput.touched)"
+                            class="text-red-500 text-xs mt-1 pl-1">
+                            <div *ngIf="departmentInput.errors?.['required']">Department selection is required.</div>
+                        </div>
+                    </div>
+
+                    <!-- Category Name -->
+                    <div class="mb-4">
+                        <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name
+                            <span class="text-red-500">*</span></label>
+                        <input type="text" id="categoryName" name="categoryName" [(ngModel)]="categoryName"
+                            #categoryNameInput="ngModel"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            [ngClass]="{'border-red-300': categoryNameInput.invalid && (categoryNameInput.dirty || categoryNameInput.touched)}"
+                            placeholder="Enter category name" required maxlength="100">
+                        <div *ngIf="categoryNameInput.invalid && (categoryNameInput.dirty || categoryNameInput.touched)"
+                            class="text-red-500 text-xs mt-1 pl-1">
+                            <div *ngIf="categoryNameInput.errors?.['required']">Category name is required.</div>
+                            <div *ngIf="categoryNameInput.errors?.['maxlength']">Category name cannot exceed 100
+                                characters.</div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label for="categoryDescription"
+                            class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="categoryDescription" name="categoryDescription" [(ngModel)]="categoryDescription"
+                            #descriptionInput="ngModel" rows="3" maxlength="500"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            [ngClass]="{'border-red-300': descriptionInput.invalid && (descriptionInput.dirty || descriptionInput.touched)}"
+                            placeholder="Brief description of this category"></textarea>
+                        <div *ngIf="descriptionInput.invalid && (descriptionInput.dirty || descriptionInput.touched)"
+                            class="text-red-500 text-xs mt-1 pl-1">
+                            <div *ngIf="descriptionInput.errors?.['maxlength']">Description cannot exceed 500
+                                characters.</div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1" *ngIf="categoryDescription">
+                            {{ 500 - categoryDescription.length }} characters remaining
+                        </p>
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="mb-6">
+                        <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="categoryStatus" name="categoryStatus" [(ngModel)]="categoryStatus"
+                            #statusInput="ngModel"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required>
+                            <option value="YES">Active</option>
+                            <option value="NO">Inactive</option>
+                        </select>
+                        <div *ngIf="statusInput.invalid && (statusInput.dirty || statusInput.touched)"
+                            class="text-red-500 text-xs mt-1 pl-1">
+                            <div *ngIf="statusInput.errors?.['required']">Status is required.</div>
+                        </div>
+                    </div>
+
+                    <!-- Form actions -->
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" (click)="clearForm(formRef)"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300">
+                            {{ isEditMode ? 'Cancel' : 'Clear' }}
+                        </button>
+                        <button type="submit" [disabled]="formRef.invalid || !categoryName.trim()"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300"
+                            [ngClass]="{'opacity-70 cursor-not-allowed': formRef.invalid || !categoryName.trim()}">
+                            {{ isEditMode ? 'Update' : 'Add' }} Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side: Categories List -->
+        <div class="w-full md:w-2/3">
+            <div class="bg-white rounded-lg shadow-md">
+                <!-- List Header -->
+                <div class="p-4 border-b flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800">Categories</h2>
+
+                    <!-- Search and Filter -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Department Filter Dropdown -->
+                        <div class="relative">
+                            <select [(ngModel)]="filterDepartment" (change)="onDepartmentFilterChange()"
+                                class="pl-3 pr-8 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">All Departments</option>
+                                <option *ngFor="let department of departments" [value]="department.department_id">
+                                    {{ department.department_name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="relative">
+                            <input type="text" [(ngModel)]="searchTerm" placeholder="Search categories..."
+                                class="pl-8 pr-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                (keyup.enter)="searchCategories()">
+                            <i
+                                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        </div>
+                        <button (click)="searchCategories()" class="p-1 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div *ngIf="categories.length === 0" class="p-8 text-center text-gray-500">
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                        </svg>
+                        <p class="text-gray-500 mb-2">No categories found.</p>
+                        <p class="text-sm text-gray-400">Create your first category using the form on the left.</p>
+                    </div>
+                </div>
+
+                <!-- Categories Table -->
+                <div *ngIf="categories.length > 0" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ID
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category Name
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Department
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Description
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr *ngFor="let category of categories"
+                                class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ category.category_id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ category.category_name }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ getDepartmentName(category.department_id) }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-500 max-w-xs truncate">{{ category.description ||
+                                        'No description' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span *ngIf="category.is_active === 'YES'"
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                    <span *ngIf="category.is_active === 'NO'"
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Inactive
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="javascript:void(0)" (click)="editCategory(category)"
+                                        class="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-150">
+                                        <span class="inline-flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                </path>
+                                            </svg>
+                                            Edit
+                                        </span>
+                                    </a>
+                                    <a *ngIf="category.is_active === 'YES'" href="javascript:void(0)"
+                                        (click)="changeCategoryStatus(category, 'NO')"
+                                        class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                                        <span class="inline-flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                                </path>
+                                            </svg>
+                                            Disable
+                                        </span>
+                                    </a>
+                                    <a *ngIf="category.is_active === 'NO'" href="javascript:void(0)"
+                                        (click)="changeCategoryStatus(category, 'YES')"
+                                        class="text-green-600 hover:text-green-900 transition-colors duration-150">
+                                        <span class="inline-flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Enable
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

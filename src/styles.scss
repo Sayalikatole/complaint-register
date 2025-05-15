@@ -302,3 +302,216 @@ input.mat-input-element {
 //     background-color: transparent !important;
 //     color: #333;
 // }
+
+
+
+
+/////////////////Dark Mode///////////////////////
+// /* Dark Mode Styles */
+
+/////////////////Form Inputs///////////////////////
+:host {
+    .form-group {
+        margin-bottom: var(--space-4);
+
+        label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+
+            input,
+            select,
+            textarea {
+                width: 100%;
+                padding: var(--space-2) var(--space-3);
+                background-color: var(--bg-input);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius);
+                transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+                &:focus {
+                    border-color: var(--border-color-focus);
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+
+                    .dark & {
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+                    }
+                }
+
+                &::placeholder {
+                    color: var(--text-placeholder);
+                }
+
+                &:disabled {
+                    background-color: var(--gray-100);
+                    cursor: not-allowed;
+
+                    .dark & {
+                        background-color: var(--gray-800);
+                    }
+                }
+            }
+
+            .error-message {
+                color: var(--danger-600);
+                font-size: 0.875rem;
+                margin-top: var(--space-1);
+
+                .dark & {
+                    color: var(--danger-400);
+                }
+            }
+        }
+    }
+}
+
+///////////////////Cards //////////////////////
+/// * Card Styles */
+:host {
+    .card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        transition: all var(--transition-normal);
+
+        &:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: var(--space-4) var(--space-6);
+            border-bottom: 1px solid var(--border-color);
+
+            h2,
+            h3,
+            h4 {
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+        }
+
+        .card-body {
+            padding: var(--space-6);
+        }
+
+        .card-footer {
+            padding: var(--space-4) var(--space-6);
+            border-top: 1px solid var(--border-color);
+        }
+    }
+}
+
+//////////////////Buttons//////////////////////
+/// * Button Styles */
+:host {
+    .btn {
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius);
+        font-weight: 600;
+        transition: background-color var(--transition-fast), transform var(--transition-fast);
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &.btn-primary {
+            background-color: var(--primary-600);
+            color: var(--text-on-primary);
+
+            &:hover {
+                background-color: var(--primary-700);
+            }
+        }
+
+        &.btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-800);
+
+            &:hover {
+                background-color: var(--gray-300);
+            }
+
+            .dark & {
+                background-color: var(--gray-700);
+                color: var(--gray-200);
+
+                &:hover {
+                    background-color: var(--gray-600);
+                }
+            }
+        }
+
+        &.btn-success {
+            background-color: var(--success-600);
+            color: var(--text-on-success);
+
+            &:hover {
+                background-color: var(--success-700);
+            }
+        }
+
+        &.btn-danger {
+            background-color: var(--danger-600);
+            color: var(--text-on-danger);
+
+            &:hover {
+                background-color: var(--danger-700);
+            }
+        }
+
+        &.btn-warning {
+            background-color: var(--warning-500);
+            color: var(--text-on-warning);
+
+            &:hover {
+                background-color: var(--warning-600);
+            }
+        }
+
+        &.btn-info {
+            background-color: var(--info-600);
+            color: var(--text-on-info);
+
+            &:hover {
+                background-color: var(--info-700);
+            }
+        }
+
+        &.btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-600);
+            color: var(--primary-600);
+
+            &:hover {
+                background-color: var(--primary-50);
+            }
+
+            .dark & {
+                border-color: var(--primary-500);
+                color: var(--primary-400);
+
+                &:hover {
+                    background-color: rgba(59, 130, 246, 0.1);
+                }
+            }
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+    }
+}

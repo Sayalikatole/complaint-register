@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -21,6 +22,10 @@ export class NavbarComponent implements OnInit {
   role: string = '';
   organizationName: string = '';
   
+  // Theme state
+  isDarkMode: boolean = false;
+  themePreference: 'light' | 'dark' | 'system' = 'system';
+  
   // Notification count (mock data - can be replaced with actual API integration)
   notificationCount: number = 3;
 
@@ -29,16 +34,64 @@ export class NavbarComponent implements OnInit {
   showCreateDropdown: boolean = false;
   showUserMenu: boolean = false;
   showMobileMenu: boolean = false;
+    showThemeMenu: boolean = false;
+
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+        private themeService: ThemeService
   ) { }
 
   ngOnInit(): void {
     this.loadUserData();
+        this.setupThemeObservers();
+
   }
 
+
+   /**
+   * Setup theme observers to track theme state
+   */
+  setupThemeObservers(): void {
+    this.themeService.darkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
+    
+    this.themeService.themePreference$.subscribe(preference => {
+      this.themePreference = preference;
+    });
+  }
+
+  /**
+   * Toggle between light and dark mode
+   */
+  toggleDarkMode(event?: Event): void {
+    if (event) event.stopPropagation();
+    this.themeService.toggleDarkMode();
+  }
+  
+  /**
+   * Set a specific theme
+   */
+  setTheme(theme: 'light' | 'dark' | 'system', event?: Event): void {
+    if (event) event.stopPropagation();
+    this.themeService.setTheme(theme);
+    this.showThemeMenu = false;
+  }
+  
+  /**
+   * Toggle theme menu visibility
+   */
+  toggleThemeMenu(event: Event): void {
+    event.stopPropagation();
+    this.showThemeMenu = !this.showThemeMenu;
+    
+    // Close other menus
+    this.showUserMenu = false;
+    this.showNewDropdown = false;
+    this.showCreateDropdown = false;
+  }
   /**
    * Load user data including organization and role
    */

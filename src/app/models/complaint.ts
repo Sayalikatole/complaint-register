@@ -29,7 +29,11 @@ export interface Complaint {
     l_created_by?: string;
     l_deffered_reason?: string;
     has_feedback?: boolean;
-    // showStatusDropdown?: boolean;
+    is_anonymous?: string;     // Added new field
+    tag_id?: string[];           // Added new field
+    l_previous_status?: string; // Added from Java model
+    l_category_name?: string;  // Added from Java model
+    l_tag_name?: string;       // Added from Java model
 }
 
 // Create payload interface
@@ -38,7 +42,7 @@ export interface CreateComplaintPayload {
     org_id: number;           // Changed from organization_id and to number
     subject: string;          // Changed from title
     description: string;
-    priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    priority: 'HIGH' | 'MEDIUM' | 'LOW' | '';
     status: string;           // Added field with default "OPEN"
     department_id: string;
     created_by: string;
@@ -53,8 +57,11 @@ export interface CreateComplaintPayload {
     sub_category_id?: string;
     attachments?: string[];
     l_previous_status?: string; // Added field
+    is_anonymous?: string;     // Added new field
+    tag_id?: string[];           // Added new field
 }
 
+// Rest of the interfaces remain unchanged
 // Update status payload interface
 export interface UpdateComplaintStatusPayload {
     complaint_id: string;
@@ -62,18 +69,20 @@ export interface UpdateComplaintStatusPayload {
     resolution_comments?: string;
 }
 
-// Complaint filters interface
+// Complaint filters interface - update to include new fields
 export interface ComplaintFilters {
     status?: string;
     priority?: number;
     department_id?: string;
     category_id?: string;
+    tag_id?: string;          // Added new field
     dateFrom?: string;
     dateTo?: string;
     searchTerm?: string;
+    is_anonymous?: string;    // Added new field
 }
 
-// Response interface
+// The rest of your interfaces remain the same
 export interface ApiResponse<T> {
     status: boolean;
     statusCode: number;
@@ -81,10 +90,6 @@ export interface ApiResponse<T> {
     data: T;
 }
 
-
-/**
- * Interface for API response of department operations
- */
 export interface ComplaintResponse {
     status: string;
     statusMsg: string;
@@ -99,8 +104,6 @@ export interface Cl_createAttachmentPayload {
     l_encrypted_file: string
 }
 
-
-// Add this to your models/complaint.ts or update the existing interface
 export interface Attachment {
     attachment_id: string;
     entity_type: string;
@@ -113,9 +116,6 @@ export interface Attachment {
     uploaded_file_name: string;
 }
 
-
-
-// Add this interface to complaint.service.ts or to your models/complaint.ts file
 export interface ComplaintHistoryItem {
     complaint_status_history_id: string;
     complaint_id: string;
@@ -124,9 +124,9 @@ export interface ComplaintHistoryItem {
     reason: string;
     changed_by: string;
     changed_on: string;
+    l_changed_by: string;
 }
 
-// Add this interface to your complaint service
 export interface ChatMessage {
     complaint_message_history_id?: string;
     complaint_id: string;
@@ -134,16 +134,12 @@ export interface ChatMessage {
     receiver_id: string;
     message: string;
     sent_on?: string;
-    // sender_name?: string;
-    // sender_role?: string;
-    // is_read?: boolean;
     attachment: Attachment | null;
     l_sender_id?: string;
     l_receiver_id?: string;
     l_sender_role?: string;
     l_receiver_role?: string;
 }
-
 
 export interface FeedbackData {
     feedback_id: string;
@@ -160,7 +156,6 @@ export interface FeedbackData {
     is_active: string;
     l_created_by: string;
 }
-
 
 export interface FeedbackResponse {
     status: boolean;

@@ -73,10 +73,10 @@
               <i class="fas fa-chart-bar mr-2"></i> Analytics
             </a>
             <!-- Admin-only section -->
-            <a [routerLink]="['/', role, 'users']" routerLinkActive="nav-link-active"
+            <!-- <a [routerLink]="['/', role, 'users']" routerLinkActive="nav-link-active"
               class="text-gray-200 px-3 py-2 hover:text-white hover:bg-slate-600 rounded-md transition-all duration-200 flex items-center nav-link">
               <i class="fas fa-users mr-2"></i> Users
-            </a>
+            </a> -->
           </ng-container>
 
           <ng-template #userNav>
@@ -148,7 +148,7 @@
             </div>
 
             <!-- Admin options -->
-            <ng-container *ngIf="role === 'admin'">
+            <ng-container *ngIf="role === 'admin' || role === 'hod'">
               <a routerLink="/admin/users/create" (click)="toggleNewDropdown()"
                 class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors dropdown-item flex items-center">
                 <div class="w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
@@ -167,6 +167,28 @@
                 <div>
                   <div class="font-medium">New Department</div>
                   <div class="text-xs text-slate-500">Create a department</div>
+                </div>
+              </a>
+
+              <!-- Add these links right after the Department option in the Create Dropdown Menu -->
+              <a [routerLink]="['/', role, 'categories']" (click)="toggleNewDropdown()"
+                class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors dropdown-item flex items-center">
+                <div class="w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                  <i class="fas fa-tag"></i>
+                </div>
+                <div>
+                  <div class="font-medium">New Category</div>
+                  <div class="text-xs text-slate-500">Create complaint category</div>
+                </div>
+              </a>
+              <a [routerLink]="['/', role, 'tags']" (click)="toggleNewDropdown()"
+                class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors dropdown-item flex items-center">
+                <div class="w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 text-green-600">
+                  <i class="fas fa-tags"></i>
+                </div>
+                <div>
+                  <div class="font-medium">New Tags</div>
+                  <div class="text-xs text-slate-500">Create complaint tags</div>
                 </div>
               </a>
             </ng-container>
@@ -256,7 +278,7 @@
             </div>
 
             <div class="py-1">
-              <a routerLink="/profile" (click)="toggleUserMenu()"
+              <a [routerLink]="['/', role, 'profile-info']" (click)="toggleUserMenu()"
                 class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 dropdown-item flex items-center">
                 <i class="fas fa-user-circle w-5 mr-2 text-blue-500"></i> My Profile
               </a>
@@ -278,6 +300,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Add this next to your user profile button in the navbar -->
+
 
         <!-- Mobile menu button -->
         <button type="button" (click)="toggleMobileMenu()"

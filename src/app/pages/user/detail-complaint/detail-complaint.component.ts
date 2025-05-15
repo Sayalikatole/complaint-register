@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
-import { Cl_createComplaintwithAttachmentPayload, Cl_getAttachmentPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService, GetChatMessagesPayload, SendChatMessagePayload } from '../../../services/complaint.service';
+import { Cl_createComplaintwithAttachmentPayload, Cl_getAttachmentPayload, Cl_getComplaintByIdPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService, GetChatMessagesPayload, SendChatMessagePayload } from '../../../services/complaint.service';
 import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem, FeedbackData } from '../../../models/complaint';
 import { AuthService, Cl_getAssignableUsers } from '../../../services/auth.service';
 import { UserByDepartment, UserData } from '../../../models/auth';
@@ -162,10 +162,11 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
     this.loading = true;
     this.error = null;
 
-    const userComplaint_data: Cl_getUserComplaintPayload = {
+    const userComplaint_data: Cl_getComplaintByIdPayload = {
       opr_id: this.currentUser.operatingUnitId,
       org_id: this.currentUser.organizationId,
-      id: id
+      id: id,
+      email: this.currentUser.email
     };
 
     this.complaintService.getComplaintById(userComplaint_data)

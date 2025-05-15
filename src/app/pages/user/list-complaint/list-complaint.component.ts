@@ -12,11 +12,17 @@ import { UserData } from '../../../models/auth';
 import { Router } from '@angular/router';
 import { ComplaintPriority, getPriorityDisplayName } from '../../../enums/complaint_priority';
 import { ComplaintStatus, getStatusDisplayName } from '../../../enums/complaint_status';
+import { CategoryService } from '../../../services/category.service';
+import { TagsService } from '../../../services/tags.service';
+import { FindcategoryPipe } from '../../../pipes/findcategory.pipe';
+import { FindtagPipe } from '../../../pipes/findtag.pipe';
+import { FiltertagPipe } from '../../../pipes/filtertag.pipe';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   selector: 'app-list-complaint',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, FindcategoryPipe, FindtagPipe, FiltertagPipe, TooltipDirective],
   templateUrl: './list-complaint.component.html',
   styleUrl: './list-complaint.component.scss'
 })
@@ -71,11 +77,27 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
 
 
   role: string = '';
+
+  selectedCategory: string = 'all';
+  selectedTag: string = 'all';
+  showAnonymousOnly: boolean = false;
+
+  // Add arrays to store category and tag options
+  categories: any[] = [];
+  tags: any[] = [];
+
+  // Add these properties for new dropdown controls
+  isCategoryFilterOpen: boolean = false;
+  isTagFilterOpen: boolean = false;
+
   // Unsubscribe observable
   private destroy$ = new Subject<void>();
   elementRef: any;
 
-  constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router) { }
+  // Add property for tag search
+  tagSearchTerm: string = '';
+
+  constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router, private categoryService: CategoryService, private tagService: TagsService,) { }
 
   ngOnInit(): void {
     this.authService.currentUser$
@@ -86,6 +108,8 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         if (user) {
           // Load departments after getting user data
           this.loadComplaints();
+          this.loadCategories(); // Add this line
+          this.loadTags(); // Add this line
           this.role = this.currentUser?.l_role_name?.toLowerCase() || 'user';
         }
       });
@@ -172,6 +196,66 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+
+  // Add methods to load categories and tags
+  loadCategories(): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      org_id: parseInt(this.currentUser.organizationId),
+      opr_id: parseInt(this.currentUser.operatingUnitId),
+      id: "" // Empty to get all categories
+    };
+
+    this.categoryService.getCategoriesByDepartment(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.categories = data;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+        }
+      });
+  }
+
+  loadTags(): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      org_id: parseInt(this.currentUser.organizationId),
+      opr_id: parseInt(this.currentUser.operatingUnitId),
+      id: "" // Empty to get all tags
+    };
+
+    this.tagService.getTagsByCategory(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.tags = data;
+        },
+        error: (error) => {
+          console.error('Error loading tags:', error);
+        }
+      });
+  }
+
+  // Add new filter methods
+  onCategoryChange(category: string): void {
+    this.selectedCategory = category;
+    this.applyFilters();
+  }
+
+  onTagChange(tag: string): void {
+    this.selectedTag = tag;
+    this.applyFilters();
+  }
+
+  toggleAnonymousFilter(): void {
+    this.showAnonymousOnly = !this.showAnonymousOnly;
+    this.applyFilters();
   }
 
   /**
@@ -321,6 +405,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
   * Apply filtering and sorting to the complaints
   */
+  // Update the tag filter method in the filter function
   applyFilters(): void {
     // First filter by search term
     let result = this.complaints;
@@ -330,7 +415,9 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       result = result.filter(complaint =>
         complaint.subject.toLowerCase().includes(term) ||
         complaint.description.toLowerCase().includes(term) ||
-        complaint.complaint_id.toString().includes(term)
+        complaint.complaint_id.toString().includes(term) ||
+        (complaint.l_category_name && complaint.l_category_name.toLowerCase().includes(term)) ||
+        (complaint.l_tag_name && complaint.l_tag_name.toLowerCase().includes(term))
       );
     }
 
@@ -339,10 +426,99 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       result = result.filter(complaint => complaint.status.toUpperCase() === this.selectedStatus.toUpperCase());
     }
 
+    // Filter by category
+    if (this.selectedCategory !== 'all') {
+      result = result.filter(complaint => complaint.category_id === this.selectedCategory);
+    }
+
+    // Filter by tag - UPDATED to handle tag_id array
+    if (this.selectedTag !== 'all') {
+      result = result.filter(complaint => {
+        // Check if complaint has tag_id array
+        if (complaint.tag_id && Array.isArray(complaint.tag_id)) {
+          return complaint.tag_id.includes(this.selectedTag);
+        }
+        // Fallback to single tag_id for backward compatibility
+        else if (complaint.tag_id) {
+          return complaint.tag_id === this.selectedTag;
+        }
+        return false;
+      });
+    }
+
+    // Filter anonymous complaints
+    if (this.showAnonymousOnly) {
+      result = result.filter(complaint => complaint.is_anonymous === 'YES');
+    }
+
     // Then sort the results
     result = this.sortComplaints(result);
 
     this.filteredComplaints = result;
+  }
+
+
+  /**
+ * Get tag names as a comma-separated string
+ */
+  getTagNames(complaint: Complaint): string {
+    // Check if complaint has tag_id array
+    if (complaint.tag_id && Array.isArray(complaint.tag_id) && complaint.tag_id.length > 0) {
+      return complaint.tag_id
+        .map(tagId => {
+          const tag = this.tags.find(t => t.tag_id === tagId);
+          return tag ? tag.tag_name : '';
+        })
+        .filter(name => name) // Remove empty names
+        .join(', ');
+    }
+    // Fallback to l_tag_name for backward compatibility
+    else if (complaint.l_tag_name) {
+      return complaint.l_tag_name;
+    }
+    return '';
+  }
+
+  /**
+   * Get tag names as an array for badge display
+   */
+  getTagNameArray(complaint: Complaint): string[] {
+    // Check if complaint has tag_id array
+    if (complaint.tag_id && Array.isArray(complaint.tag_id) && complaint.tag_id.length > 0) {
+      return complaint.tag_id
+        .map(tagId => {
+          const tag = this.tags.find(t => t.tag_id === tagId);
+          return tag ? tag.tag_name : '';
+        })
+        .filter(name => name); // Remove empty names
+    }
+    // Fallback to l_tag_name for backward compatibility
+    else if (complaint.l_tag_name) {
+      return [complaint.l_tag_name];
+    }
+    return [];
+  }
+
+
+  // For multiple tag handling
+  /**
+   * Check if a complaint has a specific tag
+   */
+  hasTag(complaint: Complaint, tagId: string): boolean {
+    if (complaint.tag_id && Array.isArray(complaint.tag_id)) {
+      return complaint.tag_id.includes(tagId);
+    }
+    return complaint.tag_id === tagId;
+  }
+
+  /**
+   * Check if a complaint has any tags
+   */
+  hasTags(complaint: Complaint): boolean {
+    if (complaint.tag_id && Array.isArray(complaint.tag_id)) {
+      return complaint.tag_id.length > 0;
+    }
+    return !!complaint.tag_id || !!complaint.l_tag_name;
   }
 
   /**
@@ -563,7 +739,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.ASSIGNED];
 
       case ComplaintStatus.ESCALATED:
-        return [ComplaintStatus.IN_PROGRESS, ComplaintStatus.RESOLVED];
+        return [ComplaintStatus.ASSIGNED, ComplaintStatus.CLOSED];
 
       case ComplaintStatus.DEFERRED:
         return [ComplaintStatus.OPEN, ComplaintStatus.IN_PROGRESS];
@@ -632,11 +808,13 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   // }
 
   /**
- * Check if any dropdown is open
- */
+   * Check if any dropdown is open
+   */
   isAnyDropdownOpen(): boolean {
     return this.isStatusFilterOpen ||
       this.isSortOpen ||
+      this.isCategoryFilterOpen ||
+      this.isTagFilterOpen ||
       this.filteredComplaints.some(c => c.showStatusDropdown);
   }
 
@@ -661,12 +839,14 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   }
 
   /**
- * Close all dropdowns
- */
+   * Close all dropdowns
+   */
   closeAllDropdowns(): void {
     // Close filter and sort dropdowns
     this.isStatusFilterOpen = false;
     this.isSortOpen = false;
+    this.isCategoryFilterOpen = false;
+    this.isTagFilterOpen = false;
 
     // Close all complaint status dropdowns
     this.filteredComplaints.forEach(complaint => {
