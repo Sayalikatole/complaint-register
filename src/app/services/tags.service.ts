@@ -28,7 +28,7 @@ export class TagsService {
    * @returns Observable with API response
    */
   createTag(tag: Tags): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/createTag`, tag);
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/saveTags`, tag);
   }
 
   /**

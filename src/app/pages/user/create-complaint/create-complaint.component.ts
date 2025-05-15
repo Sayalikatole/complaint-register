@@ -65,7 +65,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     opr_id: 1,                // Default value, will be updated from user info
     is_anonymous: 'NO',       // Default to not anonymous
     category_id: '',          // New field
-    tag_id: [],               // New field
+    tag_id: '',               // New field
   };
 
   // Form state
@@ -243,7 +243,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.categories = [];
       this.complaintData.category_id = '';
       this.tags = [];
-      this.complaintData.tag_id = [];
+      this.complaintData.tag_id = '';
       return;
     }
 
@@ -261,7 +261,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
           // Reset category and tag selection
           this.complaintData.category_id = '';
           this.tags = [];
-          this.complaintData.tag_id = [];
+          this.complaintData.tag_id = '';
         },
         error: (error) => {
           console.error('Error loading categories:', error);
@@ -304,8 +304,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
   }
 
   /**
-  * Filter tags based on search term
-  */
+   * Filter tags based on search term
+   */
   filterTags(): void {
     if (!this.tagSearchTerm) {
       this.filteredTags = [...this.tags];
@@ -318,6 +318,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     );
   }
 
+
   /**
    * Toggle a tag selection
    */
@@ -329,9 +330,11 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.selectedTags.splice(index, 1);
     }
 
-    // Update the complaint data
-    this.complaintData.tag_id = [...this.selectedTags];
+    // Update the complaint data with comma-separated string
+    this.complaintData.tag_id = this.selectedTags.join(',');
   }
+
+
 
   /**
    * Check if a tag is selected
@@ -356,8 +359,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     const index = this.selectedTags.indexOf(tagId);
     if (index !== -1) {
       this.selectedTags.splice(index, 1);
-      // Update the complaint data
-      this.complaintData.tag_id = [...this.selectedTags];
+      // Update the complaint data with comma-separated string
+      this.complaintData.tag_id = this.selectedTags.join(',');
     }
   }
 
@@ -380,8 +383,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       this.selectedTags = this.tags.map(tag => tag.tag_id);
     }
 
-    // Update the complaint data
-    this.complaintData.tag_id = [...this.selectedTags];
+    // Update the complaint data with comma-separated string
+    this.complaintData.tag_id = this.selectedTags.join(',');
   }
 
   /**
@@ -534,7 +537,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     try {
       let complaintResponse;
 
-      this.complaintData.tag_id = this.selectedTags.length > 0 ? [...this.selectedTags] : [];
+      this.complaintData.tag_id = this.selectedTags.length > 0 ? this.selectedTags.join(',') : '';
 
 
       // Process files and create attachment array
@@ -652,7 +655,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       category_id: '',
       sub_category_id: '',
       is_anonymous: 'NO', // Reset to not anonymous
-      tag_id: []
+      tag_id: ''
     };
 
     // Recalculate the due date

@@ -30,7 +30,7 @@ export interface Complaint {
     l_deffered_reason?: string;
     has_feedback?: boolean;
     is_anonymous?: string;     // Added new field
-    tag_id?: string[];           // Added new field
+    tag_id?: string;           // Added new field
     l_previous_status?: string; // Added from Java model
     l_category_name?: string;  // Added from Java model
     l_tag_name?: string;       // Added from Java model
@@ -58,7 +58,7 @@ export interface CreateComplaintPayload {
     attachments?: string[];
     l_previous_status?: string; // Added field
     is_anonymous?: string;     // Added new field
-    tag_id?: string[];           // Added new field
+    tag_id?: string;           // Added new field
 }
 
 // Rest of the interfaces remain unchanged

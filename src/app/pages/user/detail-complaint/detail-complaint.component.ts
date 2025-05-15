@@ -1358,7 +1358,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
    * Get initials for avatar
    */
   getInitials(name: string | undefined): string {
-    if (!name) return 'UN';
+    if (!name) return 'AN';
 
     const nameParts = name.split(' ');
     if (nameParts.length >= 2) {

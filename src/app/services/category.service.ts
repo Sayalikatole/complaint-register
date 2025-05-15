@@ -28,7 +28,7 @@ export class CategoryService {
    * @returns Observable with API response
    */
   createCategory(category: Category): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/createCategory`, category);
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/saveCategory`, category);
   }
 
   /**
