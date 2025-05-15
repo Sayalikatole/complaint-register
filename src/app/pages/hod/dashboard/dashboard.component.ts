@@ -32,9 +32,9 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedDepartmentId: string = ''; // For ngModel binding
   filteredDepStatus: DepartmentWiseComplaint[] = []; // To hold filtered data
 
-    // Complaints data
-    complaints: Complaint[] = [];
-    filteredComplaints: Complaint[] = [];
+  // Complaints data
+  complaints: Complaint[] = [];
+  filteredComplaints: Complaint[] = [];
 
   errorMessage: string = '';
   successMessage: string = '';
@@ -85,109 +85,109 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-    /**
-   * Load complaints from the service
-   */
-    loadComplaints(): void {
-      // this.isLoading = true;
-      if (!this.currentUser) return;
-  
-      console.log(this.currentUser.userId)
-      console.log(this.currentUser)
-      const userComplaint_data: Cl_getUserComplaintPayload = {
-        opr_id: this.currentUser.operatingUnitId,
-        org_id: this.currentUser.organizationId,
-        id: this.currentUser.userId
-      };
-      this.complaintService.getUserComplaints(userComplaint_data)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (data) => {
-            this.complaints = data;
-            console.log(this.complaints)
-  
-            console.log(data)
-  
-            this.filteredComplaints = [...this.complaints];
-            console.log(this.filteredComplaints)
-            // this.applyFilters();
-            // this.isLoading = false;
-          },
-          error: (error) => {
-            console.error('Error loading complaints:', error);
-            this.errorMessage = 'Failed to load complaints. Please try again.';
-            // this.isLoading = false;
-          }
-        });
+  /**
+ * Load complaints from the service
+ */
+  loadComplaints(): void {
+    // this.isLoading = true;
+    if (!this.currentUser) return;
+
+    console.log(this.currentUser.userId)
+    console.log(this.currentUser)
+    const userComplaint_data: Cl_getUserComplaintPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
+    };
+    this.complaintService.getUserComplaints(userComplaint_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.complaints = data;
+          console.log(this.complaints)
+
+          console.log(data)
+
+          this.filteredComplaints = [...this.complaints];
+          console.log(this.filteredComplaints)
+          // this.applyFilters();
+          // this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading complaints:', error);
+          this.errorMessage = 'Failed to load complaints. Please try again.';
+          // this.isLoading = false;
+        }
+      });
+  }
+
+  renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
+    const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Create gradient (top to bottom)
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // Tailwind blue-500 at top
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Transparent at bottom
+
+    // Destroy previous chart instances on same canvas
+    if ((Chart as any).instances?.length) {
+      (Chart as any).instances.forEach((instance: any) => instance.destroy());
     }
 
-    renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
-      const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
-      if (!canvas) return;
-    
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-    
-      // Create gradient (top to bottom)
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // Tailwind blue-500 at top
-      gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Transparent at bottom
-    
-      // Destroy previous chart instances on same canvas
-      if ((Chart as any).instances?.length) {
-        (Chart as any).instances.forEach((instance: any) => instance.destroy());
-      }
-    
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Complaints per Month',
-            data: data,
-            fill: true, // Enable gradient background
-            borderColor: '#3b82f6',
-            backgroundColor: gradient,
-            tension: 0.3,
-            pointRadius: 5,
-            pointBackgroundColor: '#3b82f6'
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: {
-                color: '#374151' // Tailwind gray-700
-              },
-              position: 'bottom'
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Complaints per Month',
+          data: data,
+          fill: true, // Enable gradient background
+          borderColor: '#3b82f6',
+          backgroundColor: gradient,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: '#3b82f6'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#374151' // Tailwind gray-700
             },
-            tooltip: {
-              mode: 'index',
-              intersect: false
-            }
+            position: 'bottom'
           },
-          scales: {
-            x: {
-              ticks: { color: '#6b7280' } // Tailwind gray-500
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#6b7280' } // Tailwind gray-500
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0,
+              color: '#6b7280'
             },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0,
-                color: '#6b7280'
-              },
-              title: {
-                display: true,
-                text: 'Number of Complaints',
-                color: '#374151'
-              }
+            title: {
+              display: true,
+              text: 'Number of Complaints',
+              color: '#374151'
             }
           }
         }
-      });
-    }
-    
+      }
+    });
+  }
+
 
   getMonthName(monthNumber: string): string {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -291,7 +291,7 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const department_data: Cl_getDashboardPayload = {
       opr_id: this.currentUser.operatingUnitId,
       org_id: this.currentUser.organizationId,
-      id:this.currentUser.department_id
+      id: this.currentUser.department_id
 
     };
 
@@ -302,7 +302,7 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.priority = data;
           this.renderPriorityPieChart()
           console.log(this.priority)
-         
+
         },
         error: (error) => {
           console.error('Error loading complaint stats:', error);
@@ -455,33 +455,33 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   renderPriorityPieChart(): void {
     const canvas = document.getElementById('hodsCharts') as HTMLCanvasElement;
     if (!canvas) return;
-  
+
     // Destroy existing chart
     const existingChart = Chart.getChart(canvas);
     if (existingChart) {
       existingChart.destroy();
     }
-  
+
     // ✅ Ensure priority data is present
     if (!this.priority || this.priority.length === 0) return;
-  
+
     const labels = this.priority.map(item => item.priority);
     const data = this.priority.map(item => item.count);
-  
+
     const backgroundColors = [
       'rgba(255, 99, 132, 0.6)',    // HIGH
       'rgba(255, 206, 86, 0.6)',    // MEDIUM
       'rgba(75, 192, 192, 0.6)'     // LOW
     ];
-  
+
     const borderColors = [
       'rgba(255, 99, 132, 1)',
       'rgba(255, 206, 86, 1)',
       'rgba(75, 192, 192, 1)'
     ];
-  
+
     new Chart(canvas, {
-      type: 'pie',
+      type: 'doughnut',
       data: {
         labels: labels,
         datasets: [
@@ -521,5 +521,5 @@ export class HODDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  
+
 }  

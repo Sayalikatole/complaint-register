@@ -1,12 +1,12 @@
 <div class="flex flex-col h-full overflow-hidden bg-white">
     <!-- Ticket List Header -->
     <div class="flex items-center justify-between border-b p-4">
+        <!-- Update the filter section to include category, tag, and anonymous filtering -->
         <div class="flex items-center">
             <i class="fas fa-inbox mr-2 text-indigo-600"></i>
             <span class="mr-2 font-medium">All Complaints</span>
 
-            <!-- Filter dropdown -->
-            <!-- Update the status dropdown to use enum values -->
+            <!-- Status filter dropdown -->
             <div class="relative ml-3">
                 <button (click)="isStatusFilterOpen = !isStatusFilterOpen"
                     class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
@@ -19,7 +19,6 @@
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         All Status
                     </a>
-                    <!-- Use the available statuses array to generate options -->
                     <a *ngFor="let status of availableStatuses"
                         (click)="onStatusChange(status); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
@@ -28,9 +27,72 @@
                 </div>
             </div>
 
-            <!-- Add filter button -->
-            <button class="ml-4 text-gray-500 hover:text-indigo-600 focus:outline-none" title="Add filter">
-                <i class="fas fa-filter"></i>
+            <!-- NEW: Category filter dropdown -->
+            <div class="relative ml-3">
+                <button (click)="isCategoryFilterOpen = !isCategoryFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedCategory === 'all' ? 'All Categories' : (categories |
+                        findcategory:selectedCategory)?.category_name || 'Category' }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isCategoryFilterOpen"
+                    class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
+                    <a (click)="onCategoryChange('all'); isCategoryFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        All Categories
+                    </a>
+                    <a *ngFor="let category of categories"
+                        (click)="onCategoryChange(category.category_id); isCategoryFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        {{ category.category_name }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- NEW: Tag filter dropdown -->
+            <!-- Tag filter dropdown -->
+            <div class="relative ml-3">
+                <button (click)="isTagFilterOpen = !isTagFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedTag === 'all' ? 'All Tags' : (tags | findtag:selectedTag)?.tag_name || 'Tag'
+                        }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div *ngIf="isTagFilterOpen"
+                    class="absolute left-0 mt-2 w-48 max-h-60 overflow-y-auto rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
+                    <!-- Search box for tags -->
+                    <div class="px-3 py-2 border-b sticky top-0 bg-white">
+                        <input type="text" placeholder="Search tags..."
+                            class="w-full px-2 py-1 text-sm border border-gray-300 rounded" [(ngModel)]="tagSearchTerm"
+                            (click)="$event.stopPropagation()">
+                    </div>
+
+                    <a (click)="onTagChange('all'); isTagFilterOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        All Tags
+                    </a>
+
+                    <!-- Tag list with filtering -->
+                    <ng-container *ngFor="let tag of tags | filtertag:tagSearchTerm">
+                        <a (click)="onTagChange(tag.tag_id); isTagFilterOpen = false"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            {{ tag.tag_name }}
+                        </a>
+                    </ng-container>
+
+                    <!-- Empty state -->
+                    <div *ngIf="(tags | filtertag:tagSearchTerm).length === 0"
+                        class="px-4 py-2 text-sm text-gray-500 text-center">
+                        No matching tags
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Anonymous toggle filter -->
+            <button (click)="toggleAnonymousFilter()"
+                class="ml-3 px-3 py-1 text-sm rounded-full border transition-colors" [ngClass]="{'border-indigo-500 bg-indigo-50 text-indigo-600': showAnonymousOnly, 
+                  'border-gray-300 bg-white text-gray-700': !showAnonymousOnly}">
+                <i class="fas fa-user-secret mr-1"></i> Anonymous
             </button>
         </div>
 
@@ -121,14 +183,40 @@
                 [ngClass]="getStatusIconClass(complaint.status)">
                 <i class="far fa-envelope"></i>
             </div>
+            <!-- Replace the tag display in the complaint item with this -->
             <div class="flex-1">
                 <div class="font-medium">{{ complaint.subject }}</div>
                 <div class="flex flex-wrap gap-2 text-sm text-gray-600">
                     <span>#{{ complaint.complaint_id }}</span>
                     <span>•</span>
-                    <span>{{ complaint.l_created_by }}</span>
+                    <!-- Show "Anonymous" if is_anonymous is YES -->
+                    <span *ngIf="complaint.is_anonymous === 'YES'">
+                        <i class="fas fa-user-secret text-gray-500 mr-1"></i>Anonymous
+                    </span>
+                    <span *ngIf="complaint.is_anonymous !== 'YES'">{{ complaint.l_created_by }}</span>
                     <span>•</span>
                     <span>{{ complaint.l_department_name }}</span>
+                    <span>•</span>
+                    <!-- Add category badge -->
+                    <span *ngIf="complaint.l_category_name"
+                        class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        {{ complaint.l_category_name }}
+                    </span>
+                    <!-- Add multiple tag badges with limit and counter -->
+                    <ng-container *ngIf="getTagNameArray(complaint).length > 0">
+                        <!-- Show first 2 tags -->
+                        <span *ngFor="let tagName of getTagNameArray(complaint).slice(0, 2)"
+                            class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs">
+                            {{ tagName }}
+                        </span>
+                        <!-- If more than 2 tags, show a counter -->
+                        <!-- If more than 2 tags, show a counter with tooltip -->
+                        <span *ngIf="getTagNameArray(complaint).length > 2"
+                            class="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs cursor-help"
+                            [appTooltip]="getTagNames(complaint)">
+                            +{{ getTagNameArray(complaint).length - 2 }} more
+                        </span>
+                    </ng-container>
                     <span>•</span>
                     <span>{{ formatDate(complaint.created_on) }}</span>
                     <span *ngIf="isHighPriority(complaint.priority)"
@@ -158,26 +246,50 @@
             <div class="status-container" (click)="$event.stopPropagation()">
                 <!-- Show status dropdown for users who can update status -->
                 <div *ngIf="canUpdateStatus(complaint)" class="relative dropdown-container">
+                    <!-- Status toggle button with enhanced color transitions -->
                     <button (click)="toggleStatusDropdown($event, complaint)"
-                        class="rounded px-3 py-1 transition-colors flex items-center dropdown-toggle"
+                        class="rounded px-3 py-1 transition-all duration-200 flex items-center dropdown-toggle shadow-sm hover:shadow"
                         [ngClass]="getStatusClass(complaint.status)">
+                        <!-- Color status dot -->
+                        <span class="w-2 h-2 rounded-full mr-2" [ngClass]="{
+            'bg-white': true,
+            'animate-pulse': isHighPriority(complaint.priority)
+        }"></span>
                         {{ getStatusDisplay(complaint.status) }}
-                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        <i class="fas fa-chevron-down ml-1.5 text-xs transition-transform duration-200"
+                            [ngClass]="{'transform rotate-180': complaint.showStatusDropdown}"></i>
                     </button>
 
                     <!-- Status dropdown menu with improved positioning -->
+                    <!-- Status dropdown menu with improved positioning and animations -->
                     <div *ngIf="complaint.showStatusDropdown"
                         class="status-dropdown absolute right-0 mt-1 w-48 rounded-md bg-white shadow-lg py-1 border border-gray-200 dropdown-menu z-20">
-                        <a *ngFor="let status of getAllowedStatusTransitions(complaint.status)"
-                            (click)="updateComplaintStatus($event, complaint, status)"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                            {{ getStatusDisplay(status) }}
-                        </a>
-                        <!-- Show message when no transitions are available -->
+                        <!-- Empty state message when no transitions available -->
                         <div *ngIf="getAllowedStatusTransitions(complaint.status).length === 0"
                             class="px-4 py-2 text-sm text-gray-500 italic">
                             No status changes available
                         </div>
+
+                        <!-- Enhanced status options with color indicators -->
+                        <ng-container *ngFor="let status of getAllowedStatusTransitions(complaint.status)">
+                            <a (click)="updateComplaintStatus($event, complaint, status)"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-all duration-200 dropdown-item flex items-center">
+                                <!-- Status color indicator dot -->
+                                <span class="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" [ngClass]="{
+                    'bg-blue-500': status === statusEnum.OPEN,
+                    'bg-yellow-500': status === statusEnum.ASSIGNED,
+                    'bg-indigo-500': status === statusEnum.IN_PROGRESS,
+                    'bg-green-500': status === statusEnum.RESOLVED,
+                    'bg-red-500': status === statusEnum.CLOSED,
+                    'bg-purple-500': status === statusEnum.ESCALATED,
+                    'bg-orange-500': status === statusEnum.DEFERRED,
+                    'bg-pink-500': status === statusEnum.REOPEN,
+                    'bg-gray-500': !status
+                }"></span>
+                                <!-- Status name -->
+                                <span>{{ getStatusDisplay(status) }}</span>
+                            </a>
+                        </ng-container>
                     </div>
                 </div>
 

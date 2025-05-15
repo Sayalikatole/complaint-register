@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,26 +16,82 @@ import { RouterModule } from '@angular/router';
 export class NavbarComponent implements OnInit {
   // User information
   username: string = '';
+  userEmail: string = '';
   userInitials: string = '';
   userRole: string = '';
   role: string = '';
   organizationName: string = '';
+  
+  // Theme state
+  isDarkMode: boolean = false;
+  themePreference: 'light' | 'dark' | 'system' = 'system';
+  
+  // Notification count (mock data - can be replaced with actual API integration)
+  notificationCount: number = 3;
 
   // Dropdown control
   showNewDropdown: boolean = false;
   showCreateDropdown: boolean = false;
   showUserMenu: boolean = false;
   showMobileMenu: boolean = false;
+    showThemeMenu: boolean = false;
+
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+        private themeService: ThemeService
   ) { }
 
   ngOnInit(): void {
     this.loadUserData();
+        this.setupThemeObservers();
+
   }
 
+
+   /**
+   * Setup theme observers to track theme state
+   */
+  setupThemeObservers(): void {
+    this.themeService.darkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
+    
+    this.themeService.themePreference$.subscribe(preference => {
+      this.themePreference = preference;
+    });
+  }
+
+  /**
+   * Toggle between light and dark mode
+   */
+  toggleDarkMode(event?: Event): void {
+    if (event) event.stopPropagation();
+    this.themeService.toggleDarkMode();
+  }
+  
+  /**
+   * Set a specific theme
+   */
+  setTheme(theme: 'light' | 'dark' | 'system', event?: Event): void {
+    if (event) event.stopPropagation();
+    this.themeService.setTheme(theme);
+    this.showThemeMenu = false;
+  }
+  
+  /**
+   * Toggle theme menu visibility
+   */
+  toggleThemeMenu(event: Event): void {
+    event.stopPropagation();
+    this.showThemeMenu = !this.showThemeMenu;
+    
+    // Close other menus
+    this.showUserMenu = false;
+    this.showNewDropdown = false;
+    this.showCreateDropdown = false;
+  }
   /**
    * Load user data including organization and role
    */
@@ -42,6 +99,7 @@ export class NavbarComponent implements OnInit {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.username = user.username || user.username || 'User';
+      this.userEmail = user.email || 'user@example.com';
       this.userInitials = this.getInitials(this.username);
       this.organizationName = user.l_org_name || 'Micropro';
 
@@ -50,6 +108,26 @@ export class NavbarComponent implements OnInit {
 
       // Format role for display
       this.userRole = this.formatRole(this.role);
+    }
+  }
+
+  /**
+   * Format role for display with proper capitalization and spacing
+   */
+  formatRoleDisplay(role: string): string {
+    if (!role) return 'User';
+    
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'Administrator';
+      case 'hod':
+        return 'Department Head';
+      case 'employee':
+        return 'Employee';
+      case 'client':
+        return 'Client';
+      default:
+        return this.formatRole(role);
     }
   }
 
@@ -125,23 +203,6 @@ export class NavbarComponent implements OnInit {
     this.showNewDropdown = false;
     this.showUserMenu = false;
     this.showCreateDropdown = false;
-  }
-
-  /**
-   * Open create complaint form (for non-admin users) - deprecated
-   * Now replaced by dropdown menu
-   */
-  openCreateComplaint(): void {
-    console.log(this.role);
-    if (this.role === 'client') {
-      this.router.navigate(['/client/create-complaints']);
-    }
-    if (this.role === 'hod') {
-      this.router.navigate(['/hod/create-complaints']);
-    }
-    if (this.role === 'employee') {
-      this.router.navigate(['/employee/create-complaints']);
-    }
   }
 
   /**

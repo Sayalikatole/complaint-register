@@ -26,6 +26,10 @@ import { UserDashboardComponent } from './pages/user/user-dashboard/user-dashboa
 import { HODDashboardComponent } from './pages/hod/dashboard/dashboard.component';
 import { CreateSuggestionComponent } from './pages/user/create-suggestion/create-suggestion.component';
 import { ListSuggestionComponent } from './pages/user/list-suggestion/list-suggestion.component';
+import { EmployeeDashboardComponent } from './pages/employee/employee-dashboard/employee-dashboard.component';
+import { ProfileComponent } from './component/profile/profile.component';
+import { CategoryComponent } from './pages/admin/category/category.component';
+import { TagsComponent } from './pages/admin/tags/tags.component';
 
 // export const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -42,7 +46,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [roleGuard],
+    // canActivate: [roleGuard],
     data: { expectedRole: '1406827783519433' },
     children: [
       { path: 'dashboard', component: DashboardComponent },
@@ -52,6 +56,9 @@ export const routes: Routes = [
       { path: 'complaints/:id', loadComponent: () => import('./pages/user/detail-complaint/detail-complaint.component').then(c => c.DetailComplaintComponent) },
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      { path: 'profile-info', component: ProfileComponent },
+      { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
+      { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -59,7 +66,7 @@ export const routes: Routes = [
   {
     path: 'client',
     component: UserLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9816063224382954' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
@@ -78,7 +85,7 @@ export const routes: Routes = [
   {
     path: 'employee',
     component: EmployeeLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '8513155895269752' },
     children: [
       // { path: 'create-complaints', component: CreateComplaintComponent },
@@ -88,6 +95,8 @@ export const routes: Routes = [
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      // { path: 'dashboard', component: UserDashboardComponent },
+      { path: 'dashboard', component: EmployeeDashboardComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -95,7 +104,7 @@ export const routes: Routes = [
   {
     path: 'hod',
     component: HodLayoutComponent,
-    canActivate: [authGuard, roleGuard],
+    // canActivate: [authGuard, roleGuard],
     data: { expectedRole: '9381190731754782' },
     children: [
       { path: 'create-complaints', component: CreateComplaintComponent },
@@ -106,7 +115,8 @@ export const routes: Routes = [
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
-
+      { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
+      { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },

@@ -1,0 +1,235 @@
+:host {
+    display: block;
+
+    // Enhanced animations and styling for navigation links
+    .nav-link {
+        position: relative;
+        transition: all 0.2s ease;
+        overflow: hidden;
+
+        &:hover {
+            transform: translateX(2px);
+        }
+
+        // Create subtle hover effect
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(59, 130, 246, 0.05);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        &:hover::after {
+            width: 100%;
+        }
+
+        // Active state styling
+        &.border-l-4 {
+            padding-left: 11px; // Adjust padding when border is active
+            font-weight: 500;
+
+            i {
+                color: #3b82f6 !important; // Force blue color for icon on active
+            }
+
+            &::after {
+                width: 100%;
+                background-color: rgba(59, 130, 246, 0.1);
+            }
+        }
+    }
+
+    // Icon container styling for enhanced appearance
+    .w-6.h-6 {
+        transition: all 0.2s ease;
+    }
+
+    // Section title styling
+    .section-title {
+        margin-top: 0.75rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.05em;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 2rem;
+            height: 1px;
+            background-color: rgba(107, 114, 128, 0.2);
+        }
+    }
+
+    // Custom scrollbar for better UX
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.7);
+        }
+    }
+
+    // Badge styling and animations
+    .count-badge {
+        transition: all 0.2s ease;
+
+        &.urgent-badge {
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                bottom: -4px;
+                left: -4px;
+                border-radius: 9999px;
+                animation: pulse 2s infinite;
+                opacity: 0;
+            }
+        }
+    }
+
+    // Button animations and enhancements
+    .action-button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+
+        // Add ripple effect
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+
+        &:active::after {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            transition: 0s;
+        }
+    }
+
+    // Mobile toggle button enhancements
+    .toggle-button {
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+            box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            transform: scale(1.1);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    // Enhanced backdrop blur
+    .backdrop {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        transition: opacity 0.3s ease;
+    }
+
+    // Subtle online status animation
+    .animate-pulse-subtle {
+        animation: pulsate 2s ease-in-out infinite;
+    }
+
+    // Keyframe animations
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            opacity: 0.6;
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            opacity: 0;
+        }
+    }
+
+    @keyframes pulsate {
+        0% {
+            opacity: 0.7;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        100% {
+            opacity: 0.7;
+            transform: scale(1);
+        }
+    }
+}
+
+// Sidebar transition effects
+.transform {
+    transition-property: transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+// Animation for menu appearing
+.translate-x-0 {
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

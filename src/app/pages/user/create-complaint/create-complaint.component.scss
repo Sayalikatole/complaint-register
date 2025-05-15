@@ -1,0 +1,33 @@
+// Add to create-complaint.component.scss
+
+// Tag multiselect dropdown styles
+.tag-dropdown-container {
+    position: relative;
+}
+
+// Prevent text overflow in multiselect items
+.tag-item-text {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// Custom scrollbar for the tags dropdown
+.tag-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 4px;
+}
+
+.tag-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #a3a3a3;
+}
