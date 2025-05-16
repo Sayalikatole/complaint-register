@@ -66,6 +66,7 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
     is_anonymous: 'NO',       // Default to not anonymous
     category_id: '',          // New field
     tag_id: '',               // New field
+    location: '',
   };
 
   // Form state
@@ -655,7 +656,8 @@ export class CreateComplaintComponent implements OnInit, OnDestroy {
       category_id: '',
       sub_category_id: '',
       is_anonymous: 'NO', // Reset to not anonymous
-      tag_id: ''
+      tag_id: '',
+      location: '',
     };
 
     // Recalculate the due date

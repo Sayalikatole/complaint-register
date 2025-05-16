@@ -31,3 +31,23 @@
 .tag-dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: #a3a3a3;
 }
+
+
+/* In create-complaint.component.scss */
+
+/* Animation for anonymous confirmation message */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.anonymous-confirmation {
+    animation: slideIn 0.3s ease-out;
+}

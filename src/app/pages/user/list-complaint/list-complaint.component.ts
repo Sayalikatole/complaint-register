@@ -75,6 +75,8 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   feedbackRatingError: string = '';
   selectedComplaintForFeedback: Complaint | null = null;
 
+  // Add this property to your component class
+  categorySearchTerm: string = '';
 
   role: string = '';
 

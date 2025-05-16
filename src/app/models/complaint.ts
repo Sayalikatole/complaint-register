@@ -34,6 +34,7 @@ export interface Complaint {
     l_previous_status?: string; // Added from Java model
     l_category_name?: string;  // Added from Java model
     l_tag_name?: string;       // Added from Java model
+    location:string
 }
 
 // Create payload interface
@@ -59,6 +60,7 @@ export interface CreateComplaintPayload {
     l_previous_status?: string; // Added field
     is_anonymous?: string;     // Added new field
     tag_id?: string;           // Added new field
+    location: string;
 }
 
 // Rest of the interfaces remain unchanged
