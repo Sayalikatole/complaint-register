@@ -78,6 +78,7 @@ export const routes: Routes = [
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      { path: 'profile-info', component: ProfileComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -97,6 +98,7 @@ export const routes: Routes = [
       { path: 'suggestions', component: ListSuggestionComponent },
       // { path: 'dashboard', component: UserDashboardComponent },
       { path: 'dashboard', component: EmployeeDashboardComponent },
+      { path: 'profile-info', component: ProfileComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -117,6 +119,8 @@ export const routes: Routes = [
       { path: 'suggestions', component: ListSuggestionComponent },
       { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
       { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
+      { path: 'profile-info', component: ProfileComponent },
+
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },

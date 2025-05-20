@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
 import { Cl_createComplaintwithAttachmentPayload, Cl_getAttachmentPayload, Cl_getComplaintByIdPayload, Cl_getComplaintHistoryPayload, Cl_getUserComplaintPayload, ComplaintService, GetChatMessagesPayload, SendChatMessagePayload } from '../../../services/complaint.service';
-import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem, FeedbackData } from '../../../models/complaint';
+import { Attachment, ChatMessage, Cl_createAttachmentPayload, Complaint, ComplaintHistoryItem, FeedbackData, FeedbackWithResponses } from '../../../models/complaint';
 import { AuthService, Cl_getAssignableUsers } from '../../../services/auth.service';
 import { UserByDepartment, UserData } from '../../../models/auth';
 import { ComplaintStatus } from '../../../enums/complaint_status';
@@ -40,9 +40,10 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
   activeTab: 'conversation' | 'attachments' | 'history' | 'feedback' = 'conversation';
 
   // For feedback response (admin/HOD feature)
-  feedbackResponse: string = '';
-  canRespondToFeedback: boolean = false;
-  submittingResponse: boolean = false;
+  feedbackData: FeedbackWithResponses | null = null;
+  loadingFeedback: boolean = false;
+  feedbackError: string | null = null;
+  hasFeedback: boolean = false;
 
   // For sending reminders
   canSendReminder: boolean = false;
@@ -91,9 +92,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
 
   // Add these properties for feedback
   feedback: FeedbackData | null = null;
-  loadingFeedback: boolean = false;
-  feedbackError: string | null = null;
-  hasFeedback: boolean = false;
+  // loadingFeedback: boolean = false;
+  // feedbackError: string | null = null;
+  // hasFeedback: boolean = false;
 
   // For messages
   messages: ChatMessage[] = [];
@@ -701,6 +702,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
     // Create updated complaint object
     const updatedComplaint = {
       ...this.complaint,
+      modified_by: this.currentUser?.userId,
       due_date: formattedDueDate,
       l_previous_status: this.complaint.status,
     };
@@ -1150,7 +1152,7 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
 
     console.log('Selected user:', user);
     const userId = user ? user.userId : null;
-    const userName = user ? user.userName : null;
+    const userName = user ? user.name : null;
 
     // Close dropdown
     this.showAssigneeDropdown = false;
@@ -1172,13 +1174,15 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
     this.complaint.assigned_to = userId;
     this.complaint.l_assigned_to = userName;
     console.log('Selected assignee:', userId);
+    console.log('Selected assignee:', userName);
+
     // Create update payload
     const updatedComplaint = {
       ...this.complaint,
       l_previous_status: this.complaint.status,
       l_assigned_to: userName,
       status: ComplaintStatus.ASSIGNED,
-      // modified_by: this.currentUser?.userId,
+      modified_by: this.currentUser?.userId,
       // modified_on: new Date().toISOString() // Backend should handle proper date formatting
     };
     this.complaintService.updateComplaint(updatedComplaint)
@@ -1409,12 +1413,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (feedbackData) => {
-          this.feedback = feedbackData;
+          this.feedbackData = feedbackData;
           this.hasFeedback = !!feedbackData;
           this.loadingFeedback = false;
-
-          // Check if user can respond to feedback
-          this.canRespondToFeedback = this.role === 'admin' || this.role === 'hod';
 
           // Check if user can send reminders
           this.canSendReminder = !this.hasFeedback &&
@@ -1433,19 +1434,19 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
    * Submit feedback response
    */
   submitFeedbackResponse(): void {
-    if (!this.feedback?.feedback_id || !this.feedbackResponse || !this.currentUser) return;
+    // if (!this.feedback?.feedback_id || !this.feedbackResponse || !this.currentUser) return;
 
-    this.submittingResponse = true;
+    // this.submittingResponse = true;
 
-    const payload = {
-      feedback_id: this.feedback.feedback_id,
-      complaint_id: this.complaint?.complaint_id || '',
-      response: this.feedbackResponse,
-      responder_id: this.currentUser.userId,
-      responder_name: this.currentUser.username || this.currentUser.userId,
-      org_id: this.currentUser.organizationId,
-      opr_id: this.currentUser.operatingUnitId
-    };
+    // const payload = {
+    //   feedback_id: this.feedback.feedback_id,
+    //   complaint_id: this.complaint?.complaint_id || '',
+    //   response: this.feedbackResponse,
+    //   responder_id: this.currentUser.userId,
+    //   responder_name: this.currentUser.username || this.currentUser.userId,
+    //   org_id: this.currentUser.organizationId,
+    //   opr_id: this.currentUser.operatingUnitId
+    // };
 
     // this.complaintService.respondToFeedback(payload)
     //   .pipe(takeUntil(this.destroy$))
@@ -1472,6 +1473,18 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
     //       }, 3000);
     //     }
     //   });
+  }
+
+  // Helper method to get rating display text
+  getRatingText(rating: number): string {
+    switch (rating) {
+      case 1: return 'Poor';
+      case 2: return 'Fair';
+      case 3: return 'Average';
+      case 4: return 'Good';
+      case 5: return 'Excellent';
+      default: return 'Not Rated';
+    }
   }
 
   /**

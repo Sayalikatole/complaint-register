@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 // Import the necessary services and models
 import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
-import { Complaint, FeedbackData } from '../../../models/complaint';
+import { Complaint, FeedbackAnswer, FeedbackData, FeedbackQuestion, FeedbackQuestionResponse } from '../../../models/complaint';
 import { AuthService } from '../../../services/auth.service';
 import { UserData } from '../../../models/auth';
 import { Router } from '@angular/router';
@@ -18,11 +18,12 @@ import { FindcategoryPipe } from '../../../pipes/findcategory.pipe';
 import { FindtagPipe } from '../../../pipes/findtag.pipe';
 import { FiltertagPipe } from '../../../pipes/filtertag.pipe';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { SortByOrderPipe } from "../../../pipes/sort-by-order.pipe";
 
 @Component({
   selector: 'app-list-complaint',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, FindcategoryPipe, FindtagPipe, FiltertagPipe, TooltipDirective],
+  imports: [CommonModule, RouterModule, FormsModule, FindcategoryPipe, FindtagPipe, FiltertagPipe, TooltipDirective, SortByOrderPipe],
   templateUrl: './list-complaint.component.html',
   styleUrl: './list-complaint.component.scss'
 })
@@ -99,6 +100,11 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   // Add property for tag search
   tagSearchTerm: string = '';
 
+  // Add these properties to your component class
+  feedbackQuestions: FeedbackQuestion[] = [];
+  feedbackAnswers: FeedbackAnswer[] = [];
+  loadingQuestions: boolean = false;
+
   constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router, private categoryService: CategoryService, private tagService: TagsService,) { }
 
   ngOnInit(): void {
@@ -116,9 +122,22 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         }
       });
 
+    this.feedbackQuestions.forEach(question => {
+      if (question.feedbackQuestionOptions) {
+        question.feedbackQuestionOptions.sort((a, b) => +b.option_order - +a.option_order);
+      }
+    });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', this.handleOutsideClick.bind(this));
+  }
+
+  // Add this to your component
+  ngAfterViewChecked() {
+    // This will help debug radio button selection issues
+    if (this.feedbackAnswers && this.feedbackAnswers.length > 0) {
+      console.log('Current feedback answers:', JSON.stringify(this.feedbackAnswers));
+    }
   }
 
   ngOnDestroy(): void {
@@ -165,6 +184,41 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     if (this.isSortOpen && !target.closest('.relative')) {
       this.isSortOpen = false;
     }
+  }
+
+  // Add this method to load feedback questions
+  loadFeedbackQuestions(): void {
+    this.loadingQuestions = true;
+    this.complaintService.getFeedbackQuestions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (questions) => {
+          this.feedbackQuestions = questions;
+          // Initialize empty answers for each question
+          this.initFeedbackAnswers();
+          this.loadingQuestions = false;
+        },
+        error: (error) => {
+          console.error('Error loading feedback questions:', error);
+          this.loadingQuestions = false;
+        }
+      });
+  }
+
+  // Modify or add this method to initialize feedback answers
+  // Add this to your component if not already present
+  initFeedbackAnswers(): void {
+    if (!this.feedbackQuestions || this.feedbackQuestions.length === 0) {
+      this.feedbackAnswers = [];
+      return;
+    }
+
+    this.feedbackAnswers = this.feedbackQuestions.map(q => ({
+      response_id: '',
+      feedback_id: '',
+      question_id: q.question_id,
+      selected_option_id: ''
+    }));
   }
 
   /**
@@ -345,6 +399,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Handle status filter changes
    */
   onStatusChange(status: string): void {
+    console.log('Selected status:', status);
     this.selectedStatus = status;
     this.applyFilters();
   }
@@ -615,6 +670,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
    * Get display name for status
    */
   getStatusDisplay(status: string): string {
+    // console.log('Status:', status);
     return getStatusDisplayName(status);
   }
 
@@ -824,20 +880,34 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
   * Handle document clicks to close dropdowns
   */
+  // Fix the document click handler in list-complaint.component.ts
   @HostListener('document:click', ['$event'])
   handleDocumentClick(event: MouseEvent): void {
-    // Don't close dropdowns if click is inside the component
-    if (this.elementRef.nativeElement.contains(event.target)) {
-      // If clicked element is not a dropdown toggle or item, close all dropdowns
-      if (!(event.target as HTMLElement).closest('.dropdown-toggle') &&
-        !(event.target as HTMLElement).closest('.dropdown-menu')) {
-        this.closeAllDropdowns();
-      }
+    // First, check if the event target exists
+    if (!event || !event.target) {
       return;
     }
 
-    // If click is outside the component, close all dropdowns
-    this.closeAllDropdowns();
+    const target = event.target as HTMLElement;
+
+    // Check for various dropdown states and close them if clicked outside
+    if (this.isStatusFilterOpen && !target.closest('.status-dropdown')) {
+      this.isStatusFilterOpen = false;
+    }
+
+    if (this.isCategoryFilterOpen && !target.closest('.category-dropdown')) {
+      this.isCategoryFilterOpen = false;
+    }
+
+    if (this.isTagFilterOpen && !target.closest('.tag-dropdown')) {
+      this.isTagFilterOpen = false;
+    }
+
+    // For the feedback modal, don't close anything when clicking inside the modal
+    if (this.showFeedbackModal && target.closest('.feedback-modal')) {
+      // Do nothing - allow clicks inside the modal
+      return;
+    }
   }
 
   /**
@@ -1219,15 +1289,66 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
     this.feedbackDescriptionError = '';
     this.feedbackRatingError = '';
 
+    // Load feedback questions if not already loaded
+    if (this.feedbackQuestions.length === 0) {
+      this.loadFeedbackQuestions();
+    } else {
+      // Reset answers
+      this.initFeedbackAnswers();
+    }
+
     // Show modal
     this.showFeedbackModal = true;
   }
+
+  // Update the selectAnswer method to use the new structure
+  selectAnswer(questionId: string, optionId: string): void {
+    console.log('Selecting answer:', questionId, optionId);
+
+    // Initialize feedbackAnswers if it doesn't exist
+    if (!this.feedbackAnswers) {
+      this.initFeedbackAnswers();
+    }
+
+    const answer = this.feedbackAnswers.find(a => a.question_id === questionId);
+    if (answer) {
+      answer.selected_option_id = optionId;
+    } else {
+      // If the answer object doesn't exist, create it
+      this.feedbackAnswers.push({
+        response_id: '',
+        feedback_id: '',
+        question_id: questionId,
+        selected_option_id: optionId
+      });
+    }
+  }
+
+
   /**
    * Set rating for feedback
    */
   setRating(rating: number): void {
     this.feedbackData.rating = rating;
     this.feedbackRatingError = '';
+  }
+
+  // Add to list-complaint.component.ts
+  // Make sure this function exists and works correctly
+  getFeedbackAnswer(questionId: string): any {
+    if (!this.feedbackAnswers) return null;
+    return this.feedbackAnswers.find(a => a.question_id === questionId);
+  }
+
+  getRatingText(rating: number): string {
+    switch (rating) {
+      case 1: return 'Poor';
+      case 2: return 'Fair';
+      case 3: return 'Average';
+      case 4: return 'Good';
+      case 5: return 'Excellent';
+      default: return 'Select a rating';
+    }
   }
 
   /**
@@ -1271,6 +1392,12 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       this.feedbackDescriptionError = '';
     }
 
+    const unansweredQuestions = this.feedbackAnswers.filter(a => !a.selected_option_id);
+    if (unansweredQuestions.length > 0) {
+      this.errorMessage = 'Please answer all questions';
+      isValid = false;
+    }
+
     return isValid;
   }
 
@@ -1295,7 +1422,7 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
 
 
     // Submit feedback using the service
-    this.complaintService.saveFeedback(this.feedbackData)
+    this.complaintService.saveFeedback(this.feedbackData, this.feedbackAnswers)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {

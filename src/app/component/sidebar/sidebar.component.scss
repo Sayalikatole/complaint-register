@@ -233,3 +233,322 @@
         opacity: 1;
     }
 }
+
+
+:host {
+    display: block;
+    height: 100%;
+}
+
+/* Custom scrollbar for sidebar */
+nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+nav::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Pulse animation for urgent items */
+@keyframes pulse-subtle {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    aside {
+        position: fixed;
+        top: 64px;
+        /* Adjust based on your navbar height */
+        left: 0;
+        bottom: 0;
+        z-index: 40;
+    }
+}
+
+
+
+
+
+
+:host {
+    display: block;
+}
+
+/* Custom scrollbar for sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* Pulse animation for urgent items */
+@keyframes pulse-subtle {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Navigation hover effects */
+.nav-link {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #3b82f6;
+        transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+        width: 100%;
+    }
+}
+
+/* Active link styling */
+.nav-link.bg-blue-50 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Count badge animations */
+.count-badge {
+    transition: all 0.3s ease;
+}
+
+.urgent-badge {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Section title animations */
+.section-title {
+    position: relative;
+    margin-bottom: 0.5rem;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -0.25rem;
+        left: 0;
+        width: 2rem;
+        height: 1px;
+        background-color: #e5e7eb;
+    }
+}
+
+/* Action button effects */
+.action-button {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* Mobile optimizations */
+.backdrop {
+    transition: opacity 0.3s ease;
+}
+
+.toggle-button {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+/* Collapsed sidebar adjustments */
+@media (min-width: 768px) {
+    .w-20 {
+        .section-title::after {
+            width: 100%;
+            left: 0;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+:host {
+    display: block;
+}
+
+/* Custom scrollbar for sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* Pulse animation for urgent items */
+@keyframes pulse-subtle {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Navigation hover effects */
+.nav-link {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #3b82f6;
+        transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+        width: 100%;
+    }
+}
+
+/* Active link styling */
+.nav-link.bg-blue-50 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Count badge animations */
+.count-badge {
+    transition: all 0.3s ease;
+}
+
+.urgent-badge {
+    animation: pulse-subtle 2s infinite;
+}
+
+/* Section title animations */
+.section-title {
+    position: relative;
+    margin-bottom: 0.5rem;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -0.25rem;
+        left: 0;
+        width: 2rem;
+        height: 1px;
+        background-color: #e5e7eb;
+    }
+}
+
+/* Action button effects */
+.action-button {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* Mobile optimizations */
+.backdrop {
+    transition: opacity 0.3s ease;
+}
+
+.toggle-button {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+/* Collapsed sidebar adjustments */
+@media (min-width: 768px) {
+    .w-20 {
+        .section-title::after {
+            width: 100%;
+            left: 0;
+        }
+    }
+}

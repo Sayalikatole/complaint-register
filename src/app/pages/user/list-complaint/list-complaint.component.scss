@@ -394,3 +394,44 @@ button {
 .dropdown-container {
     position: relative;
 }
+
+// Custom styles for radio buttons
+input[type="radio"] {
+    @apply cursor-pointer;
+}
+
+input[type="radio"]+label {
+    @apply cursor-pointer;
+}
+
+// Hover effect for option rows
+input[type="radio"]+label:hover {
+    @apply text-amber-700;
+}
+
+// Selected option highlight
+input[type="radio"]:checked+label {
+    @apply font-medium text-amber-700;
+}
+
+// Smooth transitions
+.feedback-option {
+    transition: all 0.2s ease;
+}
+
+// Animation for modal
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feedback-modal-content {
+    animation: fadeIn 0.3s ease-out;
+}
