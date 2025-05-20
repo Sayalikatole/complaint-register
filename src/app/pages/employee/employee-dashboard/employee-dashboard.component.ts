@@ -5,10 +5,10 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Subject, takeUntil } from 'rxjs';
 import { UserData } from '../../../models/auth';
 import { AuthService } from '../../../services/auth.service';
-import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend } from '../../../services/dashboard.service';
+import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend, Cl_getUserDashboardPayload } from '../../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
+import { Cl_getUserComplaintPayload, Cl_getUserCreatedComplaintPayload, ComplaintService } from '../../../services/complaint.service';
 import { Complaint } from '../../../models/complaint';
 
 // Register chart.js components and plugin
@@ -51,21 +51,42 @@ export class EmployeeDashboardComponent implements OnInit, AfterViewInit, OnDest
   assignedInProgressComplaints: number = 0;
   assignedResolvedComplaints: number = 0;
   assignedClosedComplaints: number = 0;
+  ticketStatusChartInstance: any;
 
   // Add these properties to your class
 createdEscalatedComplaints: number = 0;
 // createdClosedComplaints: number = 0;
-avgResponseTime: any = '3.2'; // This would come from your API
+avgResponseTime: any ; // This would come from your API
 
   // Priority trend data
-  priorityTrend: ComplaintPriorityTrend[] = [];
+  priority: ComplaintPriorityTrend[] = [];
+  priorityTrend : ComplaintPriorityTrend[] = [];;
+
+  //list of complaint
+  showAllCreated = false;
+showAllAssigned = false;
+
 
   // Error handling
   errorMessage: string = '';
   successMessage: string = '';
   isLoading: boolean = false;
 
+  // for month chart
+  labels: string[] = [];
+monthlyData: (number | null)[] = [];
+
+
   private destroy$ = new Subject<void>();
+  avgRating: any;
+  createdAssignedOpenComplaints: number =0;
+  createdAssignedPendingComplaints: number =0;
+  createdAssignedResolvedComplaints: number =0;
+  createdAssignedClosedComplaints: number=0;
+  createdAssignedEscalatedComplaints: number=0;
+  avgResponseAssignTime:any;
+  totalAssignedCreatedComplaints: number=0;
+  totalUserCreatedComplaints: number=0;
 
   constructor(
     private dashboardService: DashboardService,
@@ -74,6 +95,8 @@ avgResponseTime: any = '3.2'; // This would come from your API
   ) { }
 
   ngOnInit(): void {
+    this.activeTab = 'assigned';  // or 'assigned' if that's default
+    this.switchTab(this.activeTab);
     this.authService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -81,18 +104,19 @@ avgResponseTime: any = '3.2'; // This would come from your API
 
         if (user) {
           // Load both types of data
-          this.loadCreatedComplaints();
-          this.loadAssignedComplaints();
-          this.loadCreatedComplaintStats();
-          this.loadAssignedComplaintStats();
-          this.loadPriorityTrend();
+          this.loadgetAssignedUserPriorityStatus();
+          this.loadgetUserCreatedComplaints();
+          this.loadMonthlyCreatedUserComplint();
+          this.loadCreatedUserComplaintSummery();
+          this.loadAssignedUserComplaintSummery();
+          this.loadUserAssignedComplaints();
+          this.loadgetCreatedUserPriorityStatus();
         }
       });
   }
 
   ngAfterViewInit(): void {
-    // We'll render charts when data is available
-    this.loadMonthlyComplaintTrend();
+  
   }
 
   ngOnDestroy(): void {
@@ -109,28 +133,31 @@ avgResponseTime: any = '3.2'; // This would come from your API
     // Re-render charts based on active tab
     setTimeout(() => {
       if (tab === 'created') {
-        this.renderCreatedStatusChart();
+        this.loadMonthlyCreatedUserComplint();
+        this.renderMonthlyUserCreateChart(this.labels, this.monthlyData);
+        this.renderPriorityCreatedBarChart();   
       } else {
-        this.renderAssignedStatusChart();
+        // this.loadgetAssignedUserPriorityStatus();
+       this.renderPriorityAssginedBarChart();
       }
-      this.renderPriorityPieChart();
+      // this.renderPriorityAssginedBarChart();
     }, 100);
   }
 
   /**
-   * Load complaints created by the employee
+   * Load All complaints created by the employee
    */
-  loadCreatedComplaints(): void {
+  loadgetUserCreatedComplaints(): void {
     this.isLoading = true;
     if (!this.currentUser) return;
 
-    const userComplaintData: Cl_getUserComplaintPayload = {
+    const userComplaintData: Cl_getUserCreatedComplaintPayload = {
       opr_id: this.currentUser.operatingUnitId,
       org_id: this.currentUser.organizationId,
       id: this.currentUser.userId
     };
 
-    this.complaintService.getUserComplaints(userComplaintData)
+    this.complaintService.getUserCreatedComplaints(userComplaintData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -150,63 +177,70 @@ avgResponseTime: any = '3.2'; // This would come from your API
   /**
    * Load complaints assigned to the employee
    */
-  loadAssignedComplaints(): void {
+  loadUserAssignedComplaints(): void {
     this.isLoading = true;
     if (!this.currentUser) return;
 
-    // const assignedComplaintData: Cl_getAssignedComplaintPayload = {
-    //   opr_id: this.currentUser.operatingUnitId,
-    //   org_id: this.currentUser.organizationId,
-    //   assignedTo: this.currentUser.userId
-    // };
+    const assignedComplaintData: Cl_getUserCreatedComplaintPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
+    };
 
-    // this.complaintService.getAssignedComplaints(assignedComplaintData)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.assignedComplaints = data;
-    //       this.filteredAssignedComplaints = [...this.assignedComplaints];
-    //       this.totalAssignedComplaints = data.length;
-    //       this.isLoading = false;
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading assigned complaints:', error);
-    //       this.errorMessage = 'Failed to load assigned complaints. Please try again.';
-    //       this.isLoading = false;
-    //     }
-    //   });
+    this.complaintService.getUserAssignedComplaints(assignedComplaintData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.assignedComplaints = data;
+          this.filteredAssignedComplaints = [...this.assignedComplaints];
+          this.totalAssignedComplaints = data.length;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading assigned complaints:', error);
+          this.errorMessage = 'Failed to load assigned complaints. Please try again.';
+          this.isLoading = false;
+        }
+      });
   }
 
   /**
-   * Load statistics for complaints created by the employee
+   * Load Complt status for userrrr
    */
   
 // Then in your loadCreatedComplaintStats method, make sure to set these values
-loadCreatedComplaintStats(): void {
+loadCreatedUserComplaintSummery(): void {
   if (!this.currentUser) return;
 
   const payload: Cl_getDashboardPayload = {
     opr_id: this.currentUser.operatingUnitId,
     org_id: this.currentUser.organizationId,
     id: this.currentUser.userId,
-    // type: 'created'
   };
 
   this.dashboardService.getClientTotalCompltStats(payload)
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (data) => {
-        // this.createdStatusSummary = data.statusSummary || [];
-        this.createdOpenComplaints = this.createdStatusSummary.find(item => item.status === 'OPEN')?.count || 0;
-        this.createdPendingComplaints = this.createdStatusSummary.find(item => item.status === 'IN_PROGRESS')?.count || 0;
-        this.createdResolvedComplaints = this.createdStatusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
-        this.createdClosedComplaints = this.createdStatusSummary.find(item => item.status === 'CLOSED')?.count || 0;
-        this.createdEscalatedComplaints = this.createdStatusSummary.find(item => item.status === 'ESCALATED')?.count || 0;
-        this.avgResponseTime = data.avgResolutionTimeInHours || '3.2';
-        
-        // Render chart only if this is the active tab
+        // ✅ You must assign this first
+        this.createdStatusSummary = data.statusSummary || [];
+
+        // ✅ Now safe to use .find()
+        this.createdOpenComplaints = this.getCountFromStatus('OPEN');
+        this.createdPendingComplaints = this.getCountFromStatus('IN_PROGRESS');
+        this.createdResolvedComplaints = this.getCountFromStatus('RESOLVED');
+        this.createdClosedComplaints = this.getCountFromStatus('CLOSED');
+        this.createdEscalatedComplaints = this.getCountFromStatus('ESCALATED');
+        this.avgResponseTime = data.avgResolutionTime ?? 'N/A';
+        this.avgRating = data.avgRating ?? 'N/A';
+        this.totalUserCreatedComplaints = data.totalComplaints ?? 0;
+
+        console.log('CLOSED:', this.createdClosedComplaints);
+        console.log('OPEN:', this.createdOpenComplaints);
+        console.log('TOTALLL',this.totalCreatedComplaints)
+
         if (this.activeTab === 'created') {
-          this.renderCreatedStatusChart();
+        
         }
       },
       error: (error) => {
@@ -216,101 +250,140 @@ loadCreatedComplaintStats(): void {
     });
 }
 
-  /**
-   * Load statistics for complaints assigned to the employee
-   */
-  loadAssignedComplaintStats(): void {
-    if (!this.currentUser) return;
+loadAssignedUserComplaintSummery(): void {
+  if (!this.currentUser) return;
 
-    const payload: Cl_getDashboardPayload = {
-      opr_id: this.currentUser.operatingUnitId,
-      org_id: this.currentUser.organizationId,
-      id: this.currentUser.userId,
-      // type: 'assigned'
-    };
+  const payload: Cl_getUserDashboardPayload = {
+    opr_id: this.currentUser.operatingUnitId,
+    org_id: this.currentUser.organizationId,
+    id: this.currentUser.userId,
+  };
 
-    // this.dashboardService.getUserComplaintStats(payload)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.assignedStatusSummary = data.statusSummary || [];
-    //       this.assignedOpenComplaints = this.assignedStatusSummary.find(item => item.status === 'OPEN')?.count || 0;
-    //       this.assignedInProgressComplaints = this.assignedStatusSummary.find(item => item.status === 'IN_PROGRESS')?.count || 0;
-    //       this.assignedResolvedComplaints = this.assignedStatusSummary.find(item => item.status === 'RESOLVED')?.count || 0;
-    //       this.assignedClosedComplaints = this.assignedStatusSummary.find(item => item.status === 'CLOSED')?.count || 0;
+  this.dashboardService.getUsertAssignCompltStats(payload)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (data) => {
+        // ✅ You must assign this first
+        this.createdStatusSummary = data.statusSummary || [];
 
-    //       // Render chart only if this is the active tab
-    //       if (this.activeTab === 'assigned') {
-    //         this.renderAssignedStatusChart();
-    //       }
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading assigned complaint stats:', error);
-    //       this.errorMessage = 'Failed to load assigned complaint statistics.';
-    //     }
-    //   });
-  }
+        // ✅ Now safe to use .find()
+        this.createdAssignedOpenComplaints = this.getCountFromStatus('OPEN');
+        this.createdAssignedPendingComplaints = this.getCountFromStatus('IN_PROGRESS');
+        this.createdAssignedResolvedComplaints = this.getCountFromStatus('RESOLVED');
+        this.createdAssignedClosedComplaints = this.getCountFromStatus('CLOSED');
+        this.createdAssignedEscalatedComplaints = this.getCountFromStatus('ESCALATED');
+        this.avgResponseAssignTime = data.avgResolutionTime ?? 'N/A';
+        this.avgRating = data.avgRating ?? 'N/A';
+        this.totalAssignedCreatedComplaints = data.totalComplaints ?? 0;
+
+
+        if (this.activeTab === 'created') {
+         
+        }
+      },
+      error: (error) => {
+        console.error('Error loading created complaint stats:', error);
+        this.errorMessage = 'Failed to load complaint statistics.';
+      }
+    });
+}
+
+// Helper function for safety
+getCountFromStatus(status: string): number {
+  return this.createdStatusSummary.find(item => item.status === status)?.count || 0;
+}
+
+ 
 
   /**
    * Load priority trend data for the employee's complaints
    */
-  loadPriorityTrend(): void {
+  loadgetCreatedUserPriorityStatus(): void {
     if (!this.currentUser) return;
 
-    // const payload: Cl_getDashboardPayload = {
-    //   opr_id: this.currentUser.operatingUnitId,
-    //   org_id: this.currentUser.organizationId,
-    //   id: this.currentUser.userId,
-    //   type: this.activeTab
-    // };
+    const user_data: Cl_getUserDashboardPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
 
-    // this.dashboardService.getComplaintPriorityTrend(payload)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.priorityTrend = data;
-    //       this.renderPriorityPieChart();
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading priority trend:', error);
-    //     }
-    //   });
+    };
+
+    this.dashboardService.getCreatedUserPriorityStatus(user_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.priority = data;
+          this.renderPriorityCreatedBarChart()
+          console.log(this.priority)
+
+        },
+        error: (error) => {
+          console.error('Error loading complaint stats:', error);
+          this.errorMessage = 'Failed to load department complaints.';
+        }
+      });
   }
 
-  /**
-   * Load monthly complaint trend
-   */
-  loadMonthlyComplaintTrend(): void {
+  loadgetAssignedUserPriorityStatus(): void {
     if (!this.currentUser) return;
 
+    const user_data: Cl_getUserDashboardPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
+
+    };
+
+    this.dashboardService.getAssignedUserPriorityStatus(user_data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.priorityTrend = data;
+          this.renderPriorityAssginedBarChart()
+          console.log(this.priorityTrend)
+
+        },
+        error: (error) => {
+          console.error('Error loading complaint stats:', error);
+          this.errorMessage = 'Failed to load department complaints.';
+        }
+      });
+  }
+
+
+  loadMonthlyCreatedUserComplint(): void {
+    if (!this.currentUser) return;
+  
     const payload: Cl_getDashboardPayload = {
       org_id: this.currentUser.organizationId,
       opr_id: this.currentUser.operatingUnitId,
-      id: this.currentUser.userId,
-      // type: this.activeTab
+      id: this.currentUser.userId
     };
-
-    this.dashboardService.getMonthlyComplaintCategoryStats(payload)
+  
+    this.dashboardService.getMonthlyUserComplaintCategoryStats(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: ComplaintCategoryStats[]) => {
-          // Map month to total_complaints
           const monthMap = new Map<string, number>();
+  
           response.forEach(item => {
             monthMap.set(item.month, item.total_complaints);
           });
-
+  
           const labels: string[] = [];
           const data: (number | null)[] = [];
-
-          // Fill data for all 12 months
+  
           for (let i = 1; i <= 12; i++) {
             const monthStr = i.toString().padStart(2, '0'); // '01' to '12'
             labels.push(this.getMonthName(monthStr));
-            data.push(monthMap.get(monthStr) ?? null); // Use null if data is missing
+            data.push(monthMap.get(monthStr) ?? null);
           }
+  
+          this.labels = labels;
+this.monthlyData = data;
+this.renderMonthlyUserCreateChart(this.labels, this.monthlyData);
 
-          this.renderMonthlyTrendChart(labels, data);
+          // this.renderMonthlyTrendChart(labels, data);
         },
         error: (err) => {
           console.error('Error fetching monthly trend data:', err);
@@ -319,269 +392,185 @@ loadCreatedComplaintStats(): void {
       });
   }
 
-  /**
-   * Render chart for created complaints status
-   */
-  renderCreatedStatusChart(): void {
-    const canvas = document.getElementById('statusChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Destroy previous chart if exists
-    if (Chart.getChart(canvas)) {
-      Chart.getChart(canvas)?.destroy();
+ 
+    getMonthName(monthNumber: string): string {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const index = parseInt(monthNumber, 10) - 1;
+      return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
     }
+  
+  
 
-    const labels = ['Open', 'In Progress', 'Resolved', 'Closed'];
-    const data = [
-      this.createdOpenComplaints,
-      this.createdPendingComplaints,
-      this.createdResolvedComplaints,
-      this.createdClosedComplaints
-    ];
-
-    const backgroundColors = [
-      'rgba(255, 99, 132, 0.2)',  // Open
-      'rgba(255, 206, 86, 0.2)',  // In Progress
-      'rgba(75, 192, 192, 0.2)',  // Resolved
-      'rgba(54, 162, 235, 0.2)'   // Closed
-    ];
-
-    const borderColors = [
-      'rgba(255, 99, 132, 0.8)',
-      'rgba(255, 206, 86, 0.8)',
-      'rgba(75, 192, 192, 0.8)',
-      'rgba(54, 162, 235, 0.8)'
-    ];
-
-    const chartOptions: ChartConfiguration['options'] = {
-      responsive: true,
-      animation: {
-        duration: 1000,
-        easing: 'easeOutElastic'
-      },
-      plugins: {
-        tooltip: {
-          backgroundColor: '#1f2937',
-          titleColor: '#fff',
-          bodyColor: '#f9fafb'
+    renderPriorityCreatedBarChart(): void {
+      const canvas = document.getElementById('createdChart') as HTMLCanvasElement;
+      if (!canvas) return;
+    
+      const existingChart = Chart.getChart(canvas);
+      if (existingChart) existingChart.destroy();
+    
+      const labels = this.priority.map(p => p.priority);
+      const data = this.priority.map(p => p.count);
+    
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Priority Count',
+            data,
+            backgroundColor: [
+              '#fecaca', // HIGH - light red
+              '#fef9c3', // MEDIUM - light yellow
+              '#d1fae5'  // LOW - light green
+            ],
+            borderColor: [
+              '#f87171', // HIGH border
+              '#facc15', // MEDIUM border
+              '#34d399'  // LOW border
+            ],
+            borderWidth: 1,
+            borderRadius: 10,
+            barThickness: 25
+          }]
         },
-        legend: {
-          position: 'top',
-          labels: {
-            color: '#374151'
-          }
-        },
-        datalabels: {
-          anchor: 'center',
-          align: 'center',
-          color: '#000',
-          font: {
-            weight: 'bold',
-            size: 12
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          animation: {
+            duration: 1200,
+            easing: 'easeOutQuart'
           },
-          formatter: (value: number) => (value > 0 ? value : ''),
-          clip: true
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
-        }
-      }
-    };
-
-    new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'My Created Complaints by Status',
-            data: data,
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1
-          }
-        ]
-      },
-      options: chartOptions,
-      plugins: [ChartDataLabels]
-    });
-  }
-
-  /**
-   * Render chart for assigned complaints status
-   */
-  renderAssignedStatusChart(): void {
-    const canvas = document.getElementById('statusChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Destroy previous chart if exists
-    if (Chart.getChart(canvas)) {
-      Chart.getChart(canvas)?.destroy();
-    }
-
-    const labels = ['Open', 'In Progress', 'Resolved', 'Closed'];
-    const data = [
-      this.assignedOpenComplaints,
-      this.assignedInProgressComplaints,
-      this.assignedResolvedComplaints,
-      this.assignedClosedComplaints
-    ];
-
-    const backgroundColors = [
-      'rgba(255, 99, 132, 0.2)',  // Open
-      'rgba(255, 206, 86, 0.2)',  // In Progress
-      'rgba(75, 192, 192, 0.2)',  // Resolved
-      'rgba(54, 162, 235, 0.2)'   // Closed
-    ];
-
-    const borderColors = [
-      'rgba(255, 99, 132, 0.8)',
-      'rgba(255, 206, 86, 0.8)',
-      'rgba(75, 192, 192, 0.8)',
-      'rgba(54, 162, 235, 0.8)'
-    ];
-
-    const chartOptions: ChartConfiguration['options'] = {
-      responsive: true,
-      animation: {
-        duration: 1000,
-        easing: 'easeOutElastic'
-      },
-      plugins: {
-        tooltip: {
-          backgroundColor: '#1f2937',
-          titleColor: '#fff',
-          bodyColor: '#f9fafb'
-        },
-        legend: {
-          position: 'top',
-          labels: {
-            color: '#374151'
-          }
-        },
-        datalabels: {
-          anchor: 'center',
-          align: 'center',
-          color: '#000',
-          font: {
-            weight: 'bold',
-            size: 12
-          },
-          formatter: (value: number) => (value > 0 ? value : ''),
-          clip: true
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
-        }
-      }
-    };
-
-    new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Assigned Complaints by Status',
-            data: data,
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1
-          }
-        ]
-      },
-      options: chartOptions,
-      plugins: [ChartDataLabels]
-    });
-  }
-
-  /**
-   * Render priority pie chart
-   */
-  renderPriorityPieChart(): void {
-    const canvas = document.getElementById('priorityChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Destroy existing chart
-    const existingChart = Chart.getChart(canvas);
-    if (existingChart) {
-      existingChart.destroy();
-    }
-
-    // Ensure priority data is present
-    if (!this.priorityTrend || this.priorityTrend.length === 0) return;
-
-    const labels = this.priorityTrend.map(item => item.priority);
-    const data = this.priorityTrend.map(item => item.count);
-
-    const backgroundColors = [
-      'rgba(255, 99, 132, 0.6)',    // HIGH
-      'rgba(255, 206, 86, 0.6)',    // MEDIUM
-      'rgba(75, 192, 192, 0.6)'     // LOW
-    ];
-
-    const borderColors = [
-      'rgba(255, 99, 132, 1)',
-      'rgba(255, 206, 86, 1)',
-      'rgba(75, 192, 192, 1)'
-    ];
-
-    new Chart(canvas, {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          tooltip: {
-            backgroundColor: '#1f2937',
-            titleColor: '#fff',
-            bodyColor: '#f9fafb'
-          },
-          legend: {
-            position: 'top',
-            labels: {
-              color: '#374151'
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#f3f4f6',
+              titleColor: '#111827',
+              bodyColor: '#1f2937',
+              borderColor: '#e5e7eb',
+              borderWidth: 1,
+              padding: 10
             }
           },
-          datalabels: {
-            color: '#000',
-            font: {
-              weight: 'bold',
-              size: 12
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 13
+                }
+              },
+              grid: {
+                color: '#f3f4f6'
+              }
             },
-            formatter: (value: number) => (value > 0 ? value : '')
+            y: {
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 13,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                display: false
+              }
+            }
           }
         }
-      },
-      plugins: [ChartDataLabels]
-    });
-  }
+      });
+    }
+
+
+    renderPriorityAssginedBarChart(): void {
+      const canvas = document.getElementById('assignedChart') as HTMLCanvasElement;
+      if (!canvas) return;
+    
+      const existingChart = Chart.getChart(canvas);
+      if (existingChart) existingChart.destroy();
+    
+      const labels = this.priorityTrend.map(p => p.priority);
+      const data = this.priorityTrend.map(p => p.count);
+    
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Priority Count',
+            data,
+            backgroundColor: [
+              '#d1fae5', // LOW - light green
+              '#fef9c3', // MEDIUM - light yellow
+              '#fecaca', // HIGH - light red
+            ],
+            borderColor: [
+              '#34d399',  // LOW border
+              '#facc15', // MEDIUM border
+              '#f87171', // HIGH border
+            ],
+            borderWidth: 1,
+            borderRadius: 10,
+            barThickness: 25
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          animation: {
+            duration: 1200,
+            easing: 'easeOutQuart'
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#f3f4f6',
+              titleColor: '#111827',
+              bodyColor: '#1f2937',
+              borderColor: '#e5e7eb',
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 13
+                }
+              },
+              grid: {
+                color: '#f3f4f6'
+              }
+            },
+            y: {
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 13,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+ 
+    
+
 
   /**
-   * Render monthly trend chart
+   * Render monthly trend chart for created user
    */
-  renderMonthlyTrendChart(labels: string[], data: (number | null)[]): void {
-    const canvas = document.getElementById('monthlyTrendChart') as HTMLCanvasElement;
+  renderMonthlyUserCreateChart(labels: string[], data: (number | null)[]): void {
+    const canvas = document.getElementById('monthlyUserTrendChart') as HTMLCanvasElement;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
@@ -647,13 +636,13 @@ loadCreatedComplaintStats(): void {
     });
   }
 
-  /**
-   * Convert month number to name
-   */
-  getMonthName(monthNumber: string): string {
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const index = parseInt(monthNumber, 10) - 1;
-    return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
+  toggleViewAll(event: Event): void {
+    event.preventDefault();
+    if (this.activeTab === 'created') {
+      this.showAllCreated = !this.showAllCreated;
+    } else {
+      this.showAllAssigned = !this.showAllAssigned;
+    }
   }
+  
 }

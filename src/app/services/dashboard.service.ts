@@ -92,6 +92,27 @@ export interface ComplaintDueDatetrend {
   priority: 'LOW' | 'MEDIUM' | 'HIGH'; // Use union type if priority is fixed
 }
 
+export interface ComplaintSummaryTag {
+  tag_name: string;
+  count: number;
+  tag_id: string;
+}
+
+export interface ComplaintSummaryCategory {
+  category_name: string;
+  category_id: string;
+  count: number;
+  tags: ComplaintSummaryTag[];
+}
+
+export interface TeamLoad {
+  account_id: string;
+  fullName: string;
+  loadPercentage: number;
+  currentLoad: number;
+  animatedLoad?: number;
+}
+
 
 
 export interface DeptmentList {
@@ -122,7 +143,7 @@ export class DashboardService {
     return this.http.post<Cl_getdashboardataPayload>(`${this.baseUrl}/Dashboard/admin/complaint-status-summary`, getDashboardPayload);
   }
 
-  // dashboard.service.ts
+  // get user created complint summery 
   getClientTotalCompltStats(payload: Cl_getClientDashboardPayload): Observable<ClientComplaintStatsResponse> {
     return this.http.post<ClientComplaintStatsResponse>(
       `${this.baseUrl}/Dashboard/user/complaint-status-summary`,
@@ -130,6 +151,12 @@ export class DashboardService {
     );
   }
 
+  getUsertAssignCompltStats(payload: Cl_getUserDashboardPayload): Observable<ClientComplaintStatsResponse> {
+    return this.http.post<ClientComplaintStatsResponse>(
+      `${this.baseUrl}/Dashboard/user/assign/complaint-status-summary`,
+      payload
+    );
+  }
 
 
   getAllDepatList(getDashboardPayload: Cl_getDashboardPayload): Observable<DeptmentList[]> {
@@ -143,11 +170,20 @@ export class DashboardService {
   }
 
   /**
-   * Get 7-day trend of complaint status
+   * priority for complaints by users
    */
   getHodPriorityComplaintStatus(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintPriorityTrend[]> {
-    return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/admin/by-priority`, getDashboardPayload);
+    return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/admin/by-priority`, getDashboardPayload);  
   }
+
+  getAssignedUserPriorityStatus(getUserPayload: Cl_getUserDashboardPayload): Observable<ComplaintPriorityTrend[]> {
+    return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/user/assign/by-priority`, getUserPayload);  
+  }
+
+  getCreatedUserPriorityStatus(getUserPayload: Cl_getUserDashboardPayload): Observable<ComplaintPriorityTrend[]> {
+    return this.http.post<ComplaintPriorityTrend[]>(`${this.baseUrl}/Dashboard/user/by-priority`, getUserPayload);  
+  }
+
 
   getDueDateComplaintStatus(getDashboardPayload: Cl_getDashboardPayload): Observable<ComplaintDueDatetrend[]> {
     return this.http.post<ComplaintDueDatetrend[]>(`${this.baseUrl}/Dashboard/admin/pending-complaints-nearing-due`, getDashboardPayload);
@@ -165,9 +201,24 @@ export class DashboardService {
     return this.http.post<ComplaintCategoryStats[]>(`${this.baseUrl}/Dashboard/user/by-months`, getDashboardPayload);
   }
 
+////GET USER CATEGORY AND TAGS
 
+getComplaintSummaryByCategoryAndTags(payload: Cl_getDashboardHodPayload): Observable<ComplaintSummaryCategory[]> {
+  return this.http.post<ComplaintSummaryCategory[]>(`${this.baseUrl}/Dashboard/hod/getComplaintSummaryByCategoryAndTags`, payload);
+}
+
+
+getHodTeamLoadData(payload: Cl_getDashboardHodPayload): Observable<TeamLoad[]> {
+  return this.http.post<TeamLoad[]>(`${this.baseUrl}/Dashboard/hod/team-load`, payload);
+}
 
 }
+export interface Cl_getDashboardHodPayload {
+  opr_id: string,
+  org_id: string,
+  id?: string
+};
+
 export interface Cl_getDashboardPayload {
   opr_id: string,
   org_id: string,
@@ -180,9 +231,24 @@ export interface Cl_getClientDashboardPayload {
   org_id: string;
   id?: string;
 }
+// payload for user
+export interface Cl_getUserDashboardPayload {
+  opr_id: string;
+  org_id: string;
+  id?: string;
+}
 
+export interface cl_getHodTeamLoad{
+  opr_id: string;
+  org_id: string;
+  id?: string;
+}
 // response.ts
 export interface ClientComplaintStatsResponse {
+  avgResolutionTime: string;
+  avgRating: string;
+  totalComplaints: number;
+  statusSummary: never[];
   totalComplaintCount: number;
   avgResolutionTimeInHours: number | null;
   statusWiseCount: { [status: string]: number }; // e.g., { "OPEN": 2, "CLOSED": 1 }
