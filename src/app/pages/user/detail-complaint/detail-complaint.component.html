@@ -24,7 +24,7 @@
     <!-- Main Content Area - Three Panel Layout -->
     <div *ngIf="!loading && !error && complaint" class="flex flex-1 overflow-hidden">
         <!-- Left Sidebar - Back Button and Navigation -->
-        <aside class="hidden md:flex flex-col items-center bg-indigo-900 text-white w-16">
+        <aside class="hidden md:flex flex-col items-center bg-indigo-500 text-white w-16">
             <!-- Back Button -->
             <div class="mt-8 mb-8 flex flex-col items-center">
                 <button (click)="goBack()" class="p-3 rounded hover:bg-indigo-800 mb-2">
@@ -104,7 +104,7 @@
                         <div class="flex items-center">
                             <span class="inline-block px-2 py-1 rounded text-xs"
                                 [ngClass]="getStatusBadgeClass(complaint.status)">
-                                {{ complaint.status?.toUpperCase() || 'Not set' }}
+                                {{ complaint.status.toUpperCase() || 'Not set' }}
                             </span>
                         </div>
                     </div>
@@ -215,7 +215,7 @@
                                 class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs mr-2">
                                 {{ getInitials(complaint.l_created_by) }}
                             </div>
-                            <span>{{ complaint.l_created_by || 'Unknown' }}</span>
+                            <span>{{ complaint.l_created_by || 'Anonymous' }}</span>
                         </div>
                     </div>
 
@@ -404,28 +404,33 @@
             </div>
 
             <!-- Conversation Content -->
+            <!-- Conversation Content Section -->
+            <!-- Conversation Content Section - ENHANCED UI -->
             <div *ngIf="activeTab === 'conversation'" class="flex-1 flex flex-col overflow-hidden">
-                <!-- Messages Container -->
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Messages Container with fixed max-width -->
+                <div class="flex-1 overflow-y-auto p-6 space-y-6 messages-container max-w-4xl mx-auto w-full"
+                    #messagesContainer>
                     <!-- Loading state -->
                     <div *ngIf="loadingMessages" class="flex justify-center py-8">
                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
                     </div>
 
                     <!-- Error state -->
-                    <div *ngIf="messageError && !loadingMessages" class="text-center py-4 bg-red-50 rounded-lg px-4">
+                    <div *ngIf="messageError && !loadingMessages"
+                        class="text-center py-4 bg-red-50 rounded-lg px-4 shadow-sm">
                         <div class="text-red-600 mb-2">{{ messageError }}</div>
-                        <button (click)="loadMessages()" class="text-indigo-600 hover:text-indigo-800">
+                        <button (click)="loadMessages()" class="text-indigo-600 hover:text-indigo-800 font-medium">
                             Try again
                         </button>
                     </div>
 
                     <!-- Original Message (Complaint Description) -->
-                    <div class="bg-white rounded-lg shadow-sm border-l-4 border-blue-500 p-4">
+                    <div
+                        class="bg-white rounded-lg shadow-md border-l-4 border-blue-500 p-4 transform transition-all duration-300 hover:shadow-lg">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
                                 <div
-                                    class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                                    class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-md">
                                     {{ getInitials(complaint.l_created_by) }}
                                 </div>
                             </div>
@@ -434,13 +439,39 @@
                                     <div class="font-medium text-gray-900 flex items-center">
                                         {{ complaint.l_created_by }}
                                         <span
-                                            class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">Original
+                                            class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full shadow-sm">Original
                                             Request</span>
                                     </div>
                                     <div class="text-xs text-gray-500 mb-2">{{ formatDate(complaint.created_on) }}</div>
                                 </div>
-                                <div class="text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-3 rounded">
+                                <div
+                                    class="text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-3 rounded-lg shadow-inner border border-gray-100">
                                     {{ complaint.description }}
+                                </div>
+
+                                <!-- Display original complaint attachments if any -->
+                                <div *ngIf="complaintAttachments && complaintAttachments.length > 0" class="mt-3">
+                                    <div class="text-xs font-medium text-gray-500 mb-1">Attachments:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <div *ngFor="let attachment of complaintAttachments"
+                                            class="flex items-center bg-gray-100 rounded-md px-2 py-1 text-xs text-gray-700 hover:bg-gray-200 transition-colors shadow-sm hover:shadow">
+                                            <span [class]="getFileIconClass(attachment.uploaded_file_name)"
+                                                class="mr-1"></span>
+                                            <span class="truncate max-w-[120px]">{{ attachment.uploaded_file_name
+                                                }}</span>
+                                            <div class="flex ml-1">
+                                                <button (click)="viewAttachment(attachment)"
+                                                    *ngIf="isFileViewable(attachment.uploaded_file_name)"
+                                                    class="text-indigo-600 hover:text-indigo-800 p-1" title="View">
+                                                    <i class="fas fa-eye text-xs"></i>
+                                                </button>
+                                                <button (click)="downloadAttachment(attachment)"
+                                                    class="text-indigo-600 hover:text-indigo-800 p-1" title="Download">
+                                                    <i class="fas fa-download text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -451,66 +482,114 @@
                         <div class="relative py-4">
                             <div class="flex items-center">
                                 <span class="flex-grow border-t border-gray-200"></span>
-                                <span class="mx-4 flex-shrink text-sm text-gray-400">Messages</span>
+                                <span
+                                    class="mx-4 flex-shrink text-sm font-medium text-gray-400 bg-white px-2">Messages</span>
                                 <span class="flex-grow border-t border-gray-200"></span>
                             </div>
                         </div>
 
-                        <div *ngFor="let message of messages" class="message-item"
-                            [ngClass]="{'ml-12': message.sender_id === currentUser?.userId}">
+                        <!-- Message Group - group by date -->
+                        <ng-container *ngFor="let group of groupedMessages">
+                            <!-- Date Separator -->
+                            <div class="text-center my-4">
+                                <span
+                                    class="px-4 py-1 bg-gray-100 rounded-full text-xs text-gray-600 font-medium shadow-sm">
+                                    {{ formatMessageDate(group.date) }}
+                                </span>
+                            </div>
 
-                            <div class="flex items-start"
-                                [ngClass]="{'flex-row-reverse': message.sender_id === currentUser?.userId}">
-                                <!-- Avatar -->
-                                <div class="flex-shrink-0" [class.ml-3]="message.sender_id === currentUser?.userId"
-                                    [class.mr-3]="message.sender_id !== currentUser?.userId">
-                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                                        [ngClass]="message.sender_id === currentUser?.userId ? 'bg-indigo-500' : 'bg-gray-500'">
-                                        {{ getInitials(message.l_sender_id || message.sender_id) }}
-                                    </div>
-                                </div>
+                            <!-- Messages in this group -->
+                            <div *ngFor="let message of group.messages" class="message-item mb-4"
+                                [ngClass]="{'ml-12': message.sender_id === currentUser?.userId}">
 
-                                <!-- Message content -->
-                                <div class="flex-1 max-w-md py-2 px-4 rounded-lg shadow-sm" [ngClass]="message.sender_id === currentUser?.userId ? 
-                                    'bg-indigo-50 rounded-tr-none text-right' : 
-                                    'bg-white rounded-tl-none'">
-
-                                    <div class="flex items-baseline"
-                                        [ngClass]="{'justify-end': message.sender_id === currentUser?.userId}">
-                                        <span class="font-medium text-sm"
-                                            [ngClass]="message.sender_id === currentUser?.userId ? 'text-indigo-700' : 'text-gray-700'">
-                                            {{ message.sender_id === currentUser?.userId ? 'You' : (message.sender_name
-                                            ||
-                                            message.l_sender_id) }}
-                                        </span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ formatDate(message.sent_on)
-                                            }}</span>
+                                <div class="flex items-start"
+                                    [ngClass]="{'flex-row-reverse': message.sender_id === currentUser?.userId}">
+                                    <!-- Avatar -->
+                                    <div class="flex-shrink-0" [class.ml-3]="message.sender_id === currentUser?.userId"
+                                        [class.mr-3]="message.sender_id !== currentUser?.userId">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md transform transition-all hover:scale-105"
+                                            [ngClass]="message.sender_id === currentUser?.userId ? 
+                  'bg-gradient-to-r from-indigo-500 to-purple-600' : 
+                  'bg-gradient-to-r from-gray-500 to-gray-600'">
+                                            {{ getInitials(message.l_sender_id || message.l_sender_id ||
+                                            message.sender_id) }}
+                                        </div>
                                     </div>
 
-                                    <p class="text-gray-700 text-sm mt-1 whitespace-pre-line">{{ message.message }}</p>
+                                    <!-- Message content with enhanced styling -->
+                                    <div class="flex-1 max-w-lg transform transition-all duration-200 hover:shadow-md"
+                                        [ngClass]="message.sender_id === currentUser?.userId ? 
+                'bg-gradient-to-r from-indigo-50 to-purple-50 shadow-sm rounded-lg rounded-tr-none border-indigo-100' : 
+                'bg-white shadow-lg rounded-xl rounded-tl-none border border-gray-200'">
+
+                                        <!-- Message header -->
+                                        <div class="px-4 pt-3 pb-2 flex items-baseline justify-between">
+                                            <span class="font-medium text-sm"
+                                                [ngClass]="message.sender_id === currentUser?.userId ? 'text-indigo-700' : 'text-gray-700'">
+                                                {{ message.sender_id === currentUser?.userId ? 'You' :
+                                                (message.l_sender_id || message.l_sender_id || message.sender_id) }}
+                                            </span>
+                                            <span class="text-xs text-gray-500">{{ formatMessageTime(message.sent_on ||
+                                                message.sent_on) }}</span>
+                                        </div>
+
+                                        <!-- Message body with soft shadows -->
+                                        <div class="px-4 pb-3">
+                                            <p class="text-gray-700 whitespace-pre-line">{{ message.message }}</p>
+
+                                            <!-- Message attachments with enhanced styling -->
+                                            <div *ngIf="message.attachment" class="mt-2">
+                                                <div
+                                                    class="flex items-center bg-gray-100 rounded-md p-2 text-sm shadow-inner border border-gray-200 hover:bg-gray-50 transition-all">
+                                                    <span
+                                                        [class]="getFileIconClass(message.attachment.uploaded_file_name || message.attachment.uploaded_file_name)"
+                                                        class="mr-2"></span>
+                                                    <span class="flex-1 truncate">{{
+                                                        message.attachment.uploaded_file_name ||
+                                                        message.attachment.uploaded_file_name
+                                                        }}</span>
+                                                    <div class="flex space-x-1">
+                                                        <button
+                                                            *ngIf="isFileViewable(message.attachment.uploaded_file_name || message.attachment.uploaded_file_name)"
+                                                            (click)="viewMessageAttachment(message.attachment)"
+                                                            class="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-50 rounded-full transition-colors"
+                                                            title="View">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        <button (click)="downloadMessageAttachment(message.attachment)"
+                                                            class="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-50 rounded-full transition-colors"
+                                                            title="Download">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </ng-container>
                     </ng-container>
 
-                    <!-- Empty conversation state -->
+                    <!-- Empty conversation state with nice illustration -->
                     <div *ngIf="!loadingMessages && messages.length === 0 && !complaint.resolution_comments"
-                        class="text-center py-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mx-auto mb-3" fill="none"
+                        class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-100 px-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300 mx-auto mb-4" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        <p class="text-gray-500">No messages yet. Start the conversation!</p>
+                        <p class="text-gray-500 text-lg mb-2">No messages yet</p>
+                        <p class="text-gray-400">Start the conversation by sending a message below</p>
                     </div>
 
                     <!-- Resolution Comments if resolved -->
                     <div *ngIf="complaint.resolution_comments"
-                        class="bg-green-50 rounded-lg shadow-sm border-l-4 border-green-500 p-4">
+                        class="bg-green-50 rounded-lg shadow-md border-l-4 border-green-500 p-4 transform transition-all duration-300 hover:shadow-lg">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
                                 <div
-                                    class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center">
+                                    class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-md">
                                     {{ getInitials(complaint.l_assigned_to || 'Support') }}
                                 </div>
                             </div>
@@ -519,12 +598,13 @@
                                     <div class="font-medium text-gray-900 flex items-center">
                                         {{ complaint.l_assigned_to || 'Support Team' }}
                                         <span
-                                            class="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">Resolution</span>
+                                            class="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full shadow-sm">Resolution</span>
                                     </div>
                                     <div class="text-xs text-gray-500 mb-2">{{ formatDate(complaint.resolution_date) }}
                                     </div>
                                 </div>
-                                <div class="text-sm text-gray-700 whitespace-pre-line bg-green-50 p-3 rounded">
+                                <div
+                                    class="text-sm text-gray-700 whitespace-pre-line bg-green-50 p-3 rounded-lg shadow-inner border border-green-100">
                                     {{ complaint.resolution_comments }}
                                 </div>
                             </div>
@@ -532,37 +612,42 @@
                     </div>
                 </div>
 
-                <!-- Reply Box (only if not resolved) -->
-                <div *ngIf="complaint.status?.toLowerCase() !== 'resolved'" class="bg-white border-t p-4 shadow-sm">
+                <!-- Reply Box (only if not resolved) with fixed width -->
+                <div *ngIf="complaint.status?.toLowerCase() !== 'resolved'"
+                    class="bg-white border-t p-4 shadow-md max-w-4xl mx-auto w-full">
                     <div class="flex items-center mb-2">
                         <div
-                            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center mr-2">
+                            class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-600 text-white flex items-center justify-center mr-2 shadow-sm">
                             {{ getInitials(currentUser?.username || currentUser?.userId || '') }}
                         </div>
-                        <div class="text-sm font-medium">Reply as {{ currentUser?.username || currentUser?.userId }}
+                        <div class="text-sm font-medium text-gray-700">Reply as {{ currentUser?.username ||
+                            currentUser?.userId }}
                         </div>
                     </div>
 
                     <div class="relative">
                         <textarea [(ngModel)]="replyText"
-                            class="w-full p-3 pr-24 border rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500"
+                            class="w-full p-3 pr-24 border rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 shadow-inner"
                             rows="3" placeholder="Type your message here..." [disabled]="submittingReply"></textarea>
 
                         <div class="absolute right-2 bottom-2 flex items-center space-x-1">
-                            <!-- Attachment button -->
-                            <button
-                                class="p-2 text-gray-400 hover:text-indigo-500 rounded-full hover:bg-indigo-50 transition-colors"
-                                title="Attach file (coming soon)">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                </svg>
-                            </button>
+                            <!-- Attachment button - now functional -->
+                            <div class="relative">
+                                <input type="file" #fileInput (change)="onFileSelected($event)" class="hidden" />
+                                <button (click)="fileInput.click()" [disabled]="submittingReply"
+                                    class="p-2 text-gray-400 hover:text-indigo-500 rounded-full hover:bg-indigo-50 transition-colors shadow-sm hover:shadow"
+                                    title="Attach file">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                            <!-- Emoji button -->
-                            <button
-                                class="p-2 text-gray-400 hover:text-indigo-500 rounded-full hover:bg-indigo-50 transition-colors"
+                            <!-- Emoji button (optional feature) -->
+                            <button [disabled]="submittingReply"
+                                class="p-2 text-gray-400 hover:text-indigo-500 rounded-full hover:bg-indigo-50 transition-colors shadow-sm hover:shadow"
                                 title="Add emoji (coming soon)">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -573,14 +658,27 @@
                         </div>
                     </div>
 
+                    <!-- Selected file preview with enhanced styling -->
+                    <div *ngIf="selectedFile"
+                        class="mt-2 flex items-center bg-indigo-50 rounded-lg p-2 shadow-sm border border-indigo-100">
+                        <span [class]="getFileIconClass(selectedFile.name)" class="mr-2 text-indigo-500"></span>
+                        <span class="text-sm text-gray-700 truncate flex-1">{{ selectedFile.name }}</span>
+                        <span class="text-xs text-gray-500 mx-2">{{ formatFileSize(selectedFile.size) }}</span>
+                        <button (click)="removeSelectedFile()"
+                            class="text-gray-500 hover:text-red-500 p-1 hover:bg-red-50 rounded-full transition-colors"
+                            title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
                     <div class="mt-3 flex justify-end">
                         <button (click)="cancelReply()"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-2 hover:bg-gray-50 transition-colors"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-2 hover:bg-gray-50 transition-colors shadow-sm hover:shadow-md"
                             [disabled]="submittingReply">
                             Cancel
                         </button>
-                        <button (click)="submitReply()" [disabled]="!replyText || submittingReply"
-                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button (click)="submitReply()" [disabled]="(!replyText && !selectedFile) || submittingReply"
+                            class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-md hover:from-indigo-700 hover:to-indigo-800 transition-all flex items-center disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md">
                             <span *ngIf="!submittingReply">Send Message</span>
                             <span *ngIf="submittingReply" class="flex items-center">
                                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -599,10 +697,8 @@
                 </div>
             </div>
 
-            <!-- Attachments Tab -->
-            <!-- Inside your tabs section, update the attachments tab content -->
-            <!-- Attachments tab content -->
-            <div *ngIf="activeTab === 'attachments'" class="space-y-4">
+            <!-- Attachments Tab - Updated to show separate sections -->
+            <div *ngIf="activeTab === 'attachments'" class="flex-1 overflow-y-auto p-6">
                 <!-- Loading state -->
                 <div *ngIf="loadingAttachments" class="flex items-center justify-center py-10">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
@@ -612,54 +708,107 @@
                 <!-- Error state -->
                 <div *ngIf="attachmentError && !loadingAttachments" class="text-center py-6">
                     <div class="text-red-500 mb-2">{{ attachmentError }}</div>
-                    <button (click)="loadAttachments(complaint?.complaint_id || '')"
+                    <button (click)="loadAttachments(complaint.complaint_id || '')"
                         class="text-indigo-600 hover:text-indigo-800">
                         Try again
                     </button>
                 </div>
 
                 <!-- Empty state -->
-                <div *ngIf="!loadingAttachments && !attachmentError && attachments.length === 0"
+                <div *ngIf="!loadingAttachments && !attachmentError && complaintAttachments.length === 0 && conversationAttachments.length === 0"
                     class="text-center py-10">
-                    <i class="fas fa-file-alt text-4xl text-gray-300 mb-3"></i>
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-file-alt text-3xl text-gray-300"></i>
+                    </div>
                     <p class="text-gray-500">No attachments found for this complaint</p>
                 </div>
 
-                <!-- Attachments list -->
-                <div *ngIf="!loadingAttachments && attachments.length > 0" class="space-y-3">
-                    <div *ngFor="let attachment of attachments"
-                        class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
-                        <!-- File icon based on type -->
-                        <div
-                            class="mr-4 h-10 w-10 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-500">
-                            <i class="fas" [ngClass]="getFileIcon(attachment.uploaded_file_name)"></i>
-                        </div>
+                <!-- Complaint Attachments Section -->
+                <div *ngIf="!loadingAttachments && complaintAttachments.length > 0" class="mb-8">
+                    <h3 class="text-md font-medium text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-clipboard-list text-indigo-500 mr-2"></i>
+                        Complaint Attachments
+                    </h3>
 
-                        <!-- File details -->
-                        <div class="flex-1 min-w-0">
-                            <div class="font-medium text-sm truncate">{{ attachment.uploaded_file_name }}</div>
-                            <div class="text-xs text-gray-500 flex items-center space-x-1">
-                                <span>{{ formatDate(attachment.uploaded_on) }}</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div *ngFor="let attachment of complaintAttachments"
+                            class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <!-- File icon based on type -->
+                            <div
+                                class="mr-4 h-12 w-12 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-500">
+                                <i class="fas" [ngClass]="getFileIcon(attachment.uploaded_file_name)"></i>
+                            </div>
+
+                            <!-- File details -->
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-sm truncate">{{ attachment.uploaded_file_name }}</div>
+                                <div class="text-xs text-gray-500 flex items-center space-x-1">
+                                    <span>{{ formatDate(attachment.uploaded_on) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="flex space-x-2">
+                                <!-- View button for viewable files -->
+                                <button *ngIf="isFileViewable(attachment.uploaded_file_name)"
+                                    (click)="viewAttachment(attachment)"
+                                    class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                    title="View file">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <!-- Download button -->
+                                <button (click)="downloadAttachment(attachment)"
+                                    class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                    title="Download file">
+                                    <i class="fas fa-download"></i>
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Action buttons -->
-                        <div class="flex space-x-2">
-                            <!-- View button for viewable files (images, PDFs) -->
-                            <!-- View button - only show for viewable file types -->
-                            <button *ngIf="isFileViewable(attachment.uploaded_file_name)"
-                                (click)="viewAttachment(attachment)"
-                                class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                                title="View file">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                <!-- Conversation Attachments Section -->
+                <div *ngIf="!loadingAttachments && conversationAttachments.length > 0">
+                    <h3 class="text-md font-medium text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-comments text-indigo-500 mr-2"></i>
+                        Conversation Attachments
+                    </h3>
 
-                            <!-- Download button -->
-                            <button (click)="downloadAttachment(attachment)"
-                                class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                                title="Download file">
-                                <i class="fas fa-download"></i>
-                            </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div *ngFor="let attachment of conversationAttachments"
+                            class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <!-- File icon based on type -->
+                            <div
+                                class="mr-4 h-12 w-12 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-500">
+                                <i class="fas" [ngClass]="getFileIcon(attachment.uploaded_file_name)"></i>
+                            </div>
+
+                            <!-- File details -->
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-sm truncate">{{ attachment.uploaded_file_name }}</div>
+                                <div class="text-xs text-gray-500 flex items-center">
+                                    <span>{{ attachment.uploaded_by }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="flex space-x-2">
+                                <!-- View button for viewable files -->
+                                <button *ngIf="isFileViewable(attachment.uploaded_file_name)"
+                                    (click)="viewMessageAttachment(attachment)"
+                                    class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                    title="View file">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <!-- Download button -->
+                                <button (click)="downloadMessageAttachment(attachment)"
+                                    class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                    title="Download file">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -697,14 +846,28 @@
                             <!-- Don't show vertical line for the last item -->
                             <div *ngIf="!isLast" class="w-0.5 flex-1 bg-gray-200"></div>
                         </div>
-                        <div [class.pb-6]="!isLast">
-                            <p class="text-sm font-medium">Status Changed</p>
+                        <div [class.pb-6]="!isLast" class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <p class="text-sm font-medium">Status Changed</p>
+                                <!-- Display user who made the change with avatar -->
+                                <div *ngIf="item.changed_by" class="flex items-center">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs mr-2 shadow-sm">
+                                        {{ getInitials(item.l_changed_by || item.changed_by) }}
+                                    </div>
+                                    <span class="text-xs text-gray-600">{{ item.l_changed_by || item.changed_by
+                                        }}</span>
+                                </div>
+                            </div>
                             <p class="text-xs text-gray-500">{{ formatDate(item.changed_on) }}</p>
                             <div class="mt-1 text-sm text-gray-600">
-                                <p *ngIf="item.from_status">Status changed from "{{ item.from_status }}" to "{{
-                                    item.to_status }}"
+                                <p *ngIf="item.from_status">Status changed from <span class="font-medium">"{{
+                                        item.from_status }}"</span> to
+                                    <span class="font-medium">"{{ item.to_status }}"</span>
                                 </p>
-                                <p *ngIf="!item.from_status">Complaint created with status "{{ item.to_status }}"</p>
+                                <p *ngIf="!item.from_status">Complaint created with status <span class="font-medium">"{{
+                                        item.to_status
+                                        }}"</span></p>
                                 <p *ngIf="item.reason" class="mt-1 italic text-gray-500">"{{ item.reason }}"</p>
                             </div>
                         </div>
@@ -739,7 +902,8 @@
             </div>
 
             <!-- Feedback Tab Content -->
-            <div *ngIf="activeTab === 'feedback'" class="flex-1 overflow-y-auto p-4">
+            <!-- Feedback Tab Content -->
+            <div *ngIf="activeTab === 'feedback'" class="flex-1 overflow-y-auto p-6">
                 <!-- Loading state -->
                 <div *ngIf="loadingFeedback" class="flex items-center justify-center py-10">
                     <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
@@ -749,14 +913,14 @@
                 <!-- Error state -->
                 <div *ngIf="feedbackError && !loadingFeedback" class="text-center py-6">
                     <div class="text-red-500 mb-2">{{ feedbackError }}</div>
-                    <button (click)="loadFeedback(complaint?.complaint_id || '')"
+                    <button (click)="loadFeedback(complaint.complaint_id || '')"
                         class="text-amber-600 hover:text-amber-800">
                         Try again
                     </button>
                 </div>
 
                 <!-- Empty state when complaint is closed but no feedback -->
-                <div *ngIf="!loadingFeedback && !feedbackError && !feedback && complaint?.status?.toUpperCase() === 'CLOSED'"
+                <div *ngIf="!loadingFeedback && !feedbackError && !feedbackData && complaint?.status?.toUpperCase() === 'CLOSED'"
                     class="text-center py-10">
                     <div
                         class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -789,71 +953,70 @@
                 </div>
 
                 <!-- Feedback details when feedback exists -->
-                <div *ngIf="!loadingFeedback && feedback" class="max-w-3xl mx-auto">
-                    <div class="bg-white rounded-lg shadow-sm border-l-4 border-amber-500 overflow-hidden">
+                <div *ngIf="!loadingFeedback && feedbackData" class="max-w-3xl mx-auto">
+                    <!-- Feedback Header with Rating -->
+                    <div class="bg-white rounded-lg shadow-md border-l-4 border-amber-500 overflow-hidden mb-6">
                         <!-- Feedback header -->
                         <div class="p-4 bg-amber-50 border-b border-amber-100">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-medium text-gray-800">
-                                    {{ feedback.subject }}
+                                    {{ feedbackData.feedback.subject }}
                                 </h3>
-                                <div class="flex items-center">
-                                    <div class="flex items-center">
-                                        <span class="text-amber-500 font-medium mr-1">Rating:</span>
-                                        <div class="flex items-center">
-                                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
-                                                <span class="text-lg"
-                                                    [ngClass]="{'text-amber-400': star <= feedback.rating, 'text-gray-300': star > feedback.rating}">★</span>
-                                            </ng-container>
-                                        </div>
+                                <div class="flex items-center bg-white px-3 py-1 rounded-full shadow-sm">
+                                    <div class="flex space-x-1 mr-2">
+                                        <span *ngFor="let star of [1, 2, 3, 4, 5]"
+                                            [ngClass]="{'text-amber-400': star <= feedbackData.feedback.rating, 'text-gray-300': star > feedbackData.feedback.rating}">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                                </path>
+                                            </svg>
+                                        </span>
                                     </div>
+                                    <span class="text-sm font-medium text-gray-700">
+                                        {{ getRatingText(feedbackData.feedback.rating) }}
+                                    </span>
                                 </div>
                             </div>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>Submitted on {{ formatDate(feedback.created_on) }}</span>
-                                <span *ngIf="feedback.created_by" class="ml-2">by {{ feedback.l_created_by
-                                    }}</span>
+                                <span>Submitted on {{ formatDate(feedbackData.feedback.created_on) }}</span>
+                                <span *ngIf="feedbackData.feedback.l_created_by" class="ml-2">by {{
+                                    feedbackData.feedback.l_created_by }}</span>
                             </div>
                         </div>
 
                         <!-- Feedback content -->
                         <div class="p-6">
-                            <div class="mb-4">
-                                <h4 class="text-sm font-medium text-gray-500 mb-1">Feedback Description</h4>
-                                <p class="text-gray-700 whitespace-pre-line">{{ feedback.description }}</p>
+                            <div *ngIf="feedbackData.feedback.description" class="mb-6">
+                                <h4 class="text-sm font-medium text-gray-500 mb-2">Additional Comments</h4>
+                                <p
+                                    class="text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded-md border border-gray-100">
+                                    {{ feedbackData.feedback.description }}
+                                </p>
                             </div>
 
-                            <!-- Additional metadata if needed -->
-                            <div *ngIf="feedback.modified_on" class="mt-4 text-xs text-gray-500 border-t pt-4">
-                                <div>Last modified: {{ formatDate(feedback.modified_on) }}</div>
-                            </div>
-                        </div>
-                    </div>
+                            <!-- Feedback Questions and Responses -->
+                            <div
+                                *ngIf="feedbackData.feedbackQuestionResponse && feedbackData.feedbackQuestionResponse.length > 0">
+                                <h4 class="text-sm font-medium text-gray-500 mb-4">Survey Responses</h4>
 
-                    <!-- For admin/HOD - Feedback response section -->
-                    <div *ngIf="canRespondToFeedback" class="mt-6 bg-white rounded-lg shadow-sm border p-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-2">Respond to Feedback</h4>
-                        <textarea [(ngModel)]="feedbackResponse" rows="3"
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500"
-                            placeholder="Add your response to this feedback..."></textarea>
-                        <div class="mt-3 flex justify-end">
-                            <button [disabled]="!feedbackResponse || submittingResponse"
-                                (click)="submitFeedbackResponse()"
-                                class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span *ngIf="!submittingResponse">Send Response</span>
-                                <span *ngIf="submittingResponse" class="flex items-center">
-                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="4">
-                                        </circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                        </path>
-                                    </svg>
-                                    Sending...
-                                </span>
-                            </button>
+                                <!-- Sort the responses by question_id for consistent display -->
+                                <div *ngFor="let response of feedbackData.feedbackQuestionResponse"
+                                    class="mb-5 border-b pb-4 last:border-b-0">
+                                    <div class="mb-2">
+                                        <p class="text-gray-700 font-medium">{{ response.l_question_text }}</p>
+                                    </div>
+
+                                    <div
+                                        class="ml-4 bg-amber-50 px-3 py-2 rounded-md inline-block border border-amber-100">
+                                        <p class="text-amber-700">
+                                            <i class="fas fa-check-circle mr-2 text-amber-500"></i>
+                                            {{ response.l_option_text }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

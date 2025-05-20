@@ -234,3 +234,204 @@ button {
         transform: translateY(0);
     }
 }
+
+
+
+
+
+
+
+
+
+// Status badge color transitions
+[class*="bg-"] {
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+// Animation for dropdown appearance and disappearance
+.status-dropdown {
+    animation: dropdownEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: top right;
+
+    &.ng-leave {
+        animation: dropdownExit 0.2s ease-in forwards;
+    }
+}
+
+@keyframes dropdownExit {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.95);
+    }
+}
+
+// Rotating chevron animation
+.transform.rotate-180 {
+    transition: transform 0.3s ease;
+}
+
+
+
+
+
+// Add these animations for status dropdown
+.status-dropdown {
+    animation: dropdownEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: top right;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+
+    // Add arrow indicator to dropdown
+    &:before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: 16px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid white;
+        filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.05));
+        pointer-events: none;
+    }
+
+    // Enhanced dropdown item animation
+    .dropdown-item {
+        transition: all 0.15s ease;
+
+        &:hover {
+            transform: translateX(4px);
+            background-color: #f3f8ff; // Lighter blue on hover
+        }
+    }
+}
+
+// Enhanced dropdown animation keyframes (same as navbar)
+@keyframes dropdownEnter {
+    from {
+        opacity: 0;
+        transform: rotateX(-10deg) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: rotateX(0) translateY(0);
+    }
+}
+
+// Also enhance the button that toggles the dropdown
+.dropdown-toggle {
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+// Make sure dropdowns don't get cut off
+.divide-y {
+    overflow: visible !important;
+}
+
+// Enhance the complaint row hover effect to be compatible with the dropdown
+.hover\:bg-gray-50:hover {
+    position: relative;
+    z-index: 10;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    .status-container {
+        position: relative;
+        z-index: 20;
+    }
+}
+
+/* Add these styles to your component's CSS file */
+.dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: #f7fafc;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 3px;
+}
+
+/* Fix for the sticky search box */
+.dropdown-menu .sticky {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+/* Ensure scrolling only appears when needed */
+.dropdown-menu {
+    overflow-y: auto;
+}
+
+/* Make sure parent container doesn't restrict height */
+.dropdown-container {
+    position: relative;
+}
+
+// Custom styles for radio buttons
+input[type="radio"] {
+    @apply cursor-pointer;
+}
+
+input[type="radio"]+label {
+    @apply cursor-pointer;
+}
+
+// Hover effect for option rows
+input[type="radio"]+label:hover {
+    @apply text-amber-700;
+}
+
+// Selected option highlight
+input[type="radio"]:checked+label {
+    @apply font-medium text-amber-700;
+}
+
+// Smooth transitions
+.feedback-option {
+    transition: all 0.2s ease;
+}
+
+// Animation for modal
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feedback-modal-content {
+    animation: fadeIn 0.3s ease-out;
+}

@@ -1,12 +1,12 @@
 <div class="flex flex-col h-full overflow-hidden bg-white">
     <!-- Ticket List Header -->
     <div class="flex items-center justify-between border-b p-4">
+        <!-- Update the filter section to include category, tag, and anonymous filtering -->
         <div class="flex items-center">
             <i class="fas fa-inbox mr-2 text-indigo-600"></i>
             <span class="mr-2 font-medium">All Complaints</span>
 
-            <!-- Filter dropdown -->
-            <!-- Update the status dropdown to use enum values -->
+            <!-- Status filter dropdown -->
             <div class="relative ml-3">
                 <button (click)="isStatusFilterOpen = !isStatusFilterOpen"
                     class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
@@ -19,7 +19,6 @@
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         All Status
                     </a>
-                    <!-- Use the available statuses array to generate options -->
                     <a *ngFor="let status of availableStatuses"
                         (click)="onStatusChange(status); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
@@ -28,9 +27,101 @@
                 </div>
             </div>
 
-            <!-- Add filter button -->
-            <button class="ml-4 text-gray-500 hover:text-indigo-600 focus:outline-none" title="Add filter">
-                <i class="fas fa-filter"></i>
+            <!-- NEW: Category filter dropdown -->
+            <!-- Category filter dropdown with search & scroll -->
+            <!-- Category filter dropdown with search & scroll -->
+            <!-- Category filter dropdown with search & scroll -->
+            <div class="relative ml-3 category-dropdown">
+                <button (click)="isCategoryFilterOpen = !isCategoryFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedCategory === 'all' ? 'All Categories' :
+                        (categories | findcategory:selectedCategory) || 'Category' }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <!-- Updated dropdown container with correct max-height and overflow styling -->
+                <div *ngIf="isCategoryFilterOpen"
+                    class="absolute left-0 mt-2 w-64 bg-white shadow-lg z-10 border border-gray-200 rounded-md dropdown-menu"
+                    style="max-height: 300px; overflow-y: auto;" (click)="$event.stopPropagation()">
+                    <!-- Search box for categories -->
+                    <div class="px-3 py-2 border-b sticky top-0 bg-white z-10">
+                        <input type="text" placeholder="Search categories..."
+                            class="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            [(ngModel)]="categorySearchTerm" (click)="$event.stopPropagation()">
+                    </div>
+
+                    <div class="py-1">
+                        <a (click)="onCategoryChange('all'); isCategoryFilterOpen = false"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            All Categories
+                        </a>
+
+                        <!-- Category list with filtering -->
+                        <ng-container *ngFor="let category of categories | findcategory:categorySearchTerm:true">
+                            <a (click)="onCategoryChange(category.category_id); isCategoryFilterOpen = false"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                                {{ category.category_name }}
+                            </a>
+                        </ng-container>
+
+                        <!-- Empty state -->
+                        <div *ngIf="(categories | findcategory:categorySearchTerm:true).length === 0"
+                            class="px-4 py-2 text-sm text-gray-500 text-center">
+                            No matching categories
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Tag filter dropdown -->
+            <!-- Tag filter dropdown -->
+            <!-- Tag filter dropdown with search & scroll -->
+            <!-- Tag filter dropdown with search & scroll -->
+            <div class="relative ml-3 tag-dropdown">
+                <button (click)="isTagFilterOpen = !isTagFilterOpen"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                    <span>{{ selectedTag === 'all' ? 'All Tags' : (tags | findtag:selectedTag)?.tag_name || 'Tag'
+                        }}</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <!-- Updated dropdown container with correct max-height and overflow styling -->
+                <div *ngIf="isTagFilterOpen"
+                    class="absolute left-0 mt-2 w-64 bg-white shadow-lg z-10 border border-gray-200 rounded-md dropdown-menu"
+                    style="max-height: 300px; overflow-y: auto;">
+                    <!-- Search box for tags -->
+                    <div class="px-3 py-2 border-b sticky top-0 bg-white z-10">
+                        <input type="text" placeholder="Search tags..."
+                            class="w-full px-2 py-1 text-sm border border-gray-300 rounded" [(ngModel)]="tagSearchTerm"
+                            (click)="$event.stopPropagation()">
+                    </div>
+
+                    <div class="py-1">
+                        <a (click)="onTagChange('all'); isTagFilterOpen = false"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                            All Tags
+                        </a>
+
+                        <!-- Tag list with filtering -->
+                        <ng-container *ngFor="let tag of tags | filtertag:tagSearchTerm">
+                            <a (click)="onTagChange(tag.tag_id); isTagFilterOpen = false"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                                {{ tag.tag_name }}
+                            </a>
+                        </ng-container>
+
+                        <!-- Empty state -->
+                        <div *ngIf="(tags | filtertag:tagSearchTerm).length === 0"
+                            class="px-4 py-2 text-sm text-gray-500 text-center">
+                            No matching tags
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Anonymous toggle filter -->
+            <button (click)="toggleAnonymousFilter()"
+                class="ml-3 px-3 py-1 text-sm rounded-full border transition-colors" [ngClass]="{'border-indigo-500 bg-indigo-50 text-indigo-600': showAnonymousOnly, 
+                  'border-gray-300 bg-white text-gray-700': !showAnonymousOnly}">
+                <i class="fas fa-user-secret mr-1"></i> Anonymous
             </button>
         </div>
 
@@ -121,14 +212,40 @@
                 [ngClass]="getStatusIconClass(complaint.status)">
                 <i class="far fa-envelope"></i>
             </div>
+            <!-- Replace the tag display in the complaint item with this -->
             <div class="flex-1">
                 <div class="font-medium">{{ complaint.subject }}</div>
                 <div class="flex flex-wrap gap-2 text-sm text-gray-600">
                     <span>#{{ complaint.complaint_id }}</span>
                     <span>•</span>
-                    <span>{{ complaint.l_created_by }}</span>
+                    <!-- Show "Anonymous" if is_anonymous is YES -->
+                    <span *ngIf="complaint.is_anonymous === 'YES'">
+                        <i class="fas fa-user-secret text-gray-500 mr-1"></i>Anonymous
+                    </span>
+                    <span *ngIf="complaint.is_anonymous !== 'YES'">{{ complaint.l_created_by }}</span>
                     <span>•</span>
                     <span>{{ complaint.l_department_name }}</span>
+                    <span>•</span>
+                    <!-- Add category badge -->
+                    <span *ngIf="complaint.l_category_name"
+                        class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        {{ complaint.l_category_name }}
+                    </span>
+                    <!-- Add multiple tag badges with limit and counter -->
+                    <ng-container *ngIf="getTagNameArray(complaint).length > 0">
+                        <!-- Show first 2 tags -->
+                        <span *ngFor="let tagName of getTagNameArray(complaint).slice(0, 2)"
+                            class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs">
+                            {{ tagName }}
+                        </span>
+                        <!-- If more than 2 tags, show a counter -->
+                        <!-- If more than 2 tags, show a counter with tooltip -->
+                        <span *ngIf="getTagNameArray(complaint).length > 2"
+                            class="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs cursor-help"
+                            [appTooltip]="getTagNames(complaint)">
+                            +{{ getTagNameArray(complaint).length - 2 }} more
+                        </span>
+                    </ng-container>
                     <span>•</span>
                     <span>{{ formatDate(complaint.created_on) }}</span>
                     <span *ngIf="isHighPriority(complaint.priority)"
@@ -158,26 +275,50 @@
             <div class="status-container" (click)="$event.stopPropagation()">
                 <!-- Show status dropdown for users who can update status -->
                 <div *ngIf="canUpdateStatus(complaint)" class="relative dropdown-container">
+                    <!-- Status toggle button with enhanced color transitions -->
                     <button (click)="toggleStatusDropdown($event, complaint)"
-                        class="rounded px-3 py-1 transition-colors flex items-center dropdown-toggle"
+                        class="rounded px-3 py-1 transition-all duration-200 flex items-center dropdown-toggle shadow-sm hover:shadow"
                         [ngClass]="getStatusClass(complaint.status)">
+                        <!-- Color status dot -->
+                        <span class="w-2 h-2 rounded-full mr-2" [ngClass]="{
+            'bg-white': true,
+            'animate-pulse': isHighPriority(complaint.priority)
+        }"></span>
                         {{ getStatusDisplay(complaint.status) }}
-                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        <i class="fas fa-chevron-down ml-1.5 text-xs transition-transform duration-200"
+                            [ngClass]="{'transform rotate-180': complaint.showStatusDropdown}"></i>
                     </button>
 
                     <!-- Status dropdown menu with improved positioning -->
+                    <!-- Status dropdown menu with improved positioning and animations -->
                     <div *ngIf="complaint.showStatusDropdown"
                         class="status-dropdown absolute right-0 mt-1 w-48 rounded-md bg-white shadow-lg py-1 border border-gray-200 dropdown-menu z-20">
-                        <a *ngFor="let status of getAllowedStatusTransitions(complaint.status)"
-                            (click)="updateComplaintStatus($event, complaint, status)"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                            {{ getStatusDisplay(status) }}
-                        </a>
-                        <!-- Show message when no transitions are available -->
+                        <!-- Empty state message when no transitions available -->
                         <div *ngIf="getAllowedStatusTransitions(complaint.status).length === 0"
                             class="px-4 py-2 text-sm text-gray-500 italic">
                             No status changes available
                         </div>
+
+                        <!-- Enhanced status options with color indicators -->
+                        <ng-container *ngFor="let status of getAllowedStatusTransitions(complaint.status)">
+                            <a (click)="updateComplaintStatus($event, complaint, status)"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-all duration-200 dropdown-item flex items-center">
+                                <!-- Status color indicator dot -->
+                                <span class="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" [ngClass]="{
+                    'bg-blue-500': status === statusEnum.OPEN,
+                    'bg-yellow-500': status === statusEnum.ASSIGNED,
+                    'bg-indigo-500': status === statusEnum.IN_PROGRESS,
+                    'bg-green-500': status === statusEnum.RESOLVED,
+                    'bg-red-500': status === statusEnum.CLOSED,
+                    'bg-purple-500': status === statusEnum.ESCALATED,
+                    'bg-orange-500': status === statusEnum.DEFERRED,
+                    'bg-pink-500': status === statusEnum.REOPEN,
+                    'bg-gray-500': !status
+                }"></span>
+                                <!-- Status name -->
+                                <span>{{ getStatusDisplay(status) }}</span>
+                            </a>
+                        </ng-container>
                     </div>
                 </div>
 
@@ -311,18 +452,21 @@
 
 
     <!-- Feedback Modal -->
-    <div *ngIf="showFeedbackModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
-        role="dialog" aria-modal="true">
+    <!-- Feedback Modal with Questions -->
+    <!-- Feedback Modal with Questions -->
+    <!-- Feedback Modal with Questions -->
+    <div *ngIf="showFeedbackModal" class="fixed inset-0 z-50 overflow-y-auto feedback-modal"
+        aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
             <!-- Modal panel -->
             <div
-                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                >
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 max-h-[calc(100vh-200px)] overflow-y-auto">
                     <div class="sm:flex sm:items-start mb-4">
-                        <!-- Change the feedback modal icon background and color to amber/yellow -->
                         <div
                             class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none"
@@ -331,24 +475,31 @@
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                         </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                                 Complaint Feedback
                             </h3>
                             <div class="mt-1">
                                 <p class="text-sm text-gray-500">
-                                    Please rate your experience and provide any additional feedback.
+                                    Please provide your feedback on how we handled your complaint. Your input helps us
+                                    improve our services.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
+                    <!-- Loading state -->
+                    <div *ngIf="loadingQuestions" class="flex items-center justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
+                        <p class="ml-3 text-gray-600">Loading questions...</p>
+                    </div>
+
+                    <!-- Feedback Form -->
+                    <div *ngIf="!loadingQuestions" class="space-y-6">
                         <!-- Subject field -->
                         <div>
                             <label for="feedback-subject" class="block text-sm font-medium text-gray-700">Subject
                                 <span class="text-red-500">*</span></label>
-                            <!-- Change the focus styles for input fields in the feedback modal to use amber -->
                             <input type="text" id="feedback-subject" [(ngModel)]="feedbackData.subject"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
                                 placeholder="Enter feedback subject">
@@ -357,32 +508,71 @@
                             </div>
                         </div>
 
-                        <!-- Rating field -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Rating <span
-                                    class="text-red-500">*</span></label>
-                            <div class="flex items-center mt-1 space-x-1">
-                                <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
-                                    <button type="button" (click)="setRating(star)"
-                                        class="text-2xl focus:outline-none transition-colors"
-                                        [ngClass]="{'text-yellow-400': star <= feedbackData.rating, 'text-gray-300': star > feedbackData.rating}">
-                                        ★
+                        <!-- Rating field (stars) -->
+                        <div class="pt-4">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Overall Rating <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center mt-2">
+                                <div class="flex space-x-1">
+                                    <button type="button" *ngFor="let star of [1, 2, 3, 4, 5]" (click)="setRating(star)"
+                                        class="focus:outline-none transition-colors"
+                                        [ngClass]="{'text-amber-400': star <= feedbackData.rating, 'text-gray-300': star > feedbackData.rating}">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                            </path>
+                                        </svg>
                                     </button>
-                                </ng-container>
+                                </div>
+                                <span class="ml-3 text-gray-600 text-sm">
+                                    {{ getRatingText(feedbackData.rating) }}
+                                </span>
                             </div>
+                            <!-- Rating error message -->
                             <div *ngIf="feedbackRatingError" class="text-red-500 text-xs mt-1">
                                 {{ feedbackRatingError }}
                             </div>
                         </div>
 
-                        <!-- Description field -->
-                        <div>
-                            <label for="feedback-description"
-                                class="block text-sm font-medium text-gray-700">Description
-                                <span class="text-red-500">*</span></label>
-                            <textarea id="feedback-description" [(ngModel)]="feedbackData.description" rows="4"
+                        <!-- Feedback Questions -->
+                        <div *ngFor="let question of feedbackQuestions; let i = index" class="pt-4 border-t">
+                            <div class="mb-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    {{ i + 1 }}. {{ question.question_text }}
+                                    <span class="text-red-500">*</span>
+                                </label>
+                            </div>
+
+                            <!-- MCQ Options -->
+                            <div *ngIf="question.question_type === 'MCQ'" class="space-y-2 mt-2">
+                                <!-- Sort options by option_order (highest to lowest) -->
+                                <!-- Make the entire option row clickable for better UX -->
+                                <div *ngFor="let option of question.feedbackQuestionOptions | sortByOrder:'option_order':true"
+                                    (click)="selectAnswer(question.question_id, option.option_id); $event.stopPropagation()"
+                                    class="flex items-center hover:bg-amber-50 p-2 rounded-md transition-colors cursor-pointer">
+                                    <!-- Update your radio button input like this -->
+                                    <input type="radio" [id]="option.option_id"
+                                        [name]="'question_' + question.question_id" [value]="option.option_id"
+                                        [checked]="getFeedbackAnswer(question.question_id)?.selected_option_id === option.option_id"
+                                        (change)="selectAnswer(question.question_id, option.option_id); $event.stopPropagation()"
+                                        class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300">
+                                    <label [for]="option.option_id"
+                                        class="ml-3 block text-sm text-gray-700 cursor-pointer flex-grow">
+                                        {{ option.option_text }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Comments field -->
+                        <div class="pt-4 border-t">
+                            <label for="feedback-description" class="block text-sm font-medium text-gray-700">Additional
+                                Comments</label>
+                            <textarea id="feedback-description" [(ngModel)]="feedbackData.description" rows="3"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
-                                placeholder="Provide your detailed feedback..."></textarea>
+                                placeholder="Please provide any additional feedback or comments..."></textarea>
                             <div *ngIf="feedbackDescriptionError" class="text-red-500 text-xs mt-1">
                                 {{ feedbackDescriptionError }}
                             </div>
@@ -391,8 +581,7 @@
                 </div>
 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <!-- Change the Submit Feedback button in the modal to amber -->
-                    <button type="button" [disabled]="submittingFeedback" (click)="submitFeedback()"
+                    <button type="button" [disabled]="submittingFeedback || loadingQuestions" (click)="submitFeedback()"
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                         <span *ngIf="!submittingFeedback">Submit Feedback</span>
                         <span *ngIf="submittingFeedback" class="flex items-center">

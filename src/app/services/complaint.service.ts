@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage, FeedbackData, FeedbackResponse } from '../models/complaint';
+import { Complaint, ApiResponse, ComplaintFilters, CreateComplaintPayload, UpdateComplaintStatusPayload, ComplaintResponse, ComplaintHistoryItem, ChatMessage, FeedbackData, FeedbackResponse, Attachment, FeedbackQuestion, FeedbackQuestionResponse, FeedbackWithResponses } from '../models/complaint';
 
 @Injectable({
   providedIn: 'root'
@@ -165,8 +165,14 @@ export class ComplaintService {
   /**
  * Save feedback for a complaint
  */
-  saveFeedback(feedbackData: FeedbackData): Observable<FeedbackResponse> {
-    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/saveFeedback', feedbackData);
+  saveFeedback(feedbackData: FeedbackData, feedbackResponses: FeedbackQuestionResponse[]): Observable<FeedbackResponse> {
+    // Create the payload in the required format
+    const payload: FeedbackPayload = {
+      feedback: feedbackData,
+      feedbackQuestionResponse: feedbackResponses
+    };
+
+    return this.http.post<FeedbackResponse>('http://192.168.1.36:8081/api/feedback/saveFeedback', payload);
   }
 
   /**
@@ -189,11 +195,12 @@ export class ComplaintService {
       );
   }
 
+
   /**
    * Get feedback for a complaint
    */
-  getFeedbackByComplaintId(payload: { id: string, org_id: string, opr_id: string }): Observable<FeedbackData | null> {
-    return this.http.post<FeedbackData>('http://192.168.1.36:8081/api/feedback/getFeedbackByComplaint', payload)
+  getFeedbackByComplaintId(payload: { id: string, org_id: string, opr_id: string }): Observable<FeedbackWithResponses | null> {
+    return this.http.post<FeedbackWithResponses>('http://192.168.1.36:8081/api/feedback/getFeedbackByComplaint', payload)
       .pipe(
         map(response => {
           if (response) {
@@ -296,8 +303,23 @@ export class ComplaintService {
         ]);
       })
     );
+
+
+
   }
 
+  /**
+   * Get feedback questions for the feedback form
+   */
+  getFeedbackQuestions(): Observable<FeedbackQuestion[]> {
+    return this.http.get<FeedbackQuestion[]>('http://192.168.1.36:8081/feedbackQuestion/getFeedbackQuestion')
+      .pipe(
+        catchError(error => {
+          console.error('Error fetching feedback questions:', error);
+          return of([]);
+        })
+      );
+  }
   /**
    * Get mock complaints for development
    */
@@ -317,6 +339,7 @@ export interface Cl_getComplaintByIdPayload {
   org_id: string,
   opr_id: string,
   id: string,
+  email: string
 }
 
 
@@ -352,8 +375,22 @@ export interface SendChatMessagePayload {
   senderId: string;
   receiverId: string;
   message: string;
+  attachmentTrn: Attachment | null;
 }
 
+export interface SendChatAttachment {
+  attachmentId: string;
+  uploadedFileName: string;
+  filePath: string;
+  storedFileName: string;
+  l_encrypted_file?: string;
+}
 export interface GetChatMessagesPayload {
   id: string;
+}
+
+// Update FeedbackPayload for proper structure
+export interface FeedbackPayload {
+  feedback: FeedbackData;
+  feedbackQuestionResponse: FeedbackQuestionResponse[];
 }
