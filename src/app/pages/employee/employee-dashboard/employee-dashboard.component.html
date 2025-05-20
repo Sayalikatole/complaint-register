@@ -482,22 +482,26 @@
                                 '...' : '' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="{
-                        'bg-yellow-100 text-yellow-800': complaint.status === 'OPEN',
-                        'bg-purple-100 text-purple-600': complaint.status === 'ESCALATED',
-                        'bg-blue-100 text-blue-800': complaint.status === 'IN_PROGRESS',
-                        'bg-green-100 text-green-800': complaint.status === 'RESOLVED',
-                        'bg-gray-100 text-gray-800': complaint.status === 'CLOSED'
-                      }">
+                                <span class="px-2 py-1 rounded-md text-xs" [ngClass]="{
+                                    'bg-yellow-100 text-yellow-600': complaint.status === 'ASSIGNED',
+                                    'bg-blue-100 text-blue-600': complaint.status === 'IN_PROGRESS',
+                                    'bg-gray-200 text-gray-600': complaint.status === 'OPEN',
+                                    'bg-purple-100 text-purple-600': complaint.status === 'ESCALATED',
+                                    'bg-green-100 text-green-600': complaint.status === 'RESOLVED',
+                                    'bg-orange-100 text-orange-600': complaint.status === 'DEFERRED',
+                                    'bg-pink-100 text-pink-600': complaint.status === 'REOPEN',
+                                    'bg-red-100 text-red-600': complaint.status === 'CLOSED'
+                  
+                                  }">
                                     {{ complaint.status }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="{
-                        'bg-red-100 text-red-800': complaint.priority === 'HIGH',
-                        'bg-yellow-100 text-yellow-800': complaint.priority === 'MEDIUM',
-                        'bg-green-100 text-green-800': complaint.priority === 'LOW'
-                      }">
+                                <span class="px-2 py-1 rounded-md text-xs" [ngClass]="{
+                                    'bg-red-100 text-red-800': complaint.priority === 'HIGH',
+                                    'bg-yellow-100 text-yellow-800': complaint.priority === 'MEDIUM',
+                                    'bg-green-100 text-green-800': complaint.priority === 'LOW'
+                                  }">
                                     {{ complaint.priority }}
                                 </span>
                             </td>
@@ -505,7 +509,7 @@
                                 {{ complaint.created_on | date:'medium' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3" >View</a>
                                 <a *ngIf="activeTab === 'assigned' && complaint.status !== 'CLOSED'" href="#"
                                     class="text-green-600 hover:text-green-900">Update</a>
                             </td>
