@@ -28,6 +28,15 @@ export class ComplaintService {
     return this.http.post<Complaint[]>(`${this.baseUrl}/getAllComplaint`, getuserComplaintPayload);
   }
 
+  getUserCreatedComplaints(getuserCreatedComplaintPayload: Cl_getUserCreatedComplaintPayload): Observable<Complaint[]> {
+    return this.http.post<Complaint[]>(`http://192.168.1.36:8081/api/Dashboard/user/complaintList`, getuserCreatedComplaintPayload);
+  }
+
+  getUserAssignedComplaints(getuserAssinedComplaintPayload: Cl_getUserCreatedComplaintPayload): Observable<Complaint[]> {
+    return this.http.post<Complaint[]>(`http://192.168.1.36:8081/api/Dashboard/user/assign/complaintList`, getuserAssinedComplaintPayload);
+  }
+
+
 
   // getUserComplaints(): Observable<Complaint[]> {
   //   const currentUser = this.authService.getCurrentUser();
@@ -307,6 +316,12 @@ export class ComplaintService {
 }
 
 export interface Cl_getUserComplaintPayload {
+  org_id: string,
+  opr_id: string,
+  id: string,
+}
+
+export interface Cl_getUserCreatedComplaintPayload {
   org_id: string,
   opr_id: string,
   id: string,

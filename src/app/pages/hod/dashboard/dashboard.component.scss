@@ -2,3 +2,13 @@
     font-weight: bold;
     font-size: 20px;
 }
+.progress-animation {
+    animation: progress-fill 1.4s ease-out forwards;
+  }
+  
+  @keyframes progress-fill {
+    to {
+      stroke-dashoffset: attr(data-offset);
+    }
+  }
+  

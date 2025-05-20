@@ -502,23 +502,6 @@
                             <div *ngFor="let message of group.messages" class="message-item mb-4"
                                 [ngClass]="{'ml-12': message.sender_id === currentUser?.userId}">
 
-<<<<<<< HEAD
-                                <!-- Message content -->
-                                <div class="flex-1 max-w-md py-2 px-4 rounded-lg shadow-sm" [ngClass]="message.sender_id === currentUser?.userId ? 
-                                    'bg-indigo-50 rounded-tr-none text-right' : 
-                                    'bg-white rounded-tl-none'">
-
-                                    <div class="flex items-baseline"
-                                        [ngClass]="{'justify-end': message.sender_id === currentUser?.userId}">
-                                        <span class="font-medium text-sm"
-                                            [ngClass]="message.sender_id === currentUser?.userId ? 'text-indigo-700' : 'text-gray-700'">
-                                            {{ message.sender_id === currentUser?.userId ? 'You' : (message.sender_name
-                                            ||
-                                            message.l_sender_id) }}
-                                        </span>
-                                        <span class="text-xs text-gray-500 ml-2">{{ formatDate(message.sent_on)
-                                            }}</span>
-=======
                                 <div class="flex items-start"
                                     [ngClass]="{'flex-row-reverse': message.sender_id === currentUser?.userId}">
                                     <!-- Avatar -->
@@ -531,7 +514,6 @@
                                             {{ getInitials(message.l_sender_id || message.l_sender_id ||
                                             message.sender_id) }}
                                         </div>
->>>>>>> yash
                                     </div>
 
                                     <!-- Message content with enhanced styling -->

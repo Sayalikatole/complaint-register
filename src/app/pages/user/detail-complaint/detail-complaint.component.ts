@@ -475,16 +475,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
             complaint_id: this.complaint?.complaint_id || '',
             sender_id: this.currentUser?.userId || '',
             receiver_id: receiverId,
-<<<<<<< HEAD
-            message: this.replyText,
-            sent_on: new Date().toISOString(),
-            sender_name: this.currentUser?.username || this.currentUser?.userId || '',
-            is_read: false
-=======
             message: this.replyText || '',
             sent_on: new Date().toISOString(),
             attachment: attachmentData ? attachmentData : null,
->>>>>>> yash
           };
 
           this.messages.push(newMessage);

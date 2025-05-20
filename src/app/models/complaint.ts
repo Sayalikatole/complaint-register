@@ -134,14 +134,7 @@ export interface ChatMessage {
     receiver_id: string;
     message: string;
     sent_on?: string;
-<<<<<<< HEAD
-    sender_name?: string;
-    sender_role?: string;
-    is_read?: boolean;
-    attachments?: string[];
-=======
     attachment: Attachment | null;
->>>>>>> yash
     l_sender_id?: string;
     l_receiver_id?: string;
     l_sender_role?: string;

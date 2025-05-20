@@ -52,8 +52,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
    // Complaints data
    complaints: Complaint[] = [];
    dueDateComplaints: ComplaintDueDatetrend[] = [];
-   filteredComplaints: Complaint[] = [];
-  allComplaints: Complaint[] = [];
+  //  filteredComplaints: Complaint[] = [];
+  // allComplaints: Complaint[] = [];
+  // allComplaintsVisible = false;
+  searchTerm: string = '';
+allComplaints: any[] = [];
+filteredComplaints: any[] = [];
+visibleComplaints: any[] = [];
+allComplaintsVisible: boolean = false;
 
   
   constructor(
@@ -172,42 +178,90 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return index >= 0 && index < 12 ? monthNames[index] : 'Invalid';
   }
 
-  /**
-   * Load complaints from the service
-   */
-  loadComplaints(): void {
-    // this.isLoading = true;
-    if (!this.currentUser) return;
 
-    console.log(this.currentUser.userId)
-    console.log(this.currentUser)
-    const userComplaint_data: Cl_getUserComplaintPayload = {
-      opr_id: this.currentUser.operatingUnitId,
-      org_id: this.currentUser.organizationId,
-      id: this.currentUser.userId
-    };
-    this.complaintService.getUserComplaints(userComplaint_data)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.allComplaints = data
-          this.complaints = this.allComplaints.slice(0, 5);
-          console.log(this.complaints)
+// ================================NEW CODE WITH SERACH FILTER ======================
 
-          console.log(data)
 
-          this.filteredComplaints = [...this.complaints];
-          console.log(this.filteredComplaints)
-          // this.applyFilters();
-          // this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading complaints:', error);
-          this.errorMessage = 'Failed to load complaints. Please try again.';
-          // this.isLoading = false;
-        }
-      });
+loadComplaints(): void {
+  if (!this.currentUser) return;
+
+  const userComplaint_data: Cl_getUserComplaintPayload = {
+    opr_id: this.currentUser.operatingUnitId,
+    org_id: this.currentUser.organizationId,
+    id: this.currentUser.userId
+  };
+
+  this.complaintService.getUserComplaints(userComplaint_data)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (data) => {
+        this.allComplaints = data;
+        // Initially set filteredComplaints to all complaints
+        this.filteredComplaints = [...this.allComplaints];
+        // Update the visible complaints: if no search, show top 5
+        this.updateVisibleComplaints();
+      },
+      error: (error) => {
+        console.error('Error loading complaints:', error);
+        this.errorMessage = 'Failed to load complaints. Please try again.';
+      }
+    });
+}
+
+// Called on (input) of the search field
+applySearchFilter(): void {
+  const term = this.searchTerm.toLowerCase().trim();
+
+  if (!term) {
+    // If no search term, reset filter to include all complaints
+    this.filteredComplaints = [...this.allComplaints];
+  } else {
+    // Filter complaints by subject, department, or status
+    this.filteredComplaints = this.allComplaints.filter(c =>
+      (c.subject && c.subject.toLowerCase().includes(term)) ||
+      (c.l_department_name && c.l_department_name.toLowerCase().includes(term)) ||
+      (c.status && c.status.toLowerCase().includes(term)) || (c.priority && c.priority.toLowerCase().includes(term))
+    );
   }
+
+  // Reset toggle state when search is active
+  if (term) {
+    this.allComplaintsVisible = true;
+  } else {
+    // If search is cleared, revert to the default view (top 5)
+    this.allComplaintsVisible = false;
+  }
+  
+  this.updateVisibleComplaints();
+}
+
+// This method determines what goes into visibleComplaints based on search and the toggle state
+updateVisibleComplaints(): void {
+  // If there's a search term, show all filtered results
+  if (this.searchTerm.trim().length > 0) {
+    this.visibleComplaints = [...this.filteredComplaints];
+  } else {
+    // No search term: check the toggle state
+    if (this.allComplaintsVisible) {
+      // Show all filtered complaints
+      this.visibleComplaints = [...this.filteredComplaints];
+    } else {
+      // Show only the top 5 complaints
+      this.visibleComplaints = this.filteredComplaints.slice(0, 5);
+    }
+  }
+}
+
+toggleComplaintView(): void {
+  // Toggle the state
+  this.allComplaintsVisible = !this.allComplaintsVisible;
+  // Update visible complaints accordingly
+  this.updateVisibleComplaints();
+}
+
+
+
+
 
   closeModal() {
     this.showOtherComplaintsModal = false;

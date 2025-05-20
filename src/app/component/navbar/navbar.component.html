@@ -38,23 +38,13 @@
 
 <!-- Modern Responsive Navbar -->
 <!-- Modern Responsive Navbar -->
-<<<<<<< HEAD
-<header class="bg-gradient-to-r from-blue-800 to-indigo-900 shadow-md">
-=======
 <!-- Professional Enterprise-Grade Navbar -->
 <header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 shadow-lg border-b border-slate-600">
->>>>>>> yash
   <!-- Desktop Navbar -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Left Side - Logo & Primary Navigation -->
       <div class="flex items-center">
-<<<<<<< HEAD
-        <!-- Update the logo and text for better visibility -->
-        <div class="flex-shrink-0 flex items-center">
-          <!-- <i class="fas fa-fee text-2xl text-white mr-2"></i> -->
-          <span class="font-bold text-white text-lg hidden sm:block tracking-wide cursor-pointer">Grievence Pro </span>
-=======
         <!-- Logo with animation -->
         <div class="flex-shrink-0 flex items-center group">
           <div
@@ -65,26 +55,11 @@
             <span class="font-bold text-white text-lg tracking-tight hidden sm:block">Feedback System</span>
             <span class="text-xs text-blue-300 hidden sm:block">Enterprise Edition</span>
           </div>
->>>>>>> yash
         </div>
 
         <!-- Primary Navigation - Desktop -->
         <nav class="hidden md:ml-8 md:flex md:space-x-2">
           <ng-container *ngIf="role === 'admin'; else userNav">
-<<<<<<< HEAD
-            <a [routerLink]="['/', role, 'complaints']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200 px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200 text-lg">
-              class="text-gray-200 text-lg px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-ticket-alt mr-1"></i> Complaints
-            </a>
-            <a [routerLink]="['/', role, 'suggestions']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200 text-lg  px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-lightbulb mr-1"></i> Suggestions
-            </a>
-            <a [routerLink]="['/', role, 'dashboard']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200 text-lg  px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-chart-bar mr-1"></i> Analytics
-=======
             <a [routerLink]="['/', role, 'complaints']" routerLinkActive="nav-link-active"
               class="text-gray-200 px-3 py-2 hover:text-white hover:bg-slate-600 rounded-md transition-all duration-200 flex items-center nav-link">
               <i class="fas fa-ticket-alt mr-2"></i> Complaints
@@ -96,7 +71,6 @@
             <a [routerLink]="['/', role, 'dashboard']" routerLinkActive="nav-link-active"
               class="text-gray-200 px-3 py-2 hover:text-white hover:bg-slate-600 rounded-md transition-all duration-200 flex items-center nav-link">
               <i class="fas fa-chart-bar mr-2"></i> Analytics
->>>>>>> yash
             </a>
             <!-- Admin-only section -->
             <!-- <a [routerLink]="['/', role, 'users']" routerLinkActive="nav-link-active"
@@ -106,20 +80,6 @@
           </ng-container>
 
           <ng-template #userNav>
-<<<<<<< HEAD
-            <a [routerLink]="['/', role, 'complaints']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200  text-lg px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-clipboard-list mr-1"></i> Complaints
-            </a>
-
-            <a [routerLink]="['/', role, 'suggestions']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200 text-lg px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-lightbulb mr-1"></i> Suggestions
-            </a>
-            <a [routerLink]="['/', role, 'dashboard']" routerLinkActive="border-b-2 border-white font-medium"
-              class="text-gray-200 text-lg px-3 py-2 hover:text-white hover:bg-indigo-800 rounded-md transition-all duration-200">
-              <i class="fas fa-chart-line mr-1"></i> Analytics
-=======
             <a [routerLink]="['/', role, 'complaints']" routerLinkActive="nav-link-active"
               class="text-gray-200 px-3 py-2 hover:text-white hover:bg-slate-600 rounded-md transition-all duration-200 flex items-center nav-link">
               <i class="fas fa-clipboard-list mr-2"></i> Complaints
@@ -131,20 +91,11 @@
             <a [routerLink]="['/', role, 'dashboard']" routerLinkActive="nav-link-active"
               class="text-gray-200 px-3 py-2 hover:text-white hover:bg-slate-600 rounded-md transition-all duration-200 flex items-center nav-link">
               <i class="fas fa-chart-line mr-2"></i> Analytics
->>>>>>> yash
             </a>
           </ng-template>
         </nav>
       </div>
 
-<<<<<<< HEAD
-      <!-- Right Side - Organization & User Functions -->
-      <div class="flex items-center space-x-4">
-        <!-- Organization Name -->
-        <div class="hidden md:flex items-center bg-blue-700 px-3 py-1 rounded-lg shadow-sm cursor-pointer">
-          <i class="fas fa-building mr-2 text-blue-200"></i>
-          <span class="text-white font-medium">{{ organizationName || 'Micropro' }}</span>
-=======
       <!-- Right Side - Organization, Role Badge & User Functions -->
       <div class="flex items-center space-x-3">
         <!-- Organization Badge -->
@@ -152,7 +103,6 @@
           class="hidden md:flex items-center py-1.5 px-3 rounded-lg bg-slate-600/50 border border-slate-500 shadow-inner">
           <i class="fas fa-building mr-2 text-blue-300"></i>
           <span class="text-white font-medium text-sm">{{ organizationName || 'Micropro' }}</span>
->>>>>>> yash
         </div>
 
         <!-- Role Badge - Visually clear role indicator -->
