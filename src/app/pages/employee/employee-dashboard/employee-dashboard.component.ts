@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Cl_getComplaintByIdPayload, Cl_getUserComplaintPayload, Cl_getUserCreatedComplaintPayload, ComplaintService } from '../../../services/complaint.service';
 import { Complaint } from '../../../models/complaint';
+import { Router, RouterModule } from '@angular/router';
 
 // Register chart.js components and plugin
 Chart.register(...registerables);
@@ -19,7 +20,7 @@ Chart.register(ChartDataLabels);
   selector: 'app-employee-dashboard',
   templateUrl: './employee-dashboard.component.html',
   styleUrls: ['./employee-dashboard.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterModule],
   standalone: true
 })
 export class EmployeeDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -62,6 +63,7 @@ avgResponseTime: any ; // This would come from your API
   priority: ComplaintPriorityTrend[] = [];
   priorityTrend : ComplaintPriorityTrend[] = [];
   id: string | any;
+
 ;
 
   //list of complaint
@@ -96,7 +98,8 @@ complaint: Complaint | null = null;
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService,
-    private complaintService: ComplaintService
+    private complaintService: ComplaintService,
+    private router : Router
   ) { }
 
   ngOnInit(): void {
@@ -687,4 +690,8 @@ this.renderMonthlyUserCreateChart(this.labels, this.monthlyData);
         });
     }
   
+
+navigateToNewComplaint(): void {
+  this.router.navigate(['/employee/create-complaints']); // ✅ Update the path as per your routing
+}
 }
