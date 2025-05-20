@@ -57,6 +57,8 @@ export interface UserByDepartment {
     modified_by: string | null;
     modified_on: string;
     is_active: string;
+    l_count?: number,
+    l_percentage?: number
 }
 
 /**

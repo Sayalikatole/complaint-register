@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
@@ -105,7 +105,9 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   feedbackAnswers: FeedbackAnswer[] = [];
   loadingQuestions: boolean = false;
 
-  constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router, private categoryService: CategoryService, private tagService: TagsService,) { }
+  currentFilterType: string | null = null;
+
+  constructor(private complaintService: ComplaintService, private authService: AuthService, private router: Router, private route: ActivatedRoute, private categoryService: CategoryService, private tagService: TagsService,) { }
 
   ngOnInit(): void {
     this.authService.currentUser$
@@ -121,6 +123,23 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
           this.role = this.currentUser?.l_role_name?.toLowerCase() || 'user';
         }
       });
+
+    // Handle query parameters - add this!
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        if (params['filter']) {
+          this.currentFilterType = params['filter'];
+          // Wait for complaints to load before applying filter
+          if (this.complaints.length > 0) {
+            this.applyFilterFromQueryParam(params['filter']);
+          }
+          // Otherwise, the filter will be applied in the loadComplaints() success callback
+        } else {
+          this.currentFilterType = null;
+        }
+      });
+
 
     this.feedbackQuestions.forEach(question => {
       if (question.feedbackQuestionOptions) {
@@ -239,11 +258,13 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.complaints = data;
-          // The has_feedback property is already included in the response
-          // No need to check again for each complaint
-
           this.filteredComplaints = [...this.complaints];
-          this.applyFilters();
+
+          // Apply filter from URL if present - add this!
+          if (this.currentFilterType) {
+            this.applyFilterFromQueryParam(this.currentFilterType);
+          }
+
           this.isLoading = false;
         },
         error: (error) => {
@@ -297,6 +318,137 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+
+
+
+
+
+  /**
+   * Apply filter based on query parameter
+   */
+  applyFilterFromQueryParam(filterType: string): void {
+    // Reset other filters first
+    this.searchTerm = '';
+    this.selectedCategory = 'all';
+    this.selectedTag = 'all';
+    this.showAnonymousOnly = false;
+
+    switch (filterType) {
+      case 'assigned':
+        // Apply filter for complaints assigned to current user
+        this.filterByAssignee();
+        break;
+      case 'created':
+        // Apply filter for complaints created by current user
+        this.filterByCreator();
+        break;
+      case 'urgent':
+        // Apply filter for high priority complaints
+        this.filterByPriority();
+        break;
+      default:
+        // Reset to all complaints
+        this.resetFilters();
+        break;
+    }
+  }
+
+  /**
+   * Filter by assigned to me
+   */
+  filterByAssignee(): void {
+    if (!this.currentUser) return;
+
+    // Update UI state
+    document.title = 'Assigned Complaints';
+
+    // Filter complaints
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.assigned_to === this.currentUser?.userId
+    );
+
+    // Update UI to show which filter is active
+    console.log('Filtered by assignee:', this.filteredComplaints.length);
+  }
+
+  /**
+   * Filter by created by me
+   */
+  filterByCreator(): void {
+    if (!this.currentUser) return;
+
+    // Update UI state
+    document.title = 'My Created Complaints';
+
+    // Filter complaints
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.created_by === this.currentUser?.userId
+    );
+
+    console.log('Filtered by creator:', this.filteredComplaints.length);
+  }
+
+  /**
+   * Filter by high priority/urgent
+   */
+  filterByPriority(): void {
+    // Update UI state
+    document.title = 'Urgent Complaints';
+
+    // Filter complaints - make sure to handle case sensitivity
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.priority.toUpperCase() === 'HIGH'
+    );
+
+    console.log('Filtered by priority:', this.filteredComplaints.length);
+  }
+
+  /**
+   * Reset all filters
+   */
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = 'all';
+    this.selectedCategory = 'all';
+    this.selectedTag = 'all';
+    this.showAnonymousOnly = false;
+    this.sortBy = 'newest';
+
+    // Reset dropdown states
+    this.isStatusFilterOpen = false;
+    this.isCategoryFilterOpen = false;
+    this.isTagFilterOpen = false;
+    this.isSortOpen = false;
+
+    // Reset to all complaints
+    this.filteredComplaints = [...this.complaints];
+
+    // Update UI
+    document.title = 'All Complaints';
+  }
+
+  /**
+   * Get title for the list based on active filter
+   */
+  getListTitle(): string {
+    if (this.currentFilterType === 'assigned') {
+      return 'Assigned to Me';
+    } else if (this.currentFilterType === 'created') {
+      return 'My Created Complaints';
+    } else if (this.currentFilterType === 'urgent') {
+      return 'Urgent Complaints';
+    }
+
+    // Default title or based on other active filters
+    if (this.selectedStatus !== 'all') {
+      return `${this.getStatusDisplay(this.selectedStatus)} Complaints`;
+    }
+
+    return 'All Complaints';
+  }
+
+
 
   // Add new filter methods
   onCategoryChange(category: string): void {
@@ -1541,6 +1693,48 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  /**
+ * Clear all applied filters and reset to default view
+ */
+  clearAllFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = 'all';
+    this.selectedCategory = 'all';
+    this.selectedTag = 'all';
+    this.showAnonymousOnly = false;
+    this.sortBy = 'newest';
+
+    // Reset dropdown states
+    this.isStatusFilterOpen = false;
+    this.isCategoryFilterOpen = false;
+    this.isTagFilterOpen = false;
+    this.isSortOpen = false;
+
+    // Apply the cleared filters
+    this.applyFilters();
+
+    // Show success message
+    this.successMessage = 'All filters cleared';
+    setTimeout(() => this.successMessage = '', 3000);
+  }
+
+  /**
+ * Get the appropriate title for the list based on active filters
+ */
+  // getListTitle(): string {
+  //   // Check URL for special filters
+  //   if (this.router.url.includes('filter=assigned')) {
+  //     return 'Assigned to Me';
+  //   } else if (this.router.url.includes('filter=created')) {
+  //     return 'Created by Me';
+  //   } else if (this.router.url.includes('filter=urgent')) {
+  //     return 'Urgent Complaints';
+  //   }
+
+  //   // Otherwise use normal title based on filters
+  //   return 'All Complaints';
+  // }
 }
 
 

@@ -120,6 +120,7 @@ export class NotificationService implements OnDestroy {
       }
 
       // Subscribe to personal notifications topic - using the same structure as backend
+
       this.subscription = this.stompClient.subscribe(
         `/topic/notifications/${userId}`,
         (message: IMessage) => {

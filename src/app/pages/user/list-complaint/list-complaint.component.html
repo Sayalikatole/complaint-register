@@ -4,8 +4,9 @@
         <!-- Update the filter section to include category, tag, and anonymous filtering -->
         <div class="flex items-center">
             <i class="fas fa-inbox mr-2 text-indigo-600"></i>
-            <span class="mr-2 font-medium">All Complaints</span>
-
+            <span class="mr-2 font-medium">
+                {{ getListTitle() }}
+            </span>
             <!-- Status filter dropdown -->
             <!-- src/app/pages/user/list-complaint/list-complaint.component.html -->
 
@@ -171,6 +172,82 @@
             </button>
         </div>
     </div>
+
+
+
+
+    <!-- NEW: Add results counter here -->
+    <div *ngIf="!isLoading && !errorMessage" class="px-4 py-2 bg-gray-50 border-b flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+            <span class="font-medium">{{ filteredComplaints.length }}</span>
+            {{ filteredComplaints.length === 1 ? 'complaint' : 'complaints' }} found
+            <span *ngIf="searchTerm || selectedStatus !== 'all' || selectedCategory !== 'all' || selectedTag !== 'all'"
+                class="ml-1">
+                matching your filters
+            </span>
+        </div>
+
+        <!-- Clear filters button - only show when filters are applied -->
+        <button
+            *ngIf="searchTerm || selectedStatus !== 'all' || selectedCategory !== 'all' || selectedTag !== 'all' || showAnonymousOnly"
+            (click)="clearAllFilters()" class="text-xs text-indigo-600 hover:text-indigo-800 flex items-center">
+            <i class="fas fa-times-circle mr-1"></i> Clear filters
+        </button>
+    </div>
+
+
+    <!-- Active filters display - add below the result count -->
+    <div *ngIf="searchTerm || selectedStatus !== 'all' || selectedCategory !== 'all' || selectedTag !== 'all' || showAnonymousOnly"
+        class="flex flex-wrap gap-2 mt-2">
+        <span class="text-xs text-gray-500">Active filters:</span>
+
+        <div *ngIf="searchTerm" class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full flex items-center">
+            <span class="mr-1">Search:</span>
+            <span class="font-medium">{{ searchTerm }}</span>
+            <button (click)="searchTerm = ''; applyFilters()" class="ml-1 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+
+        <div *ngIf="selectedStatus !== 'all'"
+            class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full flex items-center">
+            <span class="mr-1">Status:</span>
+            <span class="font-medium">{{ getStatusDisplay(selectedStatus) }}</span>
+            <button (click)="onStatusChange('all'); isStatusFilterOpen = false"
+                class="ml-1 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+
+        <div *ngIf="selectedCategory !== 'all'"
+            class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full flex items-center">
+            <span class="mr-1">Category:</span>
+            <span class="font-medium">{{ categories | findcategory:selectedCategory }}</span>
+            <button (click)="onCategoryChange('all'); isCategoryFilterOpen = false"
+                class="ml-1 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+
+        <div *ngIf="selectedTag !== 'all'"
+            class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full flex items-center">
+            <span class="mr-1">Tag:</span>
+            <span class="font-medium">{{ (tags | findtag:selectedTag)?.tag_name }}</span>
+            <button (click)="onTagChange('all'); isTagFilterOpen = false"
+                class="ml-1 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+
+        <div *ngIf="showAnonymousOnly"
+            class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full flex items-center">
+            <span class="mr-1">Anonymous only</span>
+            <button (click)="toggleAnonymousFilter()" class="ml-1 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+    </div>
+
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">

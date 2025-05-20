@@ -102,6 +102,9 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
   loadingMessages: boolean = false;
   messageError: string | null = null;
 
+  // Add this property to your component
+  assigneeSortBy: 'load' | 'name' | 'department' = 'load';
+
   // Add a flag to control scrolling behavior
   private scrollToBottom: boolean = false;
 
@@ -1111,8 +1114,8 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
   }
 
   /**
-   * Load assignees from API
-   */
+  * Load assignees from API
+  */
   loadAssignees(): void {
     if (!this.currentUser) return;
 
@@ -1128,13 +1131,23 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (users) => {
-          // Map the account_id to userId for each user
-          this.assignees = users.map(user => ({
-            ...user,
-            userId: user.account_id  // Map account_id to userId
-          }));
+          // Map the account_id to userId for each user and sort by load percentage
+          this.assignees = users
+            .map(user => ({
+              ...user,
+              userId: user.account_id,  // Map account_id to userId
+              // Ensure load percentage is a number
+              l_count: user.l_count !== undefined ? Number(user.l_count) : undefined,
+              l_percentage: user.l_percentage !== undefined ? Number(user.l_percentage) : undefined
+            }))
+            .sort((a, b) => {
+              // Sort by load percentage (ascending - least loaded first)
+              if (a.l_percentage === undefined) return 1;
+              if (b.l_percentage === undefined) return -1;
+              return a.l_percentage - b.l_percentage;
+            });
 
-          console.log('Assignees after mapping:', this.assignees);
+          console.log('Assignees after mapping and sorting:', this.assignees);
           this.loadingAssignees = false;
         },
         error: (err) => {
@@ -1142,6 +1155,66 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
           this.loadingAssignees = false;
         }
       });
+  }
+
+  /**
+   * Sort assignees by different criteria
+   */
+  sortAssignees(sortBy: 'name' | 'load' | 'department'): void {
+    this.assigneeSortBy = sortBy;
+
+    if (sortBy === 'name') {
+      this.assignees.sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '');
+      });
+    } else if (sortBy === 'department') {
+      this.assignees.sort((a, b) => {
+        return (a.department_id || '').localeCompare(b.department_id || '');
+      });
+    } else if (sortBy === 'load') {
+      this.assignees.sort((a, b) => {
+        // Handle undefined percentages - put them at the end
+        const aPercentage = a.l_percentage !== undefined ? a.l_percentage : Number.MAX_SAFE_INTEGER;
+        const bPercentage = b.l_percentage !== undefined ? b.l_percentage : Number.MAX_SAFE_INTEGER;
+        return aPercentage - bPercentage;
+      });
+    }
+
+    // Update filtered assignees if search is active
+    // this.filterAssignees();
+  }
+
+
+  /**
+ * Get the appropriate color class for a load percentage
+ */
+  getLoadColor(percentage?: number): string {
+    if (percentage === undefined || percentage === null) {
+      return 'text-gray-500';
+    }
+    if (percentage < 33) {
+      return 'text-green-600';
+    } else if (percentage < 66) {
+      return 'text-amber-600';
+    } else {
+      return 'text-red-600';
+    }
+  }
+
+  /**
+   * Get the appropriate background color class for a load percentage
+   */
+  getLoadBgColor(percentage?: number): string {
+    if (percentage === undefined || percentage === null) {
+      return 'bg-gray-200';
+    }
+    if (percentage < 33) {
+      return 'bg-green-500';
+    } else if (percentage < 66) {
+      return 'bg-amber-500';
+    } else {
+      return 'bg-red-500';
+    }
   }
 
   /**
@@ -1708,5 +1781,14 @@ export class DetailComplaintComponent implements OnInit, OnDestroy, AfterViewChe
         this.showStatusDropdown = false;
       }
     }
+  }
+
+  /**
+ * Parse tags from string format if needed
+ */
+  getTagsFromString(tagString?: string): string[] {
+    if (!tagString) return [];
+
+    return tagString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
   }
 }

@@ -255,12 +255,20 @@
 
 
 
-
-import { Component, EventEmitter, Input, OnInit, Output, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, Input, OnInit, Output, HostListener, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { ComplaintPriority } from '../../enums/complaint_priority';
+import { CategoryService } from '../../services/category.service';
+import { Cl_getUserComplaintPayload, ComplaintService } from '../../services/complaint.service';
+import { TagsService } from '../../services/tags.service';
+import { UserData } from '../../models/auth';
+import { Complaint } from '../../models/complaint';
+import { Category } from '../../models/category';
+import { Tags } from '../../models/tags';
 
 @Component({
   selector: 'app-sidebar',
@@ -269,7 +277,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   // Sidebar state
   @Input() sidebarOpen = true;
   @Output() sidebarToggled = new EventEmitter<boolean>();
@@ -287,21 +295,215 @@ export class SidebarComponent implements OnInit {
   // Responsive detection
   isDesktop: boolean = true;
 
+  // Current user
+  currentUser: UserData | null = null;
+
+  // Data collections
+  complaints: Complaint[] = [];
+  filteredComplaints: Complaint[] = [];
+  categories: Category[] = [];
+  tags: Tags[] = [];
+
+  // Status tracking
+  isLoading: boolean = false;
+  errorMessage: string | null = null;
+
+  // Filters
+  searchTerm: string = '';
+  selectedStatus: string = 'all';
+  selectedCategory: string = 'all';
+  selectedTag: string = 'all';
+  showAnonymousOnly: boolean = false;
+
+  // Destroy subject for unsubscribing
+  private destroy$ = new Subject<void>();
+
   constructor(
+    private complaintService: ComplaintService,
     private authService: AuthService,
-    private router: Router
+    public router: Router,
+    private route: ActivatedRoute,
+    private categoryService: CategoryService,
+    private tagService: TagsService
   ) { }
 
   ngOnInit(): void {
+    // Check user auth status
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.currentUser = user;
+
+        if (user) {
+          // Set role
+          this.role = this.currentUser?.l_role_name?.toLowerCase() || 'user';
+
+          // Load data
+          this.loadComplaints();
+          this.loadCategories();
+          this.loadTags();
+        }
+      });
+
     // Detect device type
     this.checkScreenSize();
 
     // Load user data
     this.loadUserData();
 
-    // Load counts (these would normally come from your services)
+    // Load counts
     this.loadAssignedComplaints();
     this.loadUrgentComplaints();
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions when component is destroyed
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Load complaints from the service
+   */
+  loadComplaints(): void {
+    this.isLoading = true;
+    if (!this.currentUser) return;
+
+    const complaintData: Cl_getUserComplaintPayload = {
+      opr_id: this.currentUser.operatingUnitId,
+      org_id: this.currentUser.organizationId,
+      id: this.currentUser.userId
+    };
+
+    this.complaintService.getUserComplaints(complaintData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.complaints = data;
+          this.filteredComplaints = [...this.complaints];
+          this.updateCounters();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading complaints:', error);
+          this.errorMessage = 'Failed to load complaints. Please try again.';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  /**
+   * Update counters for assigned and urgent complaints
+   */
+  updateCounters(): void {
+    if (!this.currentUser) return;
+
+    // Count assigned complaints
+    this.assignedCount = this.complaints.filter(
+      complaint => complaint.assigned_to === this.currentUser?.userId
+    ).length;
+
+    // Count urgent complaints
+    this.urgentCount = this.complaints.filter(
+      complaint => complaint.priority.toUpperCase() === ComplaintPriority.HIGH
+    ).length;
+  }
+
+  /**
+   * Load categories from the service
+   */
+  loadCategories(): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      org_id: parseInt(this.currentUser.organizationId),
+      opr_id: parseInt(this.currentUser.operatingUnitId),
+      id: "" // Empty to get all categories
+    };
+
+    this.categoryService.getCategoriesByDepartment(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.categories = data;
+        },
+        error: (error) => {
+          console.error('Error loading categories:', error);
+        }
+      });
+  }
+
+  /**
+   * Load tags from the service
+   */
+  loadTags(): void {
+    if (!this.currentUser) return;
+
+    const payload = {
+      org_id: parseInt(this.currentUser.organizationId),
+      opr_id: parseInt(this.currentUser.operatingUnitId),
+      id: "" // Empty to get all tags
+    };
+
+    this.tagService.getTagsByCategory(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.tags = data;
+        },
+        error: (error) => {
+          console.error('Error loading tags:', error);
+        }
+      });
+  }
+
+  /**
+   * Apply filters to complaints
+   */
+  applyFilters(): void {
+    let filtered = this.complaints;
+
+    // Apply each filter sequentially
+    if (this.searchTerm.trim()) {
+      const searchTermLower = this.searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(complaint =>
+        complaint.subject.toLowerCase().includes(searchTermLower) ||
+        complaint.description.toLowerCase().includes(searchTermLower) ||
+        complaint.complaint_id.toLowerCase().includes(searchTermLower)
+      );
+    }
+
+    if (this.selectedStatus !== 'all') {
+      filtered = filtered.filter(complaint =>
+        complaint.status.toLowerCase() === this.selectedStatus.toLowerCase()
+      );
+    }
+
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(complaint =>
+        complaint.category_id === this.selectedCategory
+      );
+    }
+
+    // if (this.selectedTag !== 'all') {
+    //   filtered = filtered.filter(complaint => {
+    //     // Handle both array and string formats of tags
+    //     if (Array.isArray(complaint.tags)) {
+    //       return complaint.tags.includes(this.selectedTag);
+    //     } else if (typeof complaint.tag_id === 'string' && complaint.tag_id) {
+    //       return complaint.tag_id.split(',').includes(this.selectedTag);
+    //     }
+    //     return false;
+    //   });
+    // }
+
+    if (this.showAnonymousOnly) {
+      filtered = filtered.filter(complaint =>
+        complaint.is_anonymous === 'YES'
+      );
+    }
+
+    this.filteredComplaints = filtered;
   }
 
   /**
@@ -328,6 +530,64 @@ export class SidebarComponent implements OnInit {
   }
 
   /**
+   * Apply filters based on route parameter
+   */
+  applyFilterFromRoute(filterType: string): void {
+    // Reset other filters first
+    this.selectedStatus = 'all';
+    this.selectedCategory = 'all';
+    this.selectedTag = 'all';
+    this.searchTerm = '';
+    this.showAnonymousOnly = false;
+
+    switch (filterType) {
+      case 'assigned':
+        // Apply filter for complaints assigned to current user
+        this.filterComplaintsByAssignee();
+        break;
+      case 'created':
+        // Apply filter for complaints created by current user
+        this.filterComplaintsByCreator();
+        break;
+      case 'urgent':
+        // Apply filter for high priority complaints
+        this.filterComplaintsByPriority();
+        break;
+    }
+  }
+
+  /**
+   * Filter complaints assigned to the current user
+   */
+  filterComplaintsByAssignee(): void {
+    if (!this.currentUser) return;
+
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.assigned_to === this.currentUser?.userId
+    );
+  }
+
+  /**
+   * Filter complaints created by the current user
+   */
+  filterComplaintsByCreator(): void {
+    if (!this.currentUser) return;
+
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.created_by === this.currentUser?.userId
+    );
+  }
+
+  /**
+   * Filter high priority (urgent) complaints
+   */
+  filterComplaintsByPriority(): void {
+    this.filteredComplaints = this.complaints.filter(
+      complaint => complaint.priority.toUpperCase() === ComplaintPriority.HIGH
+    );
+  }
+
+  /**
    * Load user data from auth service
    */
   loadUserData(): void {
@@ -337,6 +597,44 @@ export class SidebarComponent implements OnInit {
       this.userEmail = user.email || 'user@example.com';
       this.userInitials = this.getInitials(this.username);
       this.role = user.l_role_name?.toLowerCase() || 'user';
+    }
+  }
+
+  /**
+   * Load assigned complaints for count badge - this will be replaced by actual data
+   */
+  loadAssignedComplaints(): void {
+    if (this.currentUser && this.complaints.length > 0) {
+      // If we already have complaints data, calculate directly
+      this.assignedCount = this.complaints.filter(
+        complaint => complaint.assigned_to === this.currentUser?.userId
+      ).length;
+    } else {
+      // Fallback to mock data until real data is loaded
+      setTimeout(() => {
+        if (!this.complaints.length) {
+          this.assignedCount = Math.floor(Math.random() * 5) + 1;
+        }
+      }, 1000);
+    }
+  }
+
+  /**
+   * Load urgent complaints for count badge - this will be replaced by actual data
+   */
+  loadUrgentComplaints(): void {
+    if (this.complaints.length > 0) {
+      // If we already have complaints data, calculate directly
+      this.urgentCount = this.complaints.filter(
+        complaint => complaint.priority.toUpperCase() === ComplaintPriority.HIGH
+      ).length;
+    } else {
+      // Fallback to mock data until real data is loaded
+      setTimeout(() => {
+        if (!this.complaints.length) {
+          this.urgentCount = Math.floor(Math.random() * 3);
+        }
+      }, 1000);
     }
   }
 
@@ -388,30 +686,36 @@ export class SidebarComponent implements OnInit {
   }
 
   /**
-   * Check if user has admin privileges
+   * Navigate to complaints list with pre-applied filters
    */
-  isAdmin(): boolean {
-    return this.role === 'admin' || this.role === 'hod';
-  }
+  navigateToFilteredComplaints(filterType: string): void {
+    // Close sidebar on mobile when navigating
+    if (!this.isDesktop) {
+      this.sidebarOpen = false;
+      this.sidebarToggled.emit(this.sidebarOpen);
+    }
 
-  /**
-   * Load assigned complaints for count badge
-   */
-  loadAssignedComplaints(): void {
-    // Mock data - replace with actual API call
-    setTimeout(() => {
-      this.assignedCount = Math.floor(Math.random() * 5) + 1; // Random count for demo
-    }, 1000);
-  }
-
-  /**
-   * Load urgent complaints for count badge
-   */
-  loadUrgentComplaints(): void {
-    // Mock data - replace with actual API call
-    setTimeout(() => {
-      this.urgentCount = Math.floor(Math.random() * 3); // Random count for demo
-    }, 1000);
+    // Navigate with appropriate query parameters based on filter type
+    switch (filterType) {
+      case 'assigned':
+        this.router.navigate(['/', this.role, 'complaints'], {
+          queryParams: { filter: 'assigned' }
+        });
+        break;
+      case 'created':
+        this.router.navigate(['/', this.role, 'complaints'], {
+          queryParams: { filter: 'created' }
+        });
+        break;
+      case 'urgent':
+        this.router.navigate(['/', this.role, 'complaints'], {
+          queryParams: { filter: 'urgent' }
+        });
+        break;
+      default:
+        this.router.navigate(['/', this.role, 'complaints']);
+        break;
+    }
   }
 
   /**
@@ -432,9 +736,10 @@ export class SidebarComponent implements OnInit {
    * Check if a route is active (for applying custom styles)
    */
   isActiveRoute(path: string[]): boolean {
-    return this.router.isActive(this.router.createUrlTree(path), {
+    const urlTree = this.router.createUrlTree(path);
+    return this.router.isActive(urlTree, {
       paths: 'exact',
-      queryParams: 'exact',
+      queryParams: 'ignored', // Changed to 'ignored' to match base path without query params
       fragment: 'ignored',
       matrixParams: 'ignored'
     });
