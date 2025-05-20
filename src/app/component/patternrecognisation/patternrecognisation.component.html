@@ -1,0 +1,183 @@
+<div class="bg-white rounded-lg shadow-md p-6 mb-10">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-800">Pattern Recognition Insights</h2>
+            <p class="text-sm text-gray-500">AI-powered insights from your complaint data</p>
+        </div>
+        <button (click)="refreshData()"
+            class="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-md flex items-center">
+            <i class="fas fa-sync-alt mr-1.5" [ngClass]="{'animate-spin': loading}"></i>
+            Refresh
+        </button>
+    </div>
+
+    <!-- Severity Summary -->
+    <div class="flex items-center space-x-4 mb-6">
+        <div class="text-sm font-medium text-gray-600">Filter by:</div>
+
+        <!-- All Filter -->
+        <button [ngClass]="{'bg-gray-100 ring-2 ring-offset-2 ring-gray-300': selectedSeverity === 'all'}"
+            (click)="filterBySeverity('all')"
+            class="px-3 py-1.5 rounded-md text-gray-700 text-sm font-medium hover:bg-gray-50">
+            All ({{patterns.length}})
+        </button>
+
+        <!-- Critical Filter -->
+        <button [ngClass]="{'ring-2 ring-offset-2 ring-red-300': selectedSeverity === 'critical'}"
+            (click)="filterBySeverity('critical')"
+            class="px-3 py-1.5 rounded-md bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 flex items-center">
+            <i class="fas fa-exclamation-triangle mr-1.5 text-red-500"></i>
+            Critical ({{getCountBySeverity('critical')}})
+        </button>
+
+        <!-- Warning Filter -->
+        <button [ngClass]="{'ring-2 ring-offset-2 ring-amber-300': selectedSeverity === 'warning'}"
+            (click)="filterBySeverity('warning')"
+            class="px-3 py-1.5 rounded-md bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 flex items-center">
+            <i class="fas fa-exclamation-circle mr-1.5 text-amber-500"></i>
+            Warning ({{getCountBySeverity('warning')}})
+        </button>
+
+        <!-- Info Filter -->
+        <button [ngClass]="{'ring-2 ring-offset-2 ring-blue-300': selectedSeverity === 'info'}"
+            (click)="filterBySeverity('info')"
+            class="px-3 py-1.5 rounded-md bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 flex items-center">
+            <i class="fas fa-info-circle mr-1.5 text-blue-500"></i>
+            Info ({{getCountBySeverity('info')}})
+        </button>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="flex items-center space-x-4 mb-8">
+        <div class="text-sm font-medium text-gray-600">Categories:</div>
+
+        <!-- All Categories -->
+        <button [ngClass]="{'bg-gray-100 ring-2 ring-offset-2 ring-gray-300': selectedCategory === 'all'}"
+            (click)="filterByCategory('all')"
+            class="px-3 py-1.5 rounded-md text-gray-700 text-sm font-medium hover:bg-gray-50">
+            All Categories
+        </button>
+
+        <!-- Trend Category -->
+        <button [ngClass]="{'bg-purple-50 ring-2 ring-offset-2 ring-purple-300': selectedCategory === 'trend'}"
+            (click)="filterByCategory('trend')"
+            class="px-3 py-1.5 rounded-md text-purple-700 text-sm font-medium hover:bg-purple-100 flex items-center">
+            <i class="fas fa-chart-line mr-1.5 text-purple-500"></i>
+            Trends
+        </button>
+
+        <!-- Volume Category -->
+        <button [ngClass]="{'bg-green-50 ring-2 ring-offset-2 ring-green-300': selectedCategory === 'volume'}"
+            (click)="filterByCategory('volume')"
+            class="px-3 py-1.5 rounded-md text-green-700 text-sm font-medium hover:bg-green-100 flex items-center">
+            <i class="fas fa-chart-bar mr-1.5 text-green-500"></i>
+            Volumes
+        </button>
+
+        <!-- Performance Category -->
+        <button [ngClass]="{'bg-blue-50 ring-2 ring-offset-2 ring-blue-300': selectedCategory === 'performance'}"
+            (click)="filterByCategory('performance')"
+            class="px-3 py-1.5 rounded-md text-blue-700 text-sm font-medium hover:bg-blue-100 flex items-center">
+            <i class="fas fa-tachometer-alt mr-1.5 text-blue-500"></i>
+            Performance
+        </button>
+
+        <!-- Repetition Category -->
+        <button [ngClass]="{'bg-indigo-50 ring-2 ring-offset-2 ring-indigo-300': selectedCategory === 'repetition'}"
+            (click)="filterByCategory('repetition')"
+            class="px-3 py-1.5 rounded-md text-indigo-700 text-sm font-medium hover:bg-indigo-100 flex items-center">
+            <i class="fas fa-sync mr-1.5 text-indigo-500"></i>
+            Repetition
+        </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-16">
+        <div class="flex flex-col items-center space-y-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+            <p class="text-gray-500">Loading insights...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && error" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+        <div class="flex">
+            <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+            <div>
+                <p class="text-sm text-red-700">{{error}}</p>
+                <button (click)="refreshData()" class="mt-2 text-sm text-red-800 underline hover:text-red-700">Try
+                    again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && patterns.length === 0" class="py-10 text-center">
+        <i class="fas fa-robot text-4xl text-gray-300 mb-3"></i>
+        <p class="text-gray-500">No insights found. Check back later or refresh.</p>
+        <button (click)="refreshData()"
+            class="mt-4 px-4 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-md">
+            Refresh Now
+        </button>
+    </div>
+
+    <!-- Pattern Cards -->
+    <div *ngIf="!loading && !error && filteredPatterns.length > 0" class="space-y-4">
+        <!-- Pattern Card -->
+        <div *ngFor="let pattern of filteredPatterns"
+            class="border rounded-lg shadow-sm overflow-hidden transform transition-all duration-200 hover:shadow-md hover:-translate-y-1"
+            [ngClass]="getSeverityColor(pattern.severity)">
+
+            <div class="p-4">
+                <!-- Pattern Header -->
+                <div class="flex justify-between">
+                    <div class="flex items-center mb-2">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2"
+                            [ngClass]="getIconColor(pattern.severity)">
+                            <i class="fas fa-{{pattern.icon}}"></i>
+                        </div>
+                        <span class="text-xs font-semibold uppercase tracking-wider rounded-full px-2.5 py-0.5"
+                            [ngClass]="{
+                  'bg-red-200 text-red-800': pattern.severity === 'critical',
+                  'bg-amber-200 text-amber-800': pattern.severity === 'warning',
+                  'bg-blue-200 text-blue-800': pattern.severity === 'info'
+                }">
+                            {{pattern.severity}}
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-medium px-2 py-1 rounded-md bg-white bg-opacity-50">
+                            {{getCategoryName(pattern.category)}}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Pattern Content -->
+                <p class="text-sm mt-2">{{pattern.text}}</p>
+
+                <!-- Optional: Add actions here -->
+                <div class="mt-4 flex justify-end items-center space-x-2">
+                    <button class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 flex items-center">
+                        <i class="fas fa-search mr-1"></i>
+                        Investigate
+                    </button>
+                    <button class="text-xs text-indigo-600 hover:text-indigo-800 px-2 py-1 flex items-center">
+                        <i class="fas fa-bell-slash mr-1"></i>
+                        Ignore this
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Missing import fix -->
+<div *ngIf="filteredPatterns.length === 0 && selectedSeverity !== 'all' || selectedCategory !== 'all'"
+    class="mt-4 text-center">
+    <p class="text-gray-500 text-sm">No insights match your current filters</p>
+    <button (click)="filterBySeverity('all'); filterByCategory('all')"
+        class="mt-2 text-indigo-600 hover:text-indigo-800 text-sm">
+        Clear filters
+    </button>
+</div>

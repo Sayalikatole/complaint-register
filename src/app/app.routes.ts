@@ -32,6 +32,7 @@ import { EmployeeDashboardComponent } from './pages/employee/employee-dashboard/
 import { ProfileComponent } from './component/profile/profile.component';
 import { CategoryComponent } from './pages/admin/category/category.component';
 import { TagsComponent } from './pages/admin/tags/tags.component';
+import { PatternrecognisationComponent } from './component/patternrecognisation/patternrecognisation.component';
 
 // export const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -62,6 +63,7 @@ export const routes: Routes = [
       { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
       { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
       { path: 'register-user', component: ComplaintRegistrationComponent },
+      { path: 'patternrecognisation', component: PatternrecognisationComponent },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -82,6 +84,7 @@ export const routes: Routes = [
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
       { path: 'profile-info', component: ProfileComponent },
+      { path: 'patternrecognisation', component: PatternrecognisationComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -102,6 +105,7 @@ export const routes: Routes = [
       // { path: 'dashboard', component: UserDashboardComponent },
       { path: 'dashboard', component: EmployeeDashboardComponent },
       { path: 'profile-info', component: ProfileComponent },
+      { path: 'patternrecognisation', component: PatternrecognisationComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -123,6 +127,7 @@ export const routes: Routes = [
       { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
       { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
       { path: 'profile-info', component: ProfileComponent },
+      { path: 'patternrecognisation', component: PatternrecognisationComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
