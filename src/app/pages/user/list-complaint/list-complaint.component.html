@@ -7,20 +7,25 @@
             <span class="mr-2 font-medium">All Complaints</span>
 
             <!-- Status filter dropdown -->
+            <!-- src/app/pages/user/list-complaint/list-complaint.component.html -->
+
+            <!-- Status filter dropdown -->
             <div class="relative ml-3">
-                <button (click)="isStatusFilterOpen = !isStatusFilterOpen"
-                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle">
+                <button (click)="toggleStatusFilter($event)"
+                    class="flex items-center text-gray-700 hover:text-indigo-600 focus:outline-none dropdown-toggle"
+                    [class.active]="isStatusFilterOpen">
                     <span>{{ selectedStatus === 'all' ? 'All Status' : getStatusDisplay(selectedStatus) }}</span>
-                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200"
+                        [ngClass]="{'transform rotate-180': isStatusFilterOpen}"></i>
                 </button>
                 <div *ngIf="isStatusFilterOpen"
                     class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg z-10 py-1 border border-gray-200 dropdown-menu">
-                    <a (click)="onStatusChange('all'); isStatusFilterOpen = false"
+                    <a (click)="onStatusChange('all', $event); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         All Status
                     </a>
                     <a *ngFor="let status of availableStatuses"
-                        (click)="onStatusChange(status); isStatusFilterOpen = false"
+                        (click)="onStatusChange(status, $event); isStatusFilterOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         {{ getStatusDisplay(status) }}
                     </a>

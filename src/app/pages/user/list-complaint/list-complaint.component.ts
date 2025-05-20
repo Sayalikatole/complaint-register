@@ -398,11 +398,11 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
   /**
    * Handle status filter changes
    */
-  onStatusChange(status: string): void {
-    console.log('Selected status:', status);
-    this.selectedStatus = status;
-    this.applyFilters();
-  }
+  // onStatusChange(status: string): void {
+  //   console.log('Selected status:', status);
+  //   this.selectedStatus = status;
+  //   this.applyFilters();
+  // }
 
   /**
    * Handle sort option changes
@@ -916,11 +916,9 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       this.filteredComplaints.some(c => c.showStatusDropdown);
   }
 
-
   /**
-  * Handle document clicks to close dropdowns
-  */
-  // Fix the document click handler in list-complaint.component.ts
+ * Handle document clicks to close dropdowns
+ */
   @HostListener('document:click', ['$event'])
   handleDocumentClick(event: MouseEvent): void {
     // First, check if the event target exists
@@ -930,11 +928,24 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
 
     const target = event.target as HTMLElement;
 
-    // Check for various dropdown states and close them if clicked outside
-    if (this.isStatusFilterOpen && !target.closest('.status-dropdown')) {
+    // Check if the click is on a dropdown toggle - with proper null checking
+    const dropdownToggle = target.closest('.dropdown-toggle');
+    const isStatusToggle = dropdownToggle &&
+      dropdownToggle.textContent?.includes(
+        this.selectedStatus === 'all' ? 'All Status' : this.getStatusDisplay(this.selectedStatus)
+      );
+
+    // Don't close the status dropdown if clicking on its toggle
+    if (isStatusToggle) {
+      return;
+    }
+
+    // Close dropdowns when clicking outside
+    if (this.isStatusFilterOpen && !target.closest('.dropdown-menu')) {
       this.isStatusFilterOpen = false;
     }
 
+    // Rest of your existing code...
     if (this.isCategoryFilterOpen && !target.closest('.category-dropdown')) {
       this.isCategoryFilterOpen = false;
     }
@@ -948,6 +959,35 @@ export class ListComplaintComponent implements OnInit, OnDestroy {
       // Do nothing - allow clicks inside the modal
       return;
     }
+  }
+
+  /**
+   * Toggle status filter dropdown
+   */
+  toggleStatusFilter(event: Event): void {
+    // Ensure event exists and stop propagation
+    if (!event) return;
+    event.stopPropagation();
+
+    // Close other dropdowns first
+    this.isCategoryFilterOpen = false;
+    this.isTagFilterOpen = false;
+    this.isSortOpen = false;
+
+    // Toggle status dropdown
+    this.isStatusFilterOpen = !this.isStatusFilterOpen;
+  }
+  /**
+   * Handle status filter changes with event prevention
+   */
+  onStatusChange(status: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    console.log('Selected status:', status);
+    this.selectedStatus = status;
+    this.applyFilters();
   }
 
   /**
