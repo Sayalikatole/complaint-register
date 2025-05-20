@@ -1,8 +1,30 @@
-<app-navbar></app-navbar>
+<!-- <app-navbar></app-navbar>
 <div class="flex flex-1 overflow-hidden">
-  <!-- <app-sidebar [sidebarOpen]="sidebarOpen" (sidebarToggled)="handleSidebarToggle($event)">
-  </app-sidebar> -->
+  <app-sidebar [sidebarOpen]="sidebarOpen" (sidebarToggled)="handleSidebarToggle($event)">
+  </app-sidebar>
   <main class="flex-1 overflow-auto bg-white">
     <router-outlet></router-outlet>
   </main>
+</div> -->
+
+
+<div class="flex flex-col h-screen bg-gray-100">
+  <!-- Navbar at the top - fixed position -->
+  <app-navbar [sidebarOpen]="sidebarOpen" (toggleSidebar)="toggleSidebar()" class="fixed top-0 w-full z-40 h-16">
+  </app-navbar>
+
+  <!-- Main container - includes sidebar and content area -->
+  <div class="flex pt-16 h-full w-full">
+    <!-- Sidebar - fixed height -->
+    <app-sidebar [sidebarOpen]="sidebarOpen" (sidebarToggled)="handleSidebarToggle($event)" class="h-full">
+    </app-sidebar>
+
+    <!-- Main content area - this needs to scroll -->
+    <main class="flex-1 bg-white transition-all duration-300 overflow-y-auto"
+      [ngClass]="{'ml-0 md:ml-20': !sidebarOpen, 'ml-0 md:ml-64': sidebarOpen}">
+      <div class="min-h-full">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
 </div>

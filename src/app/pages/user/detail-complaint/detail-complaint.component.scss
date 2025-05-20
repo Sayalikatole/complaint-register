@@ -62,3 +62,34 @@
         transform: translateY(0);
     }
 }
+
+
+// In detail-complaint.component.scss (if using)
+
+// Feedback tab
+.survey-response {
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #fff8e6;
+    }
+}
+
+// Animate stars
+@keyframes star-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.star-rating:hover svg {
+    animation: star-pulse 0.5s ease;
+}

@@ -45,6 +45,11 @@
     <div class="flex items-center justify-between h-16">
       <!-- Left Side - Logo & Primary Navigation -->
       <div class="flex items-center">
+        <div class="flex items-center mr-4">
+          <button (click)="toggleSidebar.emit()" class="text-white hover:bg-indigo-500 p-2 rounded-md">
+            <i class="fas" [ngClass]="sidebarOpen ? 'fa-indent' : 'fa-outdent'"></i>
+          </button>
+        </div>
         <!-- Logo with animation -->
         <div class="flex-shrink-0 flex items-center group">
           <div
@@ -52,7 +57,7 @@
             <i class="fas fa-headset text-xl"></i>
           </div>
           <div class="flex flex-col">
-            <span class="font-bold text-white text-lg tracking-tight hidden sm:block">Feedback System</span>
+            <span class="font-bold text-white text-lg tracking-tight hidden sm:block">Grievance Pro</span>
             <span class="text-xs text-blue-300 hidden sm:block">Enterprise Edition</span>
           </div>
         </div>
@@ -122,14 +127,211 @@
         </div>
 
         <!-- Notification Bell with Badge -->
-        <button class="relative p-1.5 text-white hover:bg-slate-600 rounded-full transition-colors">
+        <!-- <button class="relative p-1.5 text-white hover:bg-slate-600 rounded-full transition-colors">
           <i class="fas fa-bell"></i>
           <div *ngIf="notificationCount > 0"
             class="absolute top-0 right-0 flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs rounded-full transform translate-x-1 -translate-y-1 animate-pulse">
             {{ notificationCount > 9 ? '9+' : notificationCount }}
           </div>
-        </button>
+        </button> -->
 
+
+        <!-- Add this to your navbar component where the bell icon currently is -->
+        <!-- Notification Bell with Badge and Dropdown -->
+        <!-- Notification Bell with Badge and Dropdown -->
+        <div class="relative dropdown-container">
+          <button (click)="toggleNotificationsDropdown()"
+            class="relative p-1.5 text-white hover:bg-slate-600 rounded-full transition-colors">
+            <i class="fas fa-bell"></i>
+            <div *ngIf="notificationCount > 0"
+              class="absolute top-0 right-0 flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs rounded-full transform translate-x-1 -translate-y-1 animate-pulse">
+              {{ notificationCount > 9 ? '9+' : notificationCount }}
+            </div>
+          </button>
+
+          <!-- Notifications Dropdown Panel -->
+          <div *ngIf="showNotificationsDropdown"
+            class="absolute right-0 mt-3 w-96 max-h-[80vh] rounded-xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black ring-opacity-5 z-50 notification-dropdown overflow-hidden">
+            <!-- Header -->
+            <!-- Replace the existing header in your notification dropdown -->
+            <!-- Header - More compact and professional -->
+            <!-- Header - More compact and professional with improved layout -->
+            <!-- Header - More compact and professional with improved layout -->
+            <!-- Add this inside your notification dropdown -->
+            <div *ngIf="!isConnected" class="px-4 py-2 bg-yellow-50 border-b border-yellow-100 flex items-center">
+              <div class="h-4 w-4 rounded-full bg-yellow-200 animate-pulse mr-2"></div>
+              <span class="text-xs text-yellow-800">Reconnecting to notification service...</span>
+            </div>
+
+            <div class="px-4 py-3 border-b border-gray-200 sticky top-0 bg-white z-10 shadow-sm">
+              <!-- Top row with title and buttons -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="h-7 w-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-2.5">
+                    <i class="fas fa-bell text-sm"></i>
+                  </div>
+                  <h3 class="font-medium text-gray-800 text-base leading-tight">Notifications</h3>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <button *ngIf="notifications && notifications.length > 0" (click)="markAllAsRead()"
+                    class="text-xs font-medium text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors duration-200 flex items-center">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    Mark read
+                  </button>
+                  <button *ngIf="notifications && notifications.length > 0" (click)="clearAllNotifications()"
+                    class="text-xs font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-md transition-colors duration-200 flex items-center ml-1">
+                    <i class="fas fa-trash-alt mr-1"></i>
+                    Clear
+                  </button>
+                </div>
+              </div>
+              <!-- Tagline below the title -->
+              <p class="text-xs text-gray-500 mt-1 ml-9.5">Stay updated with system alerts</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-100 bg-gray-50">
+              <div class="flex">
+                <button (click)="setActiveTab('all')"
+                  [ngClass]="{'text-blue-600 border-blue-600': activeNotificationTab === 'all', 'text-gray-500 border-transparent hover:text-gray-700': activeNotificationTab !== 'all'}"
+                  class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all duration-200 focus:outline-none">
+                  All
+                  <span *ngIf="notificationCount > 0"
+                    class="ml-1.5 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {{ notificationCount }}
+                  </span>
+                </button>
+                <button (click)="setActiveTab('unread')"
+                  [ngClass]="{'text-blue-600 border-blue-600': activeNotificationTab === 'unread', 'text-gray-500 border-transparent hover:text-gray-700': activeNotificationTab !== 'unread'}"
+                  class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all duration-200 focus:outline-none">
+                  Unread
+                  <span *ngIf="getUnreadCount() > 0"
+                    class="ml-1.5 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {{ getUnreadCount() }}
+                  </span>
+                </button>
+                <button (click)="setActiveTab('important')"
+                  [ngClass]="{'text-blue-600 border-blue-600': activeNotificationTab === 'important', 'text-gray-500 border-transparent hover:text-gray-700': activeNotificationTab !== 'important'}"
+                  class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all duration-200 focus:outline-none">
+                  Important
+                  <span *ngIf="getImportantCount() > 0"
+                    class="ml-1.5 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {{ getImportantCount() }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Notifications List -->
+            <div class="overflow-y-auto custom-scrollbar" style="max-height: 450px;">
+              <div *ngIf="getFilteredNotifications().length > 0; else noNotifications" class="divide-y divide-gray-100">
+                <div *ngFor="let notification of getFilteredNotifications()"
+                  [ngClass]="{'bg-blue-50/70': !notification.read}"
+                  class="px-5 py-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer group"
+                  (click)="handleNotificationClick(notification)">
+                  <div class="flex items-start">
+                    <!-- Notification icon based on type -->
+                    <div class="flex-shrink-0 mr-4">
+                      <div
+                        class="h-10 w-10 rounded-lg flex items-center justify-center shadow-sm transition-all group-hover:shadow group-hover:scale-105"
+                        [ngClass]="{
+                     'bg-gradient-to-br from-red-50 to-red-100 text-red-600': notification.type === 'urgent',
+                     'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600': notification.type === 'assignment',
+                     'bg-gradient-to-br from-green-50 to-green-100 text-green-600': notification.type === 'status',
+                     'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600': notification.type === 'system',
+                     'bg-gradient-to-br from-amber-50 to-amber-100 text-amber-600': notification.type === 'comment'
+                   }">
+                        <i class="fas transition-all" [ngClass]="{
+                     'fa-exclamation-circle': notification.type === 'urgent',
+                     'fa-tasks': notification.type === 'assignment',
+                     'fa-check-circle': notification.type === 'status',
+                     'fa-cog': notification.type === 'system',
+                     'fa-comment-alt': notification.type === 'comment'
+                   }">
+                        </i>
+                      </div>
+                    </div>
+
+                    <!-- Notification content -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between">
+                        <p
+                          class="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors flex items-center">
+                          {{ notification.title }}
+                          <!-- Unread indicator -->
+                          <span *ngIf="!notification.read"
+                            class="ml-2 inline-block h-2 w-2 rounded-full bg-blue-500 animate-pulse-subtle"></span>
+                        </p>
+                        <div class="flex items-center space-x-1">
+                          <button *ngIf="!notification.read" (click)="markAsRead(notification, $event)"
+                            class="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-50 transition-colors opacity-0 group-hover:opacity-100">
+                            <i class="fas fa-check text-xs"></i>
+                          </button>
+                          <span class="text-xs text-gray-500 ml-auto whitespace-nowrap">{{
+                            formatTimeAgo(notification.timestamp)
+                            }}</span>
+                        </div>
+                      </div>
+                      <p class="text-sm text-gray-600 line-clamp-2 mt-1 group-hover:text-gray-900 transition-colors">{{
+                        notification.message }}</p>
+
+                      <!-- Bottom row with additional details -->
+                      <div class="mt-2 flex items-center justify-between">
+                        <!-- Related task/ticket number if available -->
+                        <div class="flex">
+                          <span *ngIf="notification.ticketId"
+                            class="flex items-center text-xs font-medium rounded-md px-2 py-1 bg-gray-100 text-gray-700 group-hover:bg-blue-100 group-hover:text-blue-800 transition-colors">
+                            <i class="fas fa-ticket-alt mr-1"></i>
+                            #{{ notification.ticketId }}
+                          </span>
+                          <!-- Priority tag for urgent notifications -->
+                          <span *ngIf="notification.type === 'urgent'"
+                            class="ml-2 flex items-center text-xs font-medium rounded-md px-2 py-1 bg-red-100 text-red-800">
+                            <i class="fas fa-flag mr-1"></i>
+                            High Priority
+                          </span>
+                        </div>
+
+                        <!-- Action button -->
+                        <button
+                          class="text-xs text-blue-700 hover:text-blue-900 font-medium transition-colors hover:underline">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- No notifications placeholder -->
+              <ng-template #noNotifications>
+                <div class="py-12 px-4 text-center">
+                  <div
+                    class="mx-auto h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 animate-pulse-slow">
+                    <i class="fas fa-bell-slash text-gray-400 text-2xl"></i>
+                  </div>
+                  <h3 class="text-gray-700 text-lg font-medium mb-2">No notifications</h3>
+                  <p class="text-gray-500 mb-4 max-w-xs mx-auto">You're all caught up! We'll notify you when there's
+                    something
+                    new.</p>
+                  <button
+                    class="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    Refresh
+                  </button>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Footer with view all link -->
+            <div class="px-5 py-3.5 text-center border-t border-gray-200 bg-gray-50 sticky bottom-0 shadow-inner">
+              <a [routerLink]="['/', role, 'notifications']" (click)="toggleNotificationsDropdown()"
+                class="inline-flex items-center justify-center text-sm text-blue-700 hover:text-blue-800 font-medium hover:underline transition-colors">
+                View all notifications
+                <i class="fas fa-chevron-right ml-1.5 text-xs"></i>
+              </a>
+            </div>
+          </div>
+        </div>
         <!-- Create New Button -->
         <div class="relative dropdown-container">
           <button (click)="toggleNewDropdown()"

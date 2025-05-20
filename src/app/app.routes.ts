@@ -7,6 +7,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './component/login-page/login-page.component';
+import { RegisterComponent } from './component/register/register.component';
+
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { ComplaintRegistrationComponent } from './component/complaint-registration/complaint-registration.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
@@ -59,6 +61,7 @@ export const routes: Routes = [
       { path: 'profile-info', component: ProfileComponent },
       { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
       { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
+      { path: 'register-user', component: ComplaintRegistrationComponent },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default to dashboard
     ]
@@ -78,6 +81,7 @@ export const routes: Routes = [
 
       { path: 'create-suggestion', component: CreateSuggestionComponent },
       { path: 'suggestions', component: ListSuggestionComponent },
+      { path: 'profile-info', component: ProfileComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -97,6 +101,7 @@ export const routes: Routes = [
       { path: 'suggestions', component: ListSuggestionComponent },
       // { path: 'dashboard', component: UserDashboardComponent },
       { path: 'dashboard', component: EmployeeDashboardComponent },
+      { path: 'profile-info', component: ProfileComponent },
 
       // { path: 'analytics', component: AnalyticsComponent },
     ]
@@ -117,10 +122,16 @@ export const routes: Routes = [
       { path: 'suggestions', component: ListSuggestionComponent },
       { path: 'categories', component: CategoryComponent, title: 'Manage Categories' },
       { path: 'tags', component: TagsComponent, title: 'Manage Tags' },
+      { path: 'profile-info', component: ProfileComponent },
+
       // { path: 'analytics', component: AnalyticsComponent },
     ]
   },
+  { path: 'complaint-register', component: ComplaintRegistrationComponent },
+
   { path: 'login', component: LoginPageComponent },
+  { path: 'register', component: RegisterComponent },
+
   { path: '**', redirectTo: 'login' }
 ];
 

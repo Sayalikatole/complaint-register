@@ -51,7 +51,6 @@
             <!-- Two fields in one row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <!-- Priority -->
-                <!-- Priority -->
                 <div>
                     <label for="priority" class="mb-1 block text-sm font-medium text-gray-700">Priority</label>
                     <select id="priority" name="priority" [(ngModel)]="complaintData.priority"
@@ -63,10 +62,8 @@
                             {{ getPriorityDisplay(priority) }}
                         </option>
                     </select>
-                    <!-- Validation is already commented out -->
                 </div>
 
-                <!-- Department -->
                 <!-- Department -->
                 <div>
                     <label for="department_id" class="mb-1 block text-sm font-medium text-gray-700">Department</label>
@@ -79,17 +76,11 @@
                             {{ department.department_name }}
                         </option>
                     </select>
-                    <!-- Comment out or remove validation messages -->
-                    <!-- <div *ngIf="departmentInput.invalid && (departmentInput.dirty || departmentInput.touched)"
-        class="text-red-500 text-xs mt-1 pl-1">
-        <div *ngIf="departmentInput.errors?.['required']">Department is required.</div>
-    </div> -->
                 </div>
             </div>
 
             <!-- Category and Tag dropdowns in one row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <!-- Category -->
                 <!-- Category -->
                 <div>
                     <label for="category_id" class="mb-1 block text-sm font-medium text-gray-700">Category</label>
@@ -108,18 +99,17 @@
                 </div>
 
                 <!-- Tag -->
-                <!-- Replace the current Tag dropdown with this multiselect version -->
                 <div>
                     <label for="tag_ids" class="mb-1 block text-sm font-medium text-gray-700">Tags</label>
 
                     <!-- Custom multiselect dropdown -->
-                    <div class="relative w-full">
+                    <div class="relative w-full tag-dropdown-container">
                         <!-- Dropdown trigger button -->
                         <button type="button" [disabled]="!complaintData.category_id"
                             (click)="isTagDropdownOpen = !isTagDropdownOpen"
                             class="w-full flex justify-between items-center rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                             [ngClass]="{'bg-gray-100 text-gray-500': !complaintData.category_id, 
-                                  'bg-white': complaintData.category_id}">
+              'bg-white': complaintData.category_id}">
                             <!-- Selected tags display -->
                             <div class="flex flex-wrap gap-1 max-w-full overflow-hidden">
                                 <div *ngIf="!selectedTags.length" class="text-gray-500">Select tags</div>
@@ -192,20 +182,57 @@
                 </div>
             </div>
 
-            <!-- Anonymous complaint checkbox -->
+            <!-- Location Field -->
             <div class="mb-5">
-                <div class="flex items-center">
-                    <input id="is_anonymous" name="is_anonymous" type="checkbox"
-                        [checked]="complaintData.is_anonymous === 'YES'" (change)="onAnonymousChange($event)"
-                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <label for="is_anonymous" class="ml-2 block text-sm text-gray-700">
-                        Submit as anonymous complaint
-                    </label>
+                <label for="location" class="mb-1 block text-sm font-medium text-gray-700">Location</label>
+                <div class="relative">
+                    <input type="text" id="location" name="location" [(ngModel)]="complaintData.location"
+                        class="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="Optional - Specify the location (e.g., Building A, Floor 3, Room 101)" />
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                    </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-1 pl-6">
-                    Your identity will be hidden from other users, but administrators can still see who submitted this
-                    complaint.
+                <p class="text-xs text-gray-500 mt-1 pl-1">
+                    Providing a location helps in addressing your complaint more efficiently
                 </p>
+            </div>
+
+            <!-- Enhanced Anonymous complaint toggle -->
+            <div class="mb-5 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label for="is_anonymous" class="text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-user-secret text-gray-500 mr-2"></i>
+                            Submit as anonymous complaint
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Your identity will be hidden from other users, but administrators can still see who
+                            submitted this
+                            complaint.
+                        </p>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="relative">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="is_anonymous" name="is_anonymous"
+                                [checked]="complaintData.is_anonymous === 'YES'" (change)="onAnonymousChange($event)"
+                                class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Visual confirmation when anonymous is selected -->
+                <div *ngIf="complaintData.is_anonymous === 'YES'"
+                    class="mt-3 text-sm flex items-center text-indigo-700 bg-indigo-50 p-2 rounded-md">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span>Your complaint will be submitted anonymously. Your identity will be hidden from other
+                        users.</span>
+                </div>
             </div>
 
             <!-- Description - full width but with better height control -->

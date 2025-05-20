@@ -229,7 +229,7 @@
                 class="rounded-xl border-l-4 border-yellow-500 shadow-md p-6 bg-white transition-all duration-300 hover:scale-105 hover:shadow-xl group cursor-pointer">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-gray-500 text-xl font-medium mb-1">Average Rating</p>
+                        <p class="text-gray-500 text-2xl font-medium mb-1">Average Rating</p>
                         <h3
                             class="text-5xl font-medium font-bold size hodheading text-gray-800 group-hover:animate-bounce">
                             {{ avgRating | number: '1.1-1' }}
@@ -326,8 +326,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Department</th>
+                    <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Department</th> -->
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority
@@ -340,10 +340,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ complaint.complaint_id
                         }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ complaint.subject }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         <span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs">{{
                             complaint.l_department_name || 'N/A' }}</span>
-                    </td>
+                    </td> -->
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 rounded-md text-xs" [ngClass]="{
                   'bg-yellow-100 text-yellow-600': complaint.status === 'ASSIGNED',

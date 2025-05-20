@@ -34,6 +34,7 @@ export interface Complaint {
     l_previous_status?: string; // Added from Java model
     l_category_name?: string;  // Added from Java model
     l_tag_name?: string;       // Added from Java model
+    location: string
 }
 
 // Create payload interface
@@ -59,6 +60,7 @@ export interface CreateComplaintPayload {
     l_previous_status?: string; // Added field
     is_anonymous?: string;     // Added new field
     tag_id?: string;           // Added new field
+    location: string;
 }
 
 // Rest of the interfaces remain unchanged
@@ -157,8 +159,69 @@ export interface FeedbackData {
     l_created_by: string;
 }
 
+// Modify existing FeedbackResponse if needed
 export interface FeedbackResponse {
     status: boolean;
     statusMsg?: string;
     data?: any;
+}
+
+
+
+
+
+
+
+export interface FeedbackQuestionOption {
+    option_id: string;
+    question_id: string;
+    option_text: string;
+    option_order: string;
+}
+
+export interface FeedbackQuestion {
+    question_id: string;
+    question_text: string;
+    question_type: 'MCQ' | 'TEXT' | 'RATING';
+    is_active: string;
+    created_on: string;
+    feedbackQuestionOptions: FeedbackQuestionOption[];
+}
+
+export interface FeedbackQuestionResponse {
+    response_id: string;
+    feedback_id: string;
+    question_id: string;
+    selected_option_id: string;
+}
+
+// Update the FeedbackAnswer interface to match the backend structure
+export interface FeedbackAnswer {
+    response_id: string;
+    feedback_id: string;
+    question_id: string;
+    selected_option_id: string;
+}
+
+// This will be added to your existing FeedbackData interface
+export interface FeedbackDataWithAnswers extends FeedbackData {
+    answers: FeedbackAnswer[];
+}
+
+// In complaint.ts - Add this interface to match the new response format:
+
+export interface FeedbackWithResponses {
+    feedback: FeedbackData;
+    feedbackQuestionResponse: FeedbackQuestionResponseWithText[];
+}
+
+export interface FeedbackQuestionResponseWithText {
+    response_id: string;
+    feedback_id: string;
+    question_id: string;
+    selected_option_id: string;
+    answer_text: string;
+    created_on: string;
+    l_question_text: string;
+    l_option_text: string;
 }
