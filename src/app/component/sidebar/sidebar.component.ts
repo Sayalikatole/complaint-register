@@ -291,6 +291,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   // Notification counts
   assignedCount: number = 0;
   urgentCount: number = 0;
+  createdCount: number =0;
 
   // Responsive detection
   isDesktop: boolean = true;
@@ -317,6 +318,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   // Destroy subject for unsubscribing
   private destroy$ = new Subject<void>();
+  
 
   constructor(
     private complaintService: ComplaintService,
@@ -402,6 +404,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.assignedCount = this.complaints.filter(
       complaint => complaint.assigned_to === this.currentUser?.userId
     ).length;
+
+    // Count assigned complaints
+    this.createdCount = this.complaints.filter(
+      complaint => complaint.created_by === this.currentUser?.userId
+    ).length;
+
 
     // Count urgent complaints
     this.urgentCount = this.complaints.filter(
@@ -618,6 +626,27 @@ export class SidebarComponent implements OnInit, OnDestroy {
       }, 1000);
     }
   }
+
+
+  /**
+   * Load assigned complaints for count badge - this will be replaced by actual data
+   */
+  loadCreatedComplaints(): void {
+    if (this.currentUser && this.complaints.length > 0) {
+      // If we already have complaints data, calculate directly
+      this.createdCount = this.complaints.filter(
+        complaint => complaint.created_by === this.currentUser?.userId
+      ).length;
+    } else {
+      // Fallback to mock data until real data is loaded
+      setTimeout(() => {
+        if (!this.complaints.length) {
+          this.createdCount = Math.floor(Math.random() * 5) + 1;
+        }
+      }, 1000);
+    }
+  }
+
 
   /**
    * Load urgent complaints for count badge - this will be replaced by actual data
