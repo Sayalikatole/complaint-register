@@ -45,6 +45,7 @@ export class EmployeeDashboardComponent implements OnInit, AfterViewInit, OnDest
   createdPendingComplaints: number = 0;
   createdResolvedComplaints: number = 0;
   createdClosedComplaints: number = 0;
+  createdAssignedComplaints: number =0;
 
   // Status summary for assigned complaints
   assignedStatusSummary: Cl_getstatusSummary[] = [];
@@ -63,6 +64,7 @@ avgResponseTime: any ; // This would come from your API
   priority: ComplaintPriorityTrend[] = [];
   priorityTrend : ComplaintPriorityTrend[] = [];
   id: string | any;
+ 
 
 ;
 
@@ -280,6 +282,7 @@ loadAssignedUserComplaintSummery(): void {
         this.createdAssignedResolvedComplaints = this.getCountFromStatus('RESOLVED');
         this.createdAssignedClosedComplaints = this.getCountFromStatus('CLOSED');
         this.createdAssignedEscalatedComplaints = this.getCountFromStatus('ESCALATED');
+        this.createdAssignedComplaints = this.getCountFromStatus('ASSIGNED');
         this.avgResponseAssignTime = data.avgResolutionTime ?? 'N/A';
         this.avgRating = data.avgRating ?? 'N/A';
         this.totalAssignedCreatedComplaints = data.totalComplaints ?? 0;
