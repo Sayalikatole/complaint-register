@@ -8,8 +8,9 @@ import { AuthService } from '../../../services/auth.service';
 import { Dashboardata, DashboardService, Cl_getDashboardPayload, DepartmentWiseComplaint, DeptmentList, Cl_getstatusSummary, ComplaintCategoryStats, ComplaintPriorityTrend, Cl_getUserDashboardPayload } from '../../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Cl_getUserComplaintPayload, Cl_getUserCreatedComplaintPayload, ComplaintService } from '../../../services/complaint.service';
+import { Cl_getComplaintByIdPayload, Cl_getUserComplaintPayload, Cl_getUserCreatedComplaintPayload, ComplaintService } from '../../../services/complaint.service';
 import { Complaint } from '../../../models/complaint';
+import { Router, RouterModule } from '@angular/router';
 
 // Register chart.js components and plugin
 Chart.register(...registerables);
@@ -19,7 +20,7 @@ Chart.register(ChartDataLabels);
   selector: 'app-employee-dashboard',
   templateUrl: './employee-dashboard.component.html',
   styleUrls: ['./employee-dashboard.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterModule],
   standalone: true
 })
 export class EmployeeDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -44,6 +45,7 @@ export class EmployeeDashboardComponent implements OnInit, AfterViewInit, OnDest
   createdPendingComplaints: number = 0;
   createdResolvedComplaints: number = 0;
   createdClosedComplaints: number = 0;
+  createdAssignedComplaints: number =0;
 
   // Status summary for assigned complaints
   assignedStatusSummary: Cl_getstatusSummary[] = [];
@@ -60,7 +62,11 @@ avgResponseTime: any ; // This would come from your API
 
   // Priority trend data
   priority: ComplaintPriorityTrend[] = [];
-  priorityTrend : ComplaintPriorityTrend[] = [];;
+  priorityTrend : ComplaintPriorityTrend[] = [];
+  id: string | any;
+ 
+
+;
 
   //list of complaint
   showAllCreated = false;
@@ -75,6 +81,9 @@ showAllAssigned = false;
   // for month chart
   labels: string[] = [];
 monthlyData: (number | null)[] = [];
+complaint: Complaint | null = null;
+  loading: boolean = true;
+  error: string | null = null;
 
 
   private destroy$ = new Subject<void>();
@@ -91,7 +100,8 @@ monthlyData: (number | null)[] = [];
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService,
-    private complaintService: ComplaintService
+    private complaintService: ComplaintService,
+    private router : Router
   ) { }
 
   ngOnInit(): void {
@@ -272,6 +282,7 @@ loadAssignedUserComplaintSummery(): void {
         this.createdAssignedResolvedComplaints = this.getCountFromStatus('RESOLVED');
         this.createdAssignedClosedComplaints = this.getCountFromStatus('CLOSED');
         this.createdAssignedEscalatedComplaints = this.getCountFromStatus('ESCALATED');
+        this.createdAssignedComplaints = this.getCountFromStatus('ASSIGNED');
         this.avgResponseAssignTime = data.avgResolutionTime ?? 'N/A';
         this.avgRating = data.avgRating ?? 'N/A';
         this.totalAssignedCreatedComplaints = data.totalComplaints ?? 0;
@@ -645,4 +656,45 @@ this.renderMonthlyUserCreateChart(this.labels, this.monthlyData);
     }
   }
   
+
+  loadComplaintDetails(id: string): void {
+      if (!this.currentUser) return;
+      this.loading = true;
+      this.error = null;
+  
+      const userComplaint_data: Cl_getComplaintByIdPayload = {
+        opr_id: this.currentUser.operatingUnitId,
+        org_id: this.currentUser.organizationId,
+        id: id,
+        email: this.currentUser.email
+      };
+  
+      this.complaintService.getComplaintById(userComplaint_data)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.complaint = data;
+            this.loading = false;
+  
+            // After loading complaint details, load attachments
+            // this.loadAttachments(id);
+            // this.setupDueDateEditPermission();
+  
+            // // Check if complaint is closed, then check for feedback
+            // if (this.complaint.status?.toUpperCase() === 'CLOSED') {
+            //   this.checkFeedbackExists(id);
+            // }
+          },
+          error: (err) => {
+            console.error('Error loading complaint details:', err);
+            this.error = 'Failed to load complaint details. Please try again.';
+            this.loading = false;
+          }
+        });
+    }
+  
+
+navigateToNewComplaint(): void {
+  this.router.navigate(['/employee/create-complaints']); // ✅ Update the path as per your routing
+}
 }

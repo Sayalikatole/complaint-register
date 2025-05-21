@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Cl_getUserComplaintPayload, ComplaintService } from '../../../services/complaint.service';
 import { Complaint } from '../../../models/complaint';
+import { RouterModule } from '@angular/router';
 
 // ✅ Register chart.js components and plugin
 Chart.register(...registerables);
@@ -20,7 +21,7 @@ Chart.register(ChartDataLabels);
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterModule],
   standalone: true
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
