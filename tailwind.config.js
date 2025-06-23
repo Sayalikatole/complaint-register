@@ -1,87 +1,63 @@
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   darkMode: ["class", "[data-theme='dark']"], // Enables dark mode
-//   content: ['./src/**/*.{html,js}'],
-//   theme: {
-//     colors: {
-//       'blue': '#1fb6ff',
-//       'purple': '#7e5bef',
-//       'pink': '#ff49db',
-//       'orange': '#ff7849',
-//       'green': '#13ce66',
-//       'yellow': '#ffc82c',
-//       'gray-dark': '#273444',
-//       'gray': '#8492a6',
-//       'gray-light': '#d3dce6',
-//     },
-//     fontFamily: {
-//       sans: ['Graphik', 'sans-serif'],
-//       serif: ['Merriweather', 'serif'],
-//     },
-//     extend: {
-//       spacing: {
-//         '8xl': '96rem',
-//         '9xl': '128rem',
-//       },
-//       borderRadius: {
-//         '4xl': '2rem',
-//       }
-//     }
-//   },
-// }
-
-
-
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  darkMode: 'class',
-  content: [
-    './src/**/*.{html,ts}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        // Use CSS variables for consistent theming
-        primary: {
-          '50': 'var(--primary-50)',
-          '100': 'var(--primary-100)',
-          '200': 'var(--primary-200)',
-          '300': 'var(--primary-300)',
-          '400': 'var(--primary-400)',
-          '500': 'var(--primary-500)',
-          '600': 'var(--primary-600)',
-          '700': 'var(--primary-700)',
-          '800': 'var(--primary-800)',
-          '900': 'var(--primary-900)',
-          '950': 'var(--primary-950)',
+[{
+    "hpsah_pain_assessment_hdr_id": "",
+    "hpsah_entity_code_ent": "001001001000000000",
+    "hpsah_entry_date": "2025-06-12T06:49:54.828Z",
+    "hpsah_patient_id_hptm": "HPTM84ffc2b3374f461fb7538177b71021bb",
+    "hpsah_visit_id_hvt": "",
+    "hpsah_encounter_id_heh": "",
+    "hpsah_painscale_id_hpsl": "HPSLcszu0c1xscqrm5cxa1l61tbv9peb87da",
+    "hpsah_result_value": 6,
+    "hpsah_result_pain_type": "Severe pain",
+    "hpsah_other_notes": "",
+    "l_pain_assessment_dtl": [
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSCoqdbqnewllb6p6o0qzfaeb2b21ceijy3",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDr2tusi2b197xaao0iuveda7l1myay2kf",
+            "hpsad_score": 0
         },
-      },
-      backgroundColor: {
-        'app': 'var(--bg-app)',
-        'card': 'var(--bg-card)',
-        'card-hover': 'var(--bg-card-hover)',
-        'input': 'var(--bg-input)',
-      },
-      textColor: {
-        'primary': 'var(--text-primary)',
-        'secondary': 'var(--text-secondary)',
-        'tertiary': 'var(--text-tertiary)',
-        'muted': 'var(--text-muted)',
-      },
-      borderColor: {
-        'DEFAULT': 'var(--border-color)',
-        'hover': 'var(--border-color-hover)',
-        'focus': 'var(--border-color-focus)',
-      },
-      boxShadow: {
-        'sm': 'var(--shadow-sm)',
-        'DEFAULT': 'var(--shadow)',
-        'md': 'var(--shadow-md)',
-        'lg': 'var(--shadow-lg)',
-        'xl': 'var(--shadow-xl)',
-      },
-    },
-  },
-  plugins: [],
-}
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSCfqwuiyheanrtjjyeebxuh15n46ee4j6v",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDxingbzapbo1smcaj8sne9dw4hxa7hs59",
+            "hpsad_score": 2
+        },
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSCic7ker9ia93irxpplw1ivlrda97445h8",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDj85wgoe7ha9w0gk0yydicb4zapk88l80",
+            "hpsad_score": 1
+        },
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSCu03uh8d3rhbbygrlc3wv2roie900thhh",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDjmcj0pvpu8eb84s09plgrbdgmvmflbxu",
+            "hpsad_score": 1
+        },
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSC2ehpr2ihgocitn89icwy2hravvir7924",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSD1kxdqhotq71vwlflxtu0uflm8w3coica",
+            "hpsad_score": 1
+        },
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSC55kbjg949j1qry31xuarxtzzacs2veok",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDv76kc586rwak6q5irq6sfxsrrnzw24ul",
+            "hpsad_score": 0
+        },
+        {
+            "hpsad_pain_assessment_dtl_id": "",
+            "hpsad_pain_assessment_hdr_id_hpsah": "",
+            "hpsad_painscale_category_id_hpsc": "HPSC55kbjg949j1qry31xuarxtzzacs2veok",
+            "hpsad_painscale_category_dtl_id_hpsd": "HPSDsnk6gs1zvhe80md7ndo3o64pghxc2mxq",
+            "hpsad_score": 1
+        }
+    ]
+}]
